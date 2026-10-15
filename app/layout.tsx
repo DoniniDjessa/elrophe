@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Allura, Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { FacebookPixel } from '@/components/FacebookPixel';
 import { getSettings } from '@/lib/data';
 import { themeToCss } from '@/lib/settings';
 import './globals.css';
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <style id="elrophe-theme" dangerouslySetInnerHTML={{ __html: themeToCss(theme) }} />
       </head>
       <body>
+        <FacebookPixel />
         {children}
         <Toaster position="bottom-center" richColors closeButton />
       </body>
