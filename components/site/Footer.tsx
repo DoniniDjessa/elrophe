@@ -1,7 +1,8 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import type { BrandSettings, Category } from '@/lib/types';
-import { FacebookIcon, InstagramIcon, LogoMark, TiktokIcon, WhatsappIcon, YoutubeIcon } from './Icons';
+import { FacebookIcon, InstagramIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } from './Icons';
 
 export default function Footer({ brand, categories }: { brand: BrandSettings; categories: Category[] }) {
   const socials = [
@@ -45,11 +46,8 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
       <div className="mx-auto max-w-[1440px] px-4 pt-16 pb-8 sm:px-6 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
           <div className="max-w-sm">
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-cream/70 text-forest">
-                <LogoMark className="h-5 w-5" />
-              </span>
-              <span className="font-display text-base font-extrabold tracking-[0.32em] text-ink">{brand.name}</span>
+            <Link href="/" className="inline-flex" aria-label={`${brand.name} — accueil`}>
+              <Image src="/logo.png" alt={brand.name} width={1312} height={1199} sizes="120px" className="h-24 w-auto" />
             </Link>
             <p className="mt-5 text-[15px] leading-relaxed text-ink/85">{brand.footer_text}</p>
             {socials.length > 0 && (

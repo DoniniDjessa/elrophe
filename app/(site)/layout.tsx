@@ -11,7 +11,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-forest focus:px-4 focus:py-2 focus:text-white">
           Aller au contenu
         </a>
-        <Navbar announcement={settings.brand.announcement} />
+        <Navbar announcement="El Rophe, PREMIUM NATURAL PRODUCTS" />
         <main id="contenu">{children}</main>
         <Footer brand={settings.brand} categories={categories} />
       </div>

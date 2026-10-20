@@ -43,13 +43,13 @@ export default function FeaturedProduct({ data, products, categories }: { data: 
           <div className="relative aspect-square overflow-hidden sm:aspect-[4/3] lg:aspect-auto lg:min-h-[500px]">
             <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.16)_0%,transparent_68%)]" />
             <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
-            <Link href={`/produit/${product.slug}`} className="group absolute inset-8 sm:inset-12" aria-label={`Voir ${product.name}`}>
+            <Link href={`/produit/${product.slug}`} className="group absolute inset-0" aria-label={`Voir ${product.name}`}>
               <SmartImage
                 src={product.image_url}
                 alt={product.name}
                 fill
-                sizes="(min-width: 1024px) 45vw, 92vw"
-                className="rounded-[1.25rem] object-contain drop-shadow-[0_28px_36px_rgba(0,0,0,0.35)] transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
               />
             </Link>
             {onSale && (

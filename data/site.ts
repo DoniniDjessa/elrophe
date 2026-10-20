@@ -122,7 +122,7 @@ export const defaultSettings: SiteSettings = {
     address: 'Abidjan, Côte d’Ivoire',
     hours: 'Lun – Sam · 8h – 19h',
     socials: { instagram: '', facebook: '', tiktok: '', youtube: '' },
-    announcement: 'Livraison offerte dès 30 000 FCFA d’achat',
+    announcement: 'El Rophe, PREMIUM NATURAL PRODUCTS',
   },
 
   shop: {

@@ -1,11 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { Heart, House, Menu, ShoppingBag, User, X } from 'lucide-react';
-import { LogoMark } from './Icons';
 import { useCart, useFavorites, useSite } from './Providers';
 
 export const navLinks = [
@@ -24,10 +24,18 @@ const isActive = (pathname: string, href: string) =>
 export function Logo({ name }: { name: string }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5 rounded-full" aria-label={`${name} — accueil`}>
-      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-cream/70 text-forest">
-        <LogoMark className="h-5 w-5 transition-transform duration-500 group-hover:rotate-[-8deg]" />
+      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-cream/70">
+        <Image
+          src="/logo-mark.png"
+          alt=""
+          width={109}
+          height={160}
+          priority
+          sizes="20px"
+          className="h-6 w-auto transition-transform duration-500 group-hover:rotate-[-8deg]"
+        />
       </span>
-      <span className="font-display text-[15px] font-extrabold tracking-[0.32em] text-ink">{name}</span>
+      <span className="font-display text-[15px] font-extrabold tracking-[0.32em] text-ink uppercase">El Rophe</span>
     </Link>
   );
 }
@@ -52,7 +60,19 @@ export default function Navbar({ announcement }: { announcement?: string }) {
   return (
     <>
       {announcement && (
-        <p className="bg-forest px-4 py-2 text-center text-[11px] font-medium tracking-[0.18em] text-white/90 uppercase">{announcement}</p>
+        <div className="marquee bg-forest py-2 text-[11px] font-medium tracking-[0.18em] text-white/90 uppercase" role="marquee" aria-label={announcement}>
+          {/* Deux pistes identiques : la seconde prend le relais pour un défilement sans couture */}
+          {[0, 1].map((track) => (
+            <div key={track} className="marquee-track" aria-hidden="true">
+              {Array.from({ length: 6 }, (_, i) => (
+                <span key={i} className="flex items-center gap-8 pr-8">
+                  {announcement}
+                  <span className="h-1 w-1 rounded-full bg-lime" />
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
       )}
       <header className="sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
