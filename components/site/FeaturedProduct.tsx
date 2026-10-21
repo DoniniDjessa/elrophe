@@ -33,23 +33,25 @@ export default function FeaturedProduct({ data, products, categories }: { data: 
   const highlights = product.highlights.slice(0, 4);
 
   return (
-    <section aria-labelledby="featured-title" className="mx-auto max-w-[1440px] px-4 pb-6 sm:px-6 lg:px-10">
-      <Reveal className="relative overflow-hidden rounded-[2rem] bg-forest text-white shadow-[var(--shadow-soft)]">
+    <section aria-labelledby="featured-title" className="mx-auto max-w-[1440px] pb-6 sm:px-6 lg:px-10">
+      <Reveal className="relative overflow-hidden bg-forest sm:rounded-[2rem] text-white shadow-[var(--shadow-soft)]">
         <LogoMark aria-hidden="true" className="pointer-events-none absolute -top-10 -left-10 h-56 w-56 text-white/[0.04]" />
         <LogoMark aria-hidden="true" className="pointer-events-none absolute -right-14 -bottom-16 h-72 w-72 rotate-12 text-white/[0.05]" />
 
         <div className="relative grid lg:grid-cols-[1fr_1.1fr]">
           {/* Visuel */}
-          <div className="relative aspect-square overflow-hidden sm:aspect-[4/3] lg:aspect-auto lg:min-h-[500px]">
+          {/* Mobile : pleine largeur, hauteur naturelle de la photo (rien n'est rogné) */}
+          <div className="relative overflow-hidden lg:min-h-[500px]">
             <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.16)_0%,transparent_68%)]" />
             <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
-            <Link href={`/produit/${product.slug}`} className="group absolute inset-0" aria-label={`Voir ${product.name}`}>
+            <Link href={`/produit/${product.slug}`} className="group relative block lg:absolute lg:inset-0" aria-label={`Voir ${product.name}`}>
               <SmartImage
                 src={product.image_url}
                 alt={product.name}
-                fill
+                width={1200}
+                height={1200}
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                className="h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.03] lg:h-full lg:object-cover"
               />
             </Link>
             {onSale && (

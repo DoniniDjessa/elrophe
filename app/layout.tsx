@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Allura, Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Allura, Inter, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { FacebookPixel } from '@/components/FacebookPixel';
 import { getSettings } from '@/lib/data';
@@ -9,6 +9,7 @@ import './globals.css';
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-jakarta', display: 'swap' });
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const allura = Allura({ subsets: ['latin'], weight: '400', variable: '--font-allura', display: 'swap' });
+const playfair = Playfair_Display({ subsets: ['latin'], weight: '700', variable: '--font-playfair', display: 'swap' });
 
 export async function generateMetadata(): Promise<Metadata> {
   const { brand } = await getSettings();
@@ -24,7 +25,7 @@ export const viewport: Viewport = { themeColor: '#C9CBB9' };
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { theme } = await getSettings();
   return (
-    <html lang="fr" className={`${jakarta.variable} ${inter.variable} ${allura.variable}`}>
+    <html lang="fr" className={`${jakarta.variable} ${inter.variable} ${allura.variable} ${playfair.variable}`}>
       <head>
         <style id="elrophe-theme" dangerouslySetInnerHTML={{ __html: themeToCss(theme) }} />
       </head>

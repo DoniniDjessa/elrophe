@@ -47,7 +47,7 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
         <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
           <div className="max-w-sm">
             <Link href="/" className="inline-flex" aria-label={`${brand.name} — accueil`}>
-              <Image src="/logo.png" alt={brand.name} width={1312} height={1199} sizes="120px" className="h-24 w-auto" />
+              <Image src="/logo2.png" alt={brand.name} width={1240} height={1288} sizes="120px" className="h-28 w-auto" />
             </Link>
             <p className="mt-5 text-[15px] leading-relaxed text-ink/85">{brand.footer_text}</p>
             {socials.length > 0 && (

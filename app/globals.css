@@ -12,6 +12,7 @@
   --ink-muted: #4e554c;
   --leaf: #3f7d34;
   --lime: #b6e15a;
+  --gold: #a8803a;
   --line: color-mix(in srgb, var(--forest) 15%, transparent);
 
   --shadow-soft: 0 18px 50px -24px color-mix(in srgb, var(--forest) 35%, transparent);
@@ -27,11 +28,13 @@
   --color-ink-muted: var(--ink-muted);
   --color-leaf: var(--leaf);
   --color-lime: var(--lime);
+  --color-gold: var(--gold);
   --color-line: var(--line);
 
   --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-script: var(--font-allura), cursive;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
 
   --radius-card: 1.25rem;
   --shadow-soft: var(--shadow-soft);
