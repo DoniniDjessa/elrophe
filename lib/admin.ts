@@ -10,6 +10,7 @@ export const TABLES = {
   orders: 'elrophe_orders',
   testimonials: 'elrophe_testimonials',
   ingredients: 'elrophe_ingredients',
+  solutions: 'elrophe_solutions',
   settings: 'elrophe_settings',
   newsletter: 'elrophe_newsletter',
 } as const;

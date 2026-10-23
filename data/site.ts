@@ -36,6 +36,10 @@ export const defaultSettings: SiteSettings = {
       { icon: 'ban', line1: 'Sans', line2: 'additifs' },
       { icon: 'rabbit', line1: 'Non testé sur', line2: 'les animaux' },
     ],
+    typed_text: 'EL ROPHE',
+    recommended_label: 'Le plus recommandé',
+    recommended_cta: 'Voir',
+    recommended_href: '',
   },
 
   sections: {
@@ -45,6 +49,14 @@ export const defaultSettings: SiteSettings = {
       eyebrow_accent: 'moment',
       script: 'coup de cœur',
       cta_label: 'Ajouter au panier',
+    },
+    solutions: {
+      visible: true,
+      eyebrow: 'Nos',
+      eyebrow_accent: 'solutions',
+      title: 'Une réponse à chaque besoin',
+      script: '',
+      text: 'Choisissez votre objectif bien-être : nous avons sélectionné les produits qui y répondent.',
     },
     categories: { title: 'Acheter par catégorie', link_label: 'Voir tous les produits', visible: true },
     bestsellers: {
@@ -113,7 +125,7 @@ export const defaultSettings: SiteSettings = {
   },
 
   brand: {
-    name: 'ELROPHE',
+    name: 'El Rophe',
     tagline: 'Produits naturels pour votre bien-être',
     footer_text: 'Des produits naturels, tracés et testés, pour prendre soin de vous chaque jour.',
     email: 'contact@elrophe.com',
@@ -123,6 +135,9 @@ export const defaultSettings: SiteSettings = {
     hours: 'Lun – Sam · 8h – 19h',
     socials: { instagram: '', facebook: '', tiktok: '', youtube: '' },
     announcement: 'El Rophe, PREMIUM NATURAL PRODUCTS',
+    logo_url: '/logo2.png',
+    icon_url: '/icon2.png',
+    slogan: 'Premium natural products',
   },
 
   shop: {

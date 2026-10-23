@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ExternalLink, KeyRound, LayoutDashboard, Leaf, LogOut, Mail, Menu, MessageSquareQuote, Palette, ShoppingCart, Store, Users, X,
+  ExternalLink, HeartPulse, KeyRound, LayoutDashboard, Leaf, LogOut, Mail, Menu, MessageSquareQuote, Palette, ShoppingCart, Store, Users, X,
   type LucideIcon,
 } from 'lucide-react';
 import { db, TABLES } from '@/lib/admin';
@@ -29,6 +29,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: 'Catalogue',
     items: [
       { name: 'Boutique', path: '/pilotage/boutique', icon: Store },
+      { name: 'Solutions', path: '/pilotage/solutions', icon: HeartPulse },
       { name: 'Ingrédients', path: '/pilotage/ingredients', icon: Leaf },
     ],
   },

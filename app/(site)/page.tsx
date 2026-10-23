@@ -6,22 +6,29 @@ import Ingredients from '@/components/site/Ingredients';
 import Newsletter from '@/components/site/Newsletter';
 import Philosophy from '@/components/site/Philosophy';
 import Ritual from '@/components/site/Ritual';
+import Solutions from '@/components/site/Solutions';
 import Testimonials from '@/components/site/Testimonials';
-import { getCategories, getIngredients, getProducts, getSettings, getTestimonials } from '@/lib/data';
+import { getCategories, getIngredients, getProducts, getSettings, getSolutions, getTestimonials } from '@/lib/data';
 
 export default async function HomePage() {
-  const [settings, categories, products, testimonials, ingredients] = await Promise.all([
+  const [settings, categories, products, testimonials, ingredients, solutions] = await Promise.all([
     getSettings(),
     getCategories(),
     getProducts(),
     getTestimonials(),
     getIngredients(),
+    getSolutions(),
   ]);
   const { hero, sections } = settings;
+  // « Le plus recommandé » du hero mène au produit du moment (même choix que FeaturedProduct)
+  const recommended =
+    products.find((p) => p.is_featured) ??
+    [...products].sort((a, b) => Number(b.is_bestseller) - Number(a.is_bestseller) || b.reviews_count - a.reviews_count)[0];
 
   return (
     <>
-      <Hero hero={hero} />
+      <Hero hero={hero} recommendedHref={recommended && `/produit/${recommended.slug}`} />
+      {sections.solutions.visible && <Solutions items={solutions} heading={sections.solutions} />}
       {sections.featured.visible && <FeaturedProduct data={sections.featured} products={products} categories={categories} />}
       {sections.categories.visible && <CategoryGrid categories={categories} title={sections.categories.title} linkLabel={sections.categories.link_label} />}
       {sections.bestsellers.visible && products.length > 0 && <BestSellers products={products} heading={sections.bestsellers} />}

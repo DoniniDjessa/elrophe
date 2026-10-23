@@ -70,6 +70,19 @@ export interface Ingredient {
   sort_order: number;
 }
 
+/** Solution bien-être (Santé du foie, Vitalité…) : carte sous le hero et page qui liste ses produits */
+export interface Solution {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  /** Produits affichés sur la page de la solution, dans cet ordre */
+  product_ids: string[];
+  is_active: boolean;
+  sort_order: number;
+}
+
 export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
@@ -135,6 +148,13 @@ export interface HeroSettings {
   image_url: string;
   image_alt: string;
   badges: Badge[];
+  /** Texte tapé lettre par lettre au-dessus du surtitre (vide : masqué) */
+  typed_text: string;
+  /** Étiquette animée sur l'image (vide : masquée) */
+  recommended_label: string;
+  recommended_cta: string;
+  /** Vide : page du produit du moment */
+  recommended_href: string;
 }
 
 export interface SectionHeading {
@@ -166,6 +186,7 @@ export interface FeaturedSettings {
 
 export interface SectionsSettings {
   featured: FeaturedSettings;
+  solutions: SectionHeading & { visible: boolean };
   categories: { title: string; link_label: string; visible: boolean };
   bestsellers: SectionHeading & { visible: boolean };
   philosophy: SectionHeading & { visible: boolean; image_url: string; stats: Stat[]; cta_label: string };
@@ -193,6 +214,12 @@ export interface BrandSettings {
   hours: string;
   socials: SocialLinks;
   announcement: string;
+  /** Logo complet (pied de page) */
+  logo_url: string;
+  /** Emblème seul (barre de navigation, menu mobile) */
+  icon_url: string;
+  /** Sous le nom dans le menu mobile */
+  slogan: string;
 }
 
 export interface ShopSettings {

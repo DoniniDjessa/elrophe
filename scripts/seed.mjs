@@ -12,7 +12,7 @@ const env = Object.fromEntries(
 const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
 // Les fichiers data/*.ts ne contiennent que des types à effacer : Node les lit directement
-const { seedCategories, seedProducts, seedTestimonials, seedIngredients } = await import('../data/catalog.ts');
+const { seedCategories, seedProducts, seedTestimonials, seedIngredients, seedSolutions } = await import('../data/catalog.ts');
 const { defaultSettings } = await import('../data/site.ts');
 
 const count = async (table) => (await supabase.from(table).select('*', { count: 'exact', head: true })).count ?? 0;
@@ -24,6 +24,7 @@ const step = async (label, promise) => {
 
 await step(`${seedCategories.length} catégories`, supabase.from('elrophe_categories').upsert(seedCategories, { onConflict: 'slug', ignoreDuplicates: true }));
 await step(`${seedProducts.length} produits`, supabase.from('elrophe_products').upsert(seedProducts, { onConflict: 'slug', ignoreDuplicates: true }));
+await step(`${seedSolutions.length} solutions`, supabase.from('elrophe_solutions').upsert(seedSolutions, { onConflict: 'slug', ignoreDuplicates: true }));
 // Avis et ingrédients n'ont pas de clé naturelle : importés seulement si la table est vide
 if ((await count('elrophe_testimonials')) === 0) await step(`${seedTestimonials.length} avis`, supabase.from('elrophe_testimonials').insert(seedTestimonials));
 if ((await count('elrophe_ingredients')) === 0) await step(`${seedIngredients.length} ingrédients`, supabase.from('elrophe_ingredients').insert(seedIngredients));

@@ -271,6 +271,7 @@ function Personnalisation() {
           {tab === 'hero' && (
             <div className="grid gap-6 lg:grid-cols-2">
               <Card title="Textes">
+                <Field label="Texte tapé lettre par lettre (au-dessus du surtitre)" value={hero.typed_text} onChange={(v) => update('hero', { typed_text: v })} hint="Vide : masqué" />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Surtitre" value={hero.eyebrow} onChange={(v) => update('hero', { eyebrow: v })} />
                   <Field label="Mot du surtitre en vert" value={hero.eyebrow_accent} onChange={(v) => update('hero', { eyebrow_accent: v })} />
@@ -291,6 +292,13 @@ function Personnalisation() {
                 <Card title="Image principale">
                   <ImageField label="Image détourée (PNG/WebP transparent conseillé)" value={hero.image_url} onChange={(v) => update('hero', { image_url: v })} folder="hero" aspect="aspect-[9/10]" max={1800} />
                   <Field label="Texte alternatif (accessibilité)" value={hero.image_alt} onChange={(v) => update('hero', { image_alt: v })} />
+                </Card>
+                <Card title="Étiquette animée sur l’image">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Texte" value={hero.recommended_label} onChange={(v) => update('hero', { recommended_label: v })} hint="Vide : étiquette masquée" />
+                    <Field label="Bouton" value={hero.recommended_cta} onChange={(v) => update('hero', { recommended_cta: v })} />
+                  </div>
+                  <Field label="Lien du bouton" value={hero.recommended_href} onChange={(v) => update('hero', { recommended_href: v })} placeholder="/produit/…" hint="Vide : page du produit du moment" />
                 </Card>
                 <Card
                   title="Badges de confiance"
@@ -336,6 +344,12 @@ function Personnalisation() {
                   <Field label="Mot manuscrit" value={sections.featured.script} onChange={(v) => updateSection('featured', { script: v })} />
                   <Field label="Bouton" value={sections.featured.cta_label} onChange={(v) => updateSection('featured', { cta_label: v })} />
                 </div>
+              </Card>
+              <Card title="Solutions (sous le hero)" aside={<Switch label="Visible" checked={sections.solutions.visible} onChange={(v) => updateSection('solutions', { visible: v })} />}>
+                <HeadingFields value={sections.solutions} set={(p) => updateSection('solutions', p)} />
+                <p className="text-xs text-slate-500">
+                  Les cartes se gèrent dans <a href="/pilotage/solutions" className="font-extrabold underline">Catalogue › Solutions</a>.
+                </p>
               </Card>
               <Card title="Acheter par catégorie" aside={<Switch label="Visible" checked={sections.categories.visible} onChange={(v) => updateSection('categories', { visible: v })} />}>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -392,6 +406,11 @@ function Personnalisation() {
                 <Field label="Accroche (titre des pages)" value={brand.tagline} onChange={(v) => update('brand', { tagline: v })} />
                 <Field label="Phrase du pied de page" textarea rows={2} value={brand.footer_text} onChange={(v) => update('brand', { footer_text: v })} />
                 <Field label="Bandeau d’annonce (haut de page)" value={brand.announcement} onChange={(v) => update('brand', { announcement: v })} hint="Laisser vide pour masquer le bandeau" />
+                <Field label="Slogan (sous le nom, menu mobile)" value={brand.slogan} onChange={(v) => update('brand', { slogan: v })} />
+              </Card>
+              <Card title="Logos">
+                <ImageField label="Emblème (barre de navigation et menu)" value={brand.icon_url} onChange={(v) => update('brand', { icon_url: v })} folder="brand" max={512} />
+                <ImageField label="Logo complet (pied de page)" value={brand.logo_url} onChange={(v) => update('brand', { logo_url: v })} folder="brand" max={800} />
               </Card>
               <Card title="Contact">
                 <div className="grid gap-4 sm:grid-cols-2">

@@ -1,4 +1,4 @@
-import type { Category, Ingredient, Product, Testimonial } from '@/lib/types';
+import type { Category, Ingredient, Product, Solution, Testimonial } from '@/lib/types';
 
 /**
  * Catalogue de démonstration. Utilisé tant que Supabase n'est pas configuré,
@@ -142,6 +142,15 @@ export const seedIngredients: Seed<Ingredient>[] = [
   { name: 'Ashwagandha', latin_name: 'Withania somnifera', benefit: 'Plante adaptogène qui aide à mieux gérer le stress et le sommeil.', image_url: '/images/ingredients/ashwagandha.svg', is_active: true, sort_order: 4 },
 ];
 
+// Les produits de chaque solution se cochent dans Pilotage › Solutions
+export const seedSolutions: Seed<Solution>[] = [
+  { slug: 'sante-du-foie', title: 'Santé du foie', description: 'Des plantes qui accompagnent la détoxification et le bon fonctionnement du foie.', image_url: '/images/products/tisane-detox.svg', product_ids: [], is_active: true, sort_order: 1 },
+  { slug: 'sante-des-reins', title: 'Santé des reins', description: 'Une sélection pour soutenir l’élimination et le confort urinaire au quotidien.', image_url: '/images/categories/tisanes.svg', product_ids: [], is_active: true, sort_order: 2 },
+  { slug: 'vitalite', title: 'Vitalité', description: 'Énergie, tonus et résistance à la fatigue grâce aux superaliments.', image_url: '/images/products/moringa-vitalite.svg', product_ids: [], is_active: true, sort_order: 3 },
+  { slug: 'confort-digestif', title: 'Confort digestif', description: 'Pour une digestion légère et un ventre apaisé.', image_url: '/images/products/curcuma-poivre-noir.svg', product_ids: [], is_active: true, sort_order: 4 },
+  { slug: 'sommeil-serenite', title: 'Sommeil & sérénité', description: 'Retrouvez des nuits calmes et gérez mieux le stress.', image_url: '/images/products/tisane-nuit-calme.svg', product_ids: [], is_active: true, sort_order: 5 },
+];
+
 /** Version avec identifiants stables, utilisée comme repli quand la base n'est pas configurée */
 const withIds = <T,>(prefix: string, rows: Seed<T>[]) =>
   rows.map((row, i) => ({ id: `${prefix}-${i + 1}`, ...row }) as T);
@@ -150,3 +159,4 @@ export const fallbackCategories = withIds<Category>('cat', seedCategories);
 export const fallbackProducts = withIds<Product>('prd', seedProducts);
 export const fallbackTestimonials = withIds<Testimonial>('tst', seedTestimonials);
 export const fallbackIngredients = withIds<Ingredient>('ing', seedIngredients);
+export const fallbackSolutions = withIds<Solution>('sol', seedSolutions);

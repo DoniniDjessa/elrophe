@@ -2,8 +2,8 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { supabasePublic } from './supabase/public';
 import { mergeSettings } from './settings';
 import { defaultSettings } from '@/data/site';
-import { fallbackCategories, fallbackIngredients, fallbackProducts, fallbackTestimonials } from '@/data/catalog';
-import type { Category, Ingredient, Product, SiteSettings, Testimonial } from './types';
+import { fallbackCategories, fallbackIngredients, fallbackProducts, fallbackSolutions, fallbackTestimonials } from '@/data/catalog';
+import type { Category, Ingredient, Product, SiteSettings, Solution, Testimonial } from './types';
 
 /** Tag commun à tout le contenu du site : le pilotage l'invalide après chaque modification */
 export const SITE_TAG = 'elrophe';
@@ -72,4 +72,17 @@ export async function getIngredients(): Promise<Ingredient[]> {
   cacheLife('max');
   cacheTag(SITE_TAG);
   return readTable<Ingredient>('elrophe_ingredients', fallbackIngredients);
+}
+
+export async function getSolutions(): Promise<Solution[]> {
+  'use cache';
+  cacheLife('max');
+  cacheTag(SITE_TAG);
+  const rows = await readTable<Solution>('elrophe_solutions', fallbackSolutions);
+  return rows.map((s) => ({ ...s, product_ids: s.product_ids ?? [] }));
+}
+
+export async function getSolutionBySlug(slug: string): Promise<Solution | null> {
+  const solutions = await getSolutions();
+  return solutions.find((s) => s.slug === slug) ?? null;
 }

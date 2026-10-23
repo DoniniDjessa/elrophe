@@ -147,6 +147,25 @@ create table if not exists public.elrophe_ingredients (
   updated_at timestamptz not null default now()
 );
 
+-- ---------- Solutions bien-être (sous le hero) ----------
+create table if not exists public.elrophe_solutions (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  title text not null,
+  description text,
+  image_url text,
+  product_ids uuid[] not null default '{}', -- produits de la page solution, dans l'ordre
+  is_active boolean not null default true,
+  sort_order int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+insert into public.elrophe_solutions (slug, title, description, image_url, sort_order) values
+  ('sante-du-foie', 'Santé du foie', 'Des plantes qui accompagnent la détoxification et le bon fonctionnement du foie.', '/images/products/tisane-detox.svg', 1),
+  ('sante-des-reins', 'Santé des reins', 'Une sélection pour soutenir l’élimination et le confort urinaire au quotidien.', '/images/categories/tisanes.svg', 2),
+  ('vitalite', 'Vitalité', 'Énergie, tonus et résistance à la fatigue grâce aux superaliments.', '/images/products/moringa-vitalite.svg', 3)
+on conflict (slug) do nothing;
+
 -- ---------- Réglages du site (personnalisation) ----------
 create table if not exists public.elrophe_settings (
   key text primary key,
@@ -165,7 +184,7 @@ create table if not exists public.elrophe_newsletter (
 do $$
 declare t text;
 begin
-  foreach t in array array['elrophe_categories','elrophe_products','elrophe_orders','elrophe_testimonials','elrophe_ingredients','elrophe_settings']
+  foreach t in array array['elrophe_categories','elrophe_products','elrophe_orders','elrophe_testimonials','elrophe_ingredients','elrophe_solutions','elrophe_settings']
   loop
     execute format('drop trigger if exists %I_touch on public.%I', t, t);
     execute format('create trigger %I_touch before update on public.%I for each row execute function public.elrophe_touch_updated_at()', t, t);
@@ -181,6 +200,7 @@ alter table public.elrophe_products     enable row level security;
 alter table public.elrophe_orders       enable row level security;
 alter table public.elrophe_testimonials enable row level security;
 alter table public.elrophe_ingredients  enable row level security;
+alter table public.elrophe_solutions    enable row level security;
 alter table public.elrophe_settings     enable row level security;
 alter table public.elrophe_newsletter   enable row level security;
 
@@ -197,6 +217,8 @@ drop policy if exists "elrophe_testimonials_read" on public.elrophe_testimonials
 create policy "elrophe_testimonials_read" on public.elrophe_testimonials for select using (is_active or public.elrophe_is_admin());
 drop policy if exists "elrophe_ingredients_read" on public.elrophe_ingredients;
 create policy "elrophe_ingredients_read" on public.elrophe_ingredients for select using (is_active or public.elrophe_is_admin());
+drop policy if exists "elrophe_solutions_read" on public.elrophe_solutions;
+create policy "elrophe_solutions_read" on public.elrophe_solutions for select using (is_active or public.elrophe_is_admin());
 drop policy if exists "elrophe_settings_read" on public.elrophe_settings;
 create policy "elrophe_settings_read" on public.elrophe_settings for select using (true);
 
@@ -204,7 +226,7 @@ create policy "elrophe_settings_read" on public.elrophe_settings for select usin
 do $$
 declare t text;
 begin
-  foreach t in array array['elrophe_categories','elrophe_products','elrophe_orders','elrophe_testimonials','elrophe_ingredients','elrophe_settings','elrophe_newsletter']
+  foreach t in array array['elrophe_categories','elrophe_products','elrophe_orders','elrophe_testimonials','elrophe_ingredients','elrophe_solutions','elrophe_settings','elrophe_newsletter']
   loop
     execute format('drop policy if exists "%s_admin" on public.%I', t, t);
     execute format('create policy "%s_admin" on public.%I for all using (public.elrophe_is_admin()) with check (public.elrophe_is_admin())', t, t);

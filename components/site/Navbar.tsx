@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -19,6 +18,7 @@ import {
   User,
   X,
 } from 'lucide-react';
+import SmartImage from '@/components/ui/SmartImage';
 import { useCart, useFavorites, useSite } from './Providers';
 
 export const navLinks = [
@@ -34,12 +34,12 @@ export const navLinks = [
 const isActive = (pathname: string, href: string) =>
   href === '/' ? pathname === '/' : !href.includes('#') && pathname.startsWith(href);
 
-export function Logo({ name }: { name: string }) {
+export function Logo({ name, iconUrl }: { name: string; iconUrl: string }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5 rounded-full" aria-label={`${name} — accueil`}>
       <span className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-cream/70">
-        <Image
-          src="/icon2.png"
+        <SmartImage
+          src={iconUrl}
           alt=""
           width={1024}
           height={984}
@@ -48,12 +48,12 @@ export function Logo({ name }: { name: string }) {
           className="h-7 w-auto transition-transform duration-500 group-hover:rotate-[-8deg]"
         />
       </span>
-      <span className="font-display text-[15px] font-extrabold tracking-[0.32em] text-ink uppercase">El Rophe</span>
+      <span className="font-display text-[15px] font-extrabold tracking-[0.32em] text-ink uppercase">{name}</span>
     </Link>
   );
 }
 
-export default function Navbar({ announcement }: { announcement?: string }) {
+export default function Navbar({ announcement, iconUrl, slogan }: { announcement?: string; iconUrl: string; slogan?: string }) {
   const pathname = usePathname() ?? '/';
   const { brandName } = useSite();
   const { count } = useCart();
@@ -90,7 +90,7 @@ export default function Navbar({ announcement }: { announcement?: string }) {
       <header className="sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
           <div className="glass rounded-full py-1 pr-4 pl-1 shadow-[var(--shadow-card)] xl:border-transparent xl:bg-transparent xl:shadow-none xl:backdrop-blur-none">
-            <Logo name={brandName} />
+            <Logo name={brandName} iconUrl={iconUrl} />
           </div>
 
           <nav aria-label="Navigation principale" className="glass hidden items-center gap-0.5 rounded-full p-1.5 shadow-[var(--shadow-card)] xl:flex">
@@ -161,10 +161,10 @@ export default function Navbar({ announcement }: { announcement?: string }) {
 
             <div className="relative flex items-center justify-between gap-3 px-5 pt-6 pb-4">
               <Link href="/" onClick={() => setOpen(false)} className="flex min-w-0 items-center gap-3" aria-label={`${brandName} — accueil`}>
-                <Image src="/icon2.png" alt="" width={1024} height={984} sizes="64px" className="h-16 w-auto shrink-0" />
+                <SmartImage src={iconUrl} alt="" width={1024} height={984} sizes="64px" className="h-16 w-auto shrink-0" />
                 <span className="min-w-0">
                   <span className="block font-serif text-[1.65rem] leading-none tracking-[0.06em] text-forest uppercase">{brandName}</span>
-                  <span className="mt-1.5 block text-[9px] font-medium tracking-[0.28em] text-ink-muted uppercase">Premium natural products</span>
+                  {slogan && <span className="mt-1.5 block text-[9px] font-medium tracking-[0.28em] text-ink-muted uppercase">{slogan}</span>}
                 </span>
               </Link>
               <button

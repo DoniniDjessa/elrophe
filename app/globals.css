@@ -269,9 +269,44 @@ body {
 .marquee-track { display: flex; flex-shrink: 0; animation: marquee 40s linear infinite; }
 .marquee:hover .marquee-track { animation-play-state: paused; }
 
+/* Texte du hero tapé lettre par lettre : chaque lettre s'ouvre à son tour, le curseur suit */
+@keyframes type-letter {
+  from { max-width: 0; opacity: 0; }
+  to { max-width: 1.5em; opacity: 1; }
+}
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+.typewriter { display: flex; align-items: center; white-space: nowrap; }
+.typewriter-letter {
+  display: inline-block;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  animation: type-letter 0.01s steps(1, end) forwards;
+}
+.typewriter-caret {
+  display: inline-block;
+  width: 3px;
+  height: 0.85em;
+  margin-left: 0.12em;
+  border-radius: 2px;
+  background: var(--leaf);
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+
+/* Étiquette « Le plus recommandé » qui flotte doucement */
+@keyframes tag-bob {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+  50% { transform: translate3d(0, -8px, 0) rotate(0.5deg); }
+}
+.tag-bob { animation: tag-bob 4.5s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
-  .leaf-shadow, .underline-draw path, .hero-float, .hero-float-shadow { animation: none; }
+  .leaf-shadow, .underline-draw path, .hero-float, .hero-float-shadow, .tag-bob { animation: none; }
+  .typewriter-letter { animation: none; max-width: none; opacity: 1; }
+  .typewriter-caret { animation: none; }
 }
 
 /* Entrée du hero (CSS pur) */

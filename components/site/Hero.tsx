@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
-import { ArrowRight, Play, X } from 'lucide-react';
+import { ArrowRight, Award, Play, X } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import type { HeroSettings } from '@/lib/types';
 import { badgeIcons } from './Icons';
@@ -21,10 +21,27 @@ function toEmbed(url: string): string | null {
   return null;
 }
 
-export default function Hero({ hero }: { hero: HeroSettings }) {
+/** Texte qui s'écrit lettre par lettre (CSS pur, chaque lettre a son délai), curseur clignotant au bout */
+function Typewriter({ text }: { text: string }) {
+  const letters = Array.from(text);
+  return (
+    <p className="typewriter font-serif text-[clamp(1.9rem,3.6vw,2.9rem)] leading-none tracking-[0.14em] text-forest uppercase">
+      <span className="sr-only">{text}</span>
+      {letters.map((char, i) => (
+        <span key={i} aria-hidden="true" className="typewriter-letter" style={{ animationDelay: `${0.25 + i * 0.13}s` }}>
+          {char === ' ' ? ' ' : char}
+        </span>
+      ))}
+      <span aria-hidden="true" className="typewriter-caret" />
+    </p>
+  );
+}
+
+export default function Hero({ hero, recommendedHref }: { hero: HeroSettings; recommendedHref?: string }) {
   const router = useRouter();
   const [videoOpen, setVideoOpen] = useState(false);
   const embed = hero.video_url ? toEmbed(hero.video_url) : null;
+  const recommendedLink = hero.recommended_href || recommendedHref || '/boutique';
 
   return (
     <section aria-labelledby="hero-title" className="relative">
@@ -35,6 +52,11 @@ export default function Hero({ hero }: { hero: HeroSettings }) {
 
       <div className="relative mx-auto grid max-w-[1440px] items-center gap-10 px-4 pt-6 pb-14 sm:px-6 md:pt-10 lg:grid-cols-[1.15fr_1fr] lg:gap-6 lg:px-10 lg:pb-20">
         <div className="relative z-10 order-2 lg:order-1">
+          {hero.typed_text && (
+            <div className="mb-4">
+              <Typewriter text={hero.typed_text} />
+            </div>
+          )}
           <div style={rise(0)} className="rise">
             <Eyebrow text={hero.eyebrow} accent={hero.eyebrow_accent} />
           </div>
@@ -114,6 +136,27 @@ export default function Hero({ hero }: { hero: HeroSettings }) {
                 className="object-contain drop-shadow-[0_30px_40px_rgba(30,53,36,0.22)]"
               />
             </div>
+
+            {/* Étiquette « Le plus recommandé » qui flotte sur le visuel */}
+            {hero.recommended_label && (
+              <div style={rise(0.7)} className="rise absolute top-[6%] left-0 z-10 sm:left-[2%]">
+                <div className="tag-bob glass flex items-center gap-2.5 rounded-full py-1.5 pr-1.5 pl-3 shadow-[var(--shadow-soft)]">
+                  <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime opacity-80" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-leaf" />
+                  </span>
+                  <Award className="h-4 w-4 text-gold" strokeWidth={1.8} aria-hidden="true" />
+                  <span className="text-[13px] font-semibold whitespace-nowrap text-ink">{hero.recommended_label}</span>
+                  <Link
+                    href={recommendedLink}
+                    className="group inline-flex items-center gap-1 rounded-full bg-forest px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-leaf"
+                  >
+                    {hero.recommended_cta || 'Voir'}
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
           {/* Feuilles floues au premier plan */}
           <svg aria-hidden="true" viewBox="0 0 200 200" className="absolute -right-2 -bottom-6 w-28 opacity-80 blur-[3px] sm:w-36">
