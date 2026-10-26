@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Heart } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
 import type { Product } from '@/lib/types';
@@ -10,6 +11,7 @@ import Stars from './Stars';
 
 export default function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const { add } = useCart();
+  const router = useRouter();
   const favorites = useFavorites();
   const { currency } = useSite();
   const liked = favorites.has(product.id);
@@ -29,6 +31,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
           />
         </Link>
         <div className="pointer-events-none absolute top-2.5 left-2.5 flex gap-1.5">
+          {soldOut && <span className="rounded-full bg-ink px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-white uppercase">En rupture</span>}
           {product.is_new && <span className="rounded-full bg-forest px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-white uppercase">Nouveau</span>}
           {product.compare_at_price && product.compare_at_price > product.price && (
             <span className="rounded-full bg-lime px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-forest uppercase">
@@ -64,12 +67,15 @@ export default function ProductCard({ product, priority = false }: { product: Pr
           </p>
           <button
             type="button"
-            onClick={() => add(product)}
+            onClick={() => {
+              add(product);
+              router.push('/commande');
+            }}
             disabled={soldOut}
-            aria-label={soldOut ? `${product.name} en rupture` : `Ajouter ${product.name} au panier`}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest text-white shadow-[var(--shadow-soft)] transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label={soldOut ? `${product.name} en rupture` : `Commander ${product.name}`}
+            className="shrink-0 rounded-full bg-forest px-4 py-2.5 text-[13px] font-semibold text-white shadow-[var(--shadow-soft)] transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Plus className="h-[18px] w-[18px]" strokeWidth={2} />
+            Commander
           </button>
         </div>
         {soldOut && <p className="mt-2 text-xs font-medium text-ink-muted">Bientôt de retour</p>}

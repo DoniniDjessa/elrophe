@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Check, Heart } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
@@ -18,6 +19,7 @@ import { Script } from './Typography';
  */
 export default function FeaturedProduct({ data, products, categories }: { data: FeaturedSettings; products: Product[]; categories: Category[] }) {
   const { add } = useCart();
+  const router = useRouter();
   const favorites = useFavorites();
   const { currency } = useSite();
 
@@ -54,7 +56,9 @@ export default function FeaturedProduct({ data, products, categories }: { data: 
                 className="h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.03] lg:h-full lg:object-cover"
               />
             </Link>
-            {onSale && (
+            {soldOut ? (
+              <span className="pointer-events-none absolute top-5 left-5 rounded-full bg-ink px-3 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-white uppercase">En rupture</span>
+            ) : onSale && (
               <span className="pointer-events-none absolute top-5 left-5 rounded-full bg-lime px-3 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-forest uppercase">
                 −{Math.round((1 - product.price / product.compare_at_price!) * 100)} %
               </span>
@@ -112,10 +116,13 @@ export default function FeaturedProduct({ data, products, categories }: { data: 
                 <button
                   type="button"
                   disabled={soldOut}
-                  onClick={() => add(product)}
+                  onClick={() => {
+                    add(product);
+                    router.push('/commande');
+                  }}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-cream px-6 py-3.5 text-sm font-semibold text-forest transition-colors hover:bg-white focus-visible:outline-lime disabled:opacity-60"
                 >
-                  {soldOut ? 'Bientôt de retour' : data.cta_label}
+                  {soldOut ? 'En rupture · bientôt de retour' : data.cta_label}
                 </button>
                 <Link href={`/produit/${product.slug}`} className="group inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-sm font-semibold text-white focus-visible:outline-lime">
                   Voir le produit

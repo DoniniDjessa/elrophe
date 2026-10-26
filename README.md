@@ -2,7 +2,7 @@
 
 Next.js 16 (App Router, Cache Components) · TypeScript · Tailwind CSS 4 · Framer Motion · Lucide · Supabase.
 
-- **Vitrine** : `/` (accueil), `/boutique`, `/meilleures-ventes`, `/nouveautes`, `/produit/[slug]`, `/panier`, `/commande`, `/favoris`, `/compte` (suivi de commande), `/a-propos`, `/contact`, `/mentions-legales`.
+- **Vitrine** : `/` (accueil), `/boutique` (filtres `?collection=meilleures-ventes` / `nouveautes`), `/produit/[slug]`, `/panier`, `/commande`, `/favoris`, `/compte` (suivi de commande), `/a-propos`, `/contact`, `/mentions-legales`.
 - **Pilotage** (back-office, même structure que `atelierzo/app/pilotage`) : `/pilotage` — tableau de bord, commandes, clients, produits, catégories, ingrédients, avis clients, newsletter et **Personnalisation** (couleurs, textes du hero et des sections, marque & contact, livraison et paiement).
 
 ## Installation

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Check, Heart, Minus, Plus, ShieldCheck, Sparkles, Truck } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
@@ -12,6 +13,7 @@ import { Eyebrow, SectionHeading } from './Typography';
 
 export default function ProductDetail({ product, categoryName, deliveryInfo }: { product: Product; categoryName?: string; deliveryInfo: string }) {
   const { add } = useCart();
+  const router = useRouter();
   const favorites = useFavorites();
   const { currency } = useSite();
   const images = [product.image_url, ...product.gallery].filter(Boolean) as string[];
@@ -33,6 +35,9 @@ export default function ProductDetail({ product, categoryName, deliveryInfo }: {
       <div className="lg:sticky lg:top-28 lg:self-start">
         <div className="card relative aspect-square overflow-hidden p-0">
           <SmartImage src={images[active]} alt={product.name} fill priority sizes="(min-width: 1024px) 45vw, 92vw" className="object-contain" />
+          {soldOut && (
+            <span className="absolute top-4 left-4 rounded-full bg-ink px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase">En rupture</span>
+          )}
         </div>
         {images.length > 1 && (
           <div className="mt-3 flex gap-3" role="group" aria-label="Photos du produit">
@@ -86,8 +91,16 @@ export default function ProductDetail({ product, categoryName, deliveryInfo }: {
               <Plus className="h-4 w-4" />
             </button>
           </div>
-          <button type="button" className="btn-primary flex-1 sm:flex-none" disabled={soldOut} onClick={() => add(product, qty)}>
-            {soldOut ? 'Bientôt de retour' : 'Ajouter au panier'}
+          <button
+            type="button"
+            className="btn-primary flex-1 sm:flex-none"
+            disabled={soldOut}
+            onClick={() => {
+              add(product, qty);
+              router.push('/commande');
+            }}
+          >
+            {soldOut ? 'En rupture · bientôt de retour' : 'Commander'}
           </button>
           <button
             type="button"

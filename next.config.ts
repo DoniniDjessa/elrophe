@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     return [
       { source: '/pilotage/products', destination: '/pilotage/boutique', permanent: true },
       { source: '/pilotage/categories', destination: '/pilotage/boutique?tab=categories', permanent: true },
+      // Collections de la vitrine, devenues des filtres de la boutique
+      { source: '/meilleures-ventes', destination: '/boutique?collection=meilleures-ventes', permanent: true },
+      { source: '/nouveautes', destination: '/boutique?collection=nouveautes', permanent: true },
     ];
   },
   images: {

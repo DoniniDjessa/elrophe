@@ -52,7 +52,7 @@ export default function BestSellers({ products, heading }: { products: Product[]
       </div>
 
       <div className="mt-10 flex justify-center">
-        <Link href="/meilleures-ventes" className="btn-ghost group">
+        <Link href="/boutique?collection=meilleures-ventes" className="btn-ghost group">
           Voir toutes les meilleures ventes
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
         </Link>

@@ -5,10 +5,8 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import {
-  ChartNoAxesColumnIncreasing,
   ChevronRight,
   Flower2,
-  Gift,
   HandHeart,
   Heart,
   House,
@@ -24,8 +22,6 @@ import { useCart, useFavorites, useSite } from './Providers';
 export const navLinks = [
   { href: '/', label: 'Accueil', Icon: House },
   { href: '/boutique', label: 'Boutique', Icon: ShoppingBag },
-  { href: '/meilleures-ventes', label: 'Meilleures ventes', Icon: ChartNoAxesColumnIncreasing },
-  { href: '/nouveautes', label: 'Nouveautés', Icon: Gift },
   { href: '/#rituel', label: 'Rituels bien-être', Icon: Flower2 },
   { href: '/a-propos', label: 'À propos', Icon: HandHeart },
   { href: '/contact', label: 'Contact', Icon: Phone },

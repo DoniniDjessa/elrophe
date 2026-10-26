@@ -83,8 +83,8 @@ function Boutique() {
 
       {tab === 'produits' && <ProductsTab rows={rows} categories={categories.rows} loading={products.loading} missing={products.missing} reload={products.reload} />}
       {tab === 'categories' && <CategoriesTab />}
-      {tab === 'nouveautes' && <CollectionTab rows={rows} collection="is_new" label="Nouveautés" publicPath="/nouveautes" reload={products.reload} />}
-      {tab === 'meilleures-ventes' && <CollectionTab rows={rows} collection="is_bestseller" label="Meilleures ventes" publicPath="/meilleures-ventes" reload={products.reload} />}
+      {tab === 'nouveautes' && <CollectionTab rows={rows} collection="is_new" label="Nouveautés" publicPath="/boutique?collection=nouveautes" reload={products.reload} />}
+      {tab === 'meilleures-ventes' && <CollectionTab rows={rows} collection="is_bestseller" label="Meilleures ventes" publicPath="/boutique?collection=meilleures-ventes" reload={products.reload} />}
       {tab === 'moment' && <FeaturedTab rows={rows} reload={products.reload} />}
     </>
   );

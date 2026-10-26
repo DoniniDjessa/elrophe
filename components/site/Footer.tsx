@@ -24,8 +24,8 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
     {
       title: 'Découvrir',
       links: [
-        { href: '/meilleures-ventes', label: 'Meilleures ventes' },
-        { href: '/nouveautes', label: 'Nouveautés' },
+        { href: '/boutique?collection=meilleures-ventes', label: 'Meilleures ventes' },
+        { href: '/boutique?collection=nouveautes', label: 'Nouveautés' },
         { href: '/#rituel', label: 'Rituels bien-être' },
         { href: '/a-propos', label: 'Notre histoire' },
       ],

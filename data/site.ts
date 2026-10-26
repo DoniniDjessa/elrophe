@@ -48,7 +48,7 @@ export const defaultSettings: SiteSettings = {
       eyebrow: 'Produit du',
       eyebrow_accent: 'moment',
       script: 'coup de cœur',
-      cta_label: 'Ajouter au panier',
+      cta_label: 'Commander',
     },
     solutions: {
       visible: true,

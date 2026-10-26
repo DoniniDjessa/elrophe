@@ -7,7 +7,11 @@ import { byRank } from '@/lib/ranking';
 import type { Category, Product } from '@/lib/types';
 import ProductCard from './ProductCard';
 
-export type ShopPreset = 'all' | 'bestsellers' | 'new';
+const collections = [
+  { id: '', label: 'Tous les produits' },
+  { id: 'meilleures-ventes', label: 'Meilleures ventes' },
+  { id: 'nouveautes', label: 'Nouveautés' },
+] as const;
 
 const sorts = [
   { id: 'selection', label: 'Notre sélection' },
@@ -20,10 +24,11 @@ const sorts = [
 const normalize = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Grille de la boutique : filtre catégorie / recherche / tri, état conservé dans l'URL */
-export default function ShopView({ products, categories, preset = 'all' }: { products: Product[]; categories: Category[]; preset?: ShopPreset }) {
+export default function ShopView({ products, categories }: { products: Product[]; categories: Category[] }) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const collection = params.get('collection') ?? '';
   const category = params.get('categorie') ?? '';
   const query = params.get('q') ?? '';
   const sort = params.get('tri') ?? 'selection';
@@ -38,8 +43,8 @@ export default function ShopView({ products, categories, preset = 'all' }: { pro
 
   const list = useMemo(() => {
     let rows = products;
-    if (preset === 'bestsellers') rows = rows.filter((p) => p.is_bestseller);
-    if (preset === 'new') rows = rows.filter((p) => p.is_new);
+    if (collection === 'meilleures-ventes') rows = rows.filter((p) => p.is_bestseller);
+    if (collection === 'nouveautes') rows = rows.filter((p) => p.is_new);
     if (category) rows = rows.filter((p) => p.category_slug === category);
     if (query) {
       const q = normalize(query);
@@ -51,13 +56,30 @@ export default function ShopView({ products, categories, preset = 'all' }: { pro
     else if (sort === 'nom') sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
     else if (sort === 'populaires') sorted.sort((a, b) => b.reviews_count - a.reviews_count || a.sort_order - b.sort_order);
     // « Notre sélection » : l'ordre défini dans Pilotage › Boutique
-    else sorted.sort(byRank(preset === 'new' ? 'new_order' : preset === 'bestsellers' ? 'bestseller_order' : 'sort_order'));
+    else sorted.sort(byRank(collection === 'nouveautes' ? 'new_order' : collection === 'meilleures-ventes' ? 'bestseller_order' : 'sort_order'));
     return sorted;
-  }, [products, preset, category, query, sort]);
+  }, [products, collection, category, query, sort]);
 
   return (
     <section aria-labelledby="shop-products" className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6 lg:px-10">
       <h2 id="shop-products" className="sr-only">Produits</h2>
+      <div className="no-scrollbar -mx-4 mb-5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div role="group" aria-label="Collections" className="glass inline-flex gap-1 rounded-full p-1.5">
+          {collections.map((c) => (
+            <button
+              key={c.id || 'all'}
+              type="button"
+              aria-pressed={collection === c.id}
+              onClick={() => setParam('collection', c.id)}
+              className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-medium whitespace-nowrap transition-colors ${
+                collection === c.id ? 'bg-forest text-white shadow-sm' : 'text-ink hover:bg-white/60'
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="flex flex-col gap-4 border-y border-line py-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
           {[{ slug: '', name: 'Tout' }, ...categories].map((c) => (
