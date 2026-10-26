@@ -25,9 +25,14 @@ export async function POST(request: Request) {
   const uuid = /^[0-9a-f-]{36}$/i;
   const items = Array.isArray(body.items)
     ? body.items
-        .filter((i): i is { product_id: string; quantity: number } => typeof i?.product_id === 'string' && uuid.test(i.product_id))
+        .filter((i): i is { product_id: string; quantity: number; offer_id?: unknown } => typeof i?.product_id === 'string' && uuid.test(i.product_id))
         .slice(0, 50)
-        .map((i) => ({ product_id: i.product_id, quantity: Math.max(1, Math.min(99, Math.floor(Number(i.quantity) || 1))) }))
+        .map((i) => ({
+          product_id: i.product_id,
+          quantity: Math.max(1, Math.min(99, Math.floor(Number(i.quantity) || 1))),
+          // Offre de la page de vente : son prix est relu en base
+          offer_id: str(i.offer_id, 40),
+        }))
     : [];
   if (items.length === 0) {
     return Response.json({ error: 'Votre panier est vide ou contient des produits de démonstration.' }, { status: 400 });

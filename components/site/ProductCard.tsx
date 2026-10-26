@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
+import { productHref, SPECIAL_PATH } from '@/lib/landing';
 import type { Product } from '@/lib/types';
 import { useCart, useFavorites, useSite } from './Providers';
 import Stars from './Stars';
@@ -16,11 +17,12 @@ export default function ProductCard({ product, priority = false }: { product: Pr
   const { currency } = useSite();
   const liked = favorites.has(product.id);
   const soldOut = product.stock !== null && product.stock <= 0;
+  const href = productHref(product);
 
   return (
     <article className="card group relative flex h-full flex-col overflow-hidden p-2.5">
       <div className="relative aspect-square overflow-hidden rounded-[14px] bg-cream">
-        <Link href={`/produit/${product.slug}`} aria-label={product.name} className="absolute inset-0">
+        <Link href={href} aria-label={product.name} className="absolute inset-0">
           <SmartImage
             src={product.image_url}
             alt=""
@@ -52,7 +54,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
 
       <div className="flex flex-1 flex-col px-2 pt-4 pb-2">
         <h3 className="font-display text-[15.5px] leading-snug font-bold">
-          <Link href={`/produit/${product.slug}`} className="hover:text-leaf">
+          <Link href={href} className="hover:text-leaf">
             {product.name}
           </Link>
         </h3>
@@ -68,6 +70,8 @@ export default function ProductCard({ product, priority = false }: { product: Pr
           <button
             type="button"
             onClick={() => {
+              // Produit spécial : commande directe en bas de sa page, sinon panier → commande
+              if (product.is_featured) return router.push(`${SPECIAL_PATH}#commander`);
               add(product);
               router.push('/commande');
             }}

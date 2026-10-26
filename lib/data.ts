@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from 'next/cache';
 import { supabasePublic } from './supabase/public';
+import { applyVisibility, normalizeLanding } from './landing';
 import { mergeSettings } from './settings';
 import { defaultSettings } from '@/data/site';
 import { fallbackCategories, fallbackIngredients, fallbackProducts, fallbackSolutions, fallbackTestimonials } from '@/data/catalog';
@@ -19,6 +20,7 @@ const normalizeProduct = (p: Product): Product => ({
   is_featured: !!p.is_featured,
   new_order: p.new_order ?? 0,
   bestseller_order: p.bestseller_order ?? 0,
+  landing: p.landing ? normalizeLanding(p.landing) : null,
 });
 
 /** Lit une table ; en cas d'erreur (table absente, réseau) renvoie le contenu de démonstration */
@@ -52,7 +54,7 @@ export async function getProducts(): Promise<Product[]> {
   cacheLife('max');
   cacheTag(SITE_TAG);
   const rows = await readTable<Product>('elrophe_products', fallbackProducts);
-  return rows.map(normalizeProduct);
+  return rows.map(normalizeProduct).map(applyVisibility);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

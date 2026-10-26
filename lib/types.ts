@@ -40,12 +40,88 @@ export interface Product {
   highlights: string[];
   story: string | null;
   benefits: ProductBenefit[];
+  /** Contenu de la page /best-seller quand le produit est le produit spécial */
+  landing?: ProductLanding | null;
   created_at?: string;
 }
 
 export interface ProductBenefit {
   title: string;
   text: string;
+}
+
+export interface LandingSection {
+  title: string;
+  text: string;
+  image_url: string | null;
+  hidden?: boolean;
+}
+
+/** Offre du bloc « Commande directe » : prix relu en base au moment de la commande */
+export interface LandingOffer {
+  id: string;
+  label: string;
+  subtitle: string;
+  price: number;
+  compare_at_price: number | null;
+  /** Unités déduites du stock pour 1 offre commandée */
+  units: number;
+  badge: string;
+  sold_out: boolean;
+  /** Masquée : ni affichée ni commandable */
+  hidden: boolean;
+}
+
+export interface LandingFaq {
+  question: string;
+  answer: string;
+  hidden?: boolean;
+}
+
+export interface LandingReview {
+  name: string;
+  location: string;
+  text: string;
+  hidden?: boolean;
+}
+
+/** Blocs du produit que l'on peut afficher ou masquer (fiche produit, page /best-seller, accueil) */
+export interface LandingBlocks {
+  gallery: boolean;
+  tagline: boolean;
+  description: boolean;
+  ingredients: boolean;
+  usage: boolean;
+  hero_text: boolean;
+  highlights: boolean;
+  trust: boolean;
+  story: boolean;
+  sections: boolean;
+  benefits: boolean;
+  reviews: boolean;
+  faq: boolean;
+}
+
+/** Page de vente du produit spécial (/best-seller) */
+export interface ProductLanding {
+  /** Bannière : titre, texte et visuel (sinon nom, accroche et photo du produit) */
+  hero_title: string;
+  hero_text: string;
+  hero_image: string | null;
+  blocks: LandingBlocks;
+  /** Arguments courts sous la bannière (livraison, qualité…) */
+  trust: string[];
+  sections: LandingSection[];
+  reviews: LandingReview[];
+  offers: LandingOffer[];
+  faq: LandingFaq[];
+  order_title: string;
+  order_subtitle: string;
+  order_badge: string;
+  delivery_title: string;
+  delivery_text: string;
+  /** Livraison offerte pour les commandes passées depuis la page */
+  free_shipping: boolean;
 }
 
 export interface Testimonial {

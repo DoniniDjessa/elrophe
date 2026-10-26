@@ -5,27 +5,25 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Check, Heart } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
+import { pickSpecialProduct, SPECIAL_PATH } from '@/lib/landing';
 import type { Category, FeaturedSettings, Product } from '@/lib/types';
 import { LogoMark } from './Icons';
-import { useCart, useFavorites, useSite } from './Providers';
+import { useFavorites, useSite } from './Providers';
 import Reveal from './Reveal';
 import Stars from './Stars';
 import { Script } from './Typography';
 
 /**
- * « Produit du moment » juste sous le hero : le produit coché dans Pilotage › Boutique,
+ * Produit spécial juste sous le hero (Pilotage › Boutique › Produit spécial) : sa carte mène à /best-seller,
  * avec son accroche et ses points forts (sinon, la première meilleure vente).
  * Même habillage que la newsletter : grande carte vert forêt, accents citron vert.
  */
 export default function FeaturedProduct({ data, products, categories }: { data: FeaturedSettings; products: Product[]; categories: Category[] }) {
-  const { add } = useCart();
   const router = useRouter();
   const favorites = useFavorites();
   const { currency } = useSite();
 
-  const product =
-    products.find((p) => p.is_featured) ??
-    [...products].sort((a, b) => Number(b.is_bestseller) - Number(a.is_bestseller) || b.reviews_count - a.reviews_count)[0];
+  const product = pickSpecialProduct(products);
   if (!product) return null;
 
   const category = categories.find((c) => c.slug === product.category_slug);
@@ -46,7 +44,7 @@ export default function FeaturedProduct({ data, products, categories }: { data: 
           <div className="relative overflow-hidden lg:min-h-[500px]">
             <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.16)_0%,transparent_68%)]" />
             <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
-            <Link href={`/produit/${product.slug}`} className="group relative block lg:absolute lg:inset-0" aria-label={`Voir ${product.name}`}>
+            <Link href={SPECIAL_PATH} className="group relative block lg:absolute lg:inset-0" aria-label={`Voir ${product.name}`}>
               <SmartImage
                 src={product.image_url}
                 alt={product.name}
@@ -117,14 +115,14 @@ export default function FeaturedProduct({ data, products, categories }: { data: 
                   type="button"
                   disabled={soldOut}
                   onClick={() => {
-                    add(product);
-                    router.push('/commande');
+                    // Commande directe en bas de la page du produit spécial
+                    router.push(`${SPECIAL_PATH}#commander`);
                   }}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-cream px-6 py-3.5 text-sm font-semibold text-forest transition-colors hover:bg-white focus-visible:outline-lime disabled:opacity-60"
                 >
                   {soldOut ? 'En rupture · bientôt de retour' : data.cta_label}
                 </button>
-                <Link href={`/produit/${product.slug}`} className="group inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-sm font-semibold text-white focus-visible:outline-lime">
+                <Link href={SPECIAL_PATH} className="group inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-sm font-semibold text-white focus-visible:outline-lime">
                   Voir le produit
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>

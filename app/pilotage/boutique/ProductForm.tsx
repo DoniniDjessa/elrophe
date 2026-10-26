@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { insertRow, TABLES, updateRow } from '@/lib/admin';
 import { slugify } from '@/lib/format';
-import type { Category, Product, ProductBenefit } from '@/lib/types';
-import { Field, ImageField, Modal, Switch } from '../components/ui';
+import { normalizeLanding } from '@/lib/landing';
+import type { Category, LandingBlocks, Product, ProductBenefit } from '@/lib/types';
+import { Field, ImageField, Modal, Shown, Switch } from '../components/ui';
 import { setFeatured } from './actions';
+import VariantsEditor, { cleanVariants, variantsError } from './VariantsEditor';
 
 export const emptyProduct: Partial<Product> = {
   name: '',
@@ -39,9 +41,22 @@ const BENEFIT_SLOTS = 3;
 
 /**
  * Accroche, points forts, histoire et bienfaits : affichés sur la page produit,
- * et dans « Produit du moment » sur l'accueil quand le produit est mis en avant.
+ * et sur la page /best-seller quand le produit est le produit spécial.
  */
-export function RichContentFields({ value, set }: { value: Partial<Product>; set: (patch: Partial<Product>) => void }) {
+export function RichContentFields({
+  value,
+  set,
+  blocks,
+  onBlock,
+}: {
+  value: Partial<Product>;
+  set: (patch: Partial<Product>) => void;
+  /** Interrupteurs « Affiché » par bloc (absents : pas d'interrupteur) */
+  blocks?: LandingBlocks;
+  onBlock?: (key: keyof LandingBlocks, shown: boolean) => void;
+}) {
+  const toggle = (key: keyof LandingBlocks, node: ReactNode) =>
+    blocks && onBlock ? <Shown shown={blocks[key]} onChange={(v) => onBlock(key, v)}>{node}</Shown> : node;
   const highlights = Array.from({ length: MAX_HIGHLIGHTS }, (_, i) => value.highlights?.[i] ?? '');
   const benefits = Array.from({ length: BENEFIT_SLOTS }, (_, i) => value.benefits?.[i] ?? { title: '', text: '' });
   const setBenefit = (i: number, patch: Partial<ProductBenefit>) =>
@@ -49,8 +64,8 @@ export function RichContentFields({ value, set }: { value: Partial<Product>; set
 
   return (
     <div className="space-y-4">
-      <Field label="Accroche" value={value.tagline} onChange={(v) => set({ tagline: v })} placeholder="Ex. La cure de 30 jours qui prend soin de votre estomac." hint="Une phrase forte, affichée sous le nom du produit." />
-      <div>
+      {toggle('tagline', <Field label="Accroche" value={value.tagline} onChange={(v) => set({ tagline: v })} placeholder="Ex. La cure de 30 jours qui prend soin de votre estomac." hint="Une phrase forte, affichée sous le nom du produit." />)}
+      {toggle('highlights', <div>
         <span className="mb-2 block text-[0.6875rem] font-extrabold tracking-[0.04em] text-[var(--pz-muted)] uppercase">Points forts (4 max.)</span>
         <div className="grid gap-2 sm:grid-cols-2">
           {highlights.map((h, i) => (
@@ -64,9 +79,9 @@ export function RichContentFields({ value, set }: { value: Partial<Product>; set
             />
           ))}
         </div>
-      </div>
-      <Field label="Pourquoi on l'aime (histoire du produit)" textarea rows={4} value={value.story} onChange={(v) => set({ story: v })} hint="Section « Pourquoi on l’aime » de la page produit." />
-      <div>
+      </div>)}
+      {toggle('story', <Field label="Pourquoi on l'aime (histoire du produit)" textarea rows={4} value={value.story} onChange={(v) => set({ story: v })} hint="Section « Pourquoi on l’aime » de la page produit." />)}
+      {toggle('benefits', <div>
         <span className="mb-2 block text-[0.6875rem] font-extrabold tracking-[0.04em] text-[var(--pz-muted)] uppercase">Bienfaits (3 cartes)</span>
         <div className="space-y-3">
           {benefits.map((b, i) => (
@@ -76,7 +91,7 @@ export function RichContentFields({ value, set }: { value: Partial<Product>; set
             </div>
           ))}
         </div>
-      </div>
+      </div>)}
     </div>
   );
 }
@@ -91,6 +106,7 @@ export function toPayload(form: Partial<Product>) {
     highlights: (form.highlights ?? []).map((h) => h.trim()).filter(Boolean),
     benefits: (form.benefits ?? []).filter((b) => b.title.trim() || b.text.trim()),
   };
+  if (form.landing) payload.landing = { ...form.landing, offers: cleanVariants(form.landing.offers ?? []) };
   delete payload.id;
   delete payload.created_at;
   delete payload.updated_at;
@@ -116,9 +132,14 @@ export default function ProductForm({
   const [saving, setSaving] = useState(false);
   const set = (patch: Partial<Product>) => setForm((f) => ({ ...f, ...patch }));
   const num = (v: string) => (v === '' ? null : Number(v));
+  const blocks = normalizeLanding(form.landing).blocks;
+  const setBlock = (key: keyof LandingBlocks, shown: boolean) =>
+    set({ landing: { ...normalizeLanding(form.landing), ...form.landing, blocks: { ...blocks, [key]: shown } } });
 
   const save = async () => {
     if (!form.name?.trim() || !form.price) return toast.error('Nom et prix obligatoires');
+    const invalid = variantsError(form.landing?.offers ?? []);
+    if (invalid) return toast.error(invalid);
     setSaving(true);
     const payload = toPayload(form);
     let id = product.id;
@@ -179,6 +200,7 @@ export default function ProductForm({
           <ImageField label="Image principale" value={form.image_url} onChange={(v) => set({ image_url: v })} folder="products" />
         </div>
         <div className="md:col-span-2">
+          <Shown shown={blocks.gallery} onChange={(v) => setBlock('gallery', v)}>
           <span className="mb-2 block text-[0.6875rem] font-extrabold tracking-[0.04em] text-[var(--pz-muted)] uppercase">Galerie</span>
           <div className="space-y-3">
             {(form.gallery ?? []).map((url, i) => (
@@ -193,22 +215,43 @@ export default function ProductForm({
             ))}
             <button className="pz-btn pz-btn-outline" onClick={() => set({ gallery: [...(form.gallery ?? []), ''] })}><Plus className="h-3.5 w-3.5" />Ajouter une photo</button>
           </div>
+          </Shown>
         </div>
-        <Field className="md:col-span-2" label="Description" textarea rows={4} value={form.description} onChange={(v) => set({ description: v })} />
-        <Field label="Composition" textarea value={form.ingredients} onChange={(v) => set({ ingredients: v })} />
-        <Field label="Conseils d'utilisation" textarea value={form.usage} onChange={(v) => set({ usage: v })} />
+        <div className="md:col-span-2">
+          <Shown shown={blocks.description} onChange={(v) => setBlock('description', v)}>
+            <Field label="Description" textarea rows={4} value={form.description} onChange={(v) => set({ description: v })} />
+          </Shown>
+        </div>
+        <Shown shown={blocks.ingredients} onChange={(v) => setBlock('ingredients', v)}>
+          <Field label="Composition" textarea value={form.ingredients} onChange={(v) => set({ ingredients: v })} />
+        </Shown>
+        <Shown shown={blocks.usage} onChange={(v) => setBlock('usage', v)}>
+          <Field label="Conseils d'utilisation" textarea value={form.usage} onChange={(v) => set({ usage: v })} />
+        </Shown>
+
+        <div className="md:col-span-2 border-t border-[var(--pz-border)] pt-4">
+          <p className="pz-card-title mb-1">Variantes</p>
+          <p className="mb-4 text-xs text-slate-500">
+            Ex. 1 flacon (60 gélules) 15 jours, 1 flacon (120 gélules) 1 mois. Le client coche celles qu’il veut dans « Détails de la commande ».
+            Décochez « Visible sur le site » pour masquer une variante sans la supprimer.
+          </p>
+          <VariantsEditor
+            value={form.landing?.offers ?? []}
+            onChange={(offers) => set({ landing: { ...normalizeLanding(form.landing), ...form.landing, offers } })}
+          />
+        </div>
 
         <div className="md:col-span-2 border-t border-[var(--pz-border)] pt-4">
           <p className="pz-card-title mb-1">Contenu enrichi</p>
-          <p className="mb-4 text-xs text-slate-500">Recommandé pour le produit du moment : il donne de la matière à sa mise en avant et à sa page.</p>
-          <RichContentFields value={form} set={set} />
+          <p className="mb-4 text-xs text-slate-500">Décochez « Affiché » pour masquer un bloc sur le site sans perdre son contenu.</p>
+          <RichContentFields value={form} set={set} blocks={blocks} onBlock={setBlock} />
         </div>
 
         <div className="flex flex-wrap gap-6 md:col-span-2">
           <Switch label="Visible sur le site" checked={!!form.is_active} onChange={(v) => set({ is_active: v })} />
           <Switch label="Meilleure vente" checked={!!form.is_bestseller} onChange={(v) => set({ is_bestseller: v })} />
           <Switch label="Nouveauté" checked={!!form.is_new} onChange={(v) => set({ is_new: v })} />
-          <Switch label="Produit du moment" checked={!!form.is_featured} onChange={(v) => set({ is_featured: v })} hint="Remplace le produit du moment actuel" />
+          <Switch label="Produit spécial" checked={!!form.is_featured} onChange={(v) => set({ is_featured: v })} hint="Remplace le produit spécial actuel (page /best-seller)" />
         </div>
       </div>
     </Modal>

@@ -298,7 +298,7 @@ function Personnalisation() {
                     <Field label="Texte" value={hero.recommended_label} onChange={(v) => update('hero', { recommended_label: v })} hint="Vide : étiquette masquée" />
                     <Field label="Bouton" value={hero.recommended_cta} onChange={(v) => update('hero', { recommended_cta: v })} />
                   </div>
-                  <Field label="Lien du bouton" value={hero.recommended_href} onChange={(v) => update('hero', { recommended_href: v })} placeholder="/produit/…" hint="Vide : page du produit du moment" />
+                  <Field label="Lien du bouton" value={hero.recommended_href} onChange={(v) => update('hero', { recommended_href: v })} placeholder="/produit/…" hint="Vide : page du produit spécial (/best-seller)" />
                 </Card>
                 <Card
                   title="Badges de confiance"
@@ -333,10 +333,10 @@ function Personnalisation() {
 
           {tab === 'sections' && (
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card title="Produit du moment (sous le hero)" aside={<Switch label="Visible" checked={sections.featured.visible} onChange={(v) => updateSection('featured', { visible: v })} />}>
+              <Card title="Produit spécial (sous le hero)" aside={<Switch label="Visible" checked={sections.featured.visible} onChange={(v) => updateSection('featured', { visible: v })} />}>
                 <p className="rounded-md bg-[var(--pz-50)] p-3 text-xs text-[var(--pz-700)]">
-                  Le produit, son accroche et ses points forts se choisissent dans{' '}
-                  <a href="/pilotage/boutique?tab=moment" className="font-extrabold underline">Boutique › Produit du moment</a>.
+                  Le produit et tout le contenu de sa page /best-seller se remplissent dans{' '}
+                  <a href="/pilotage/boutique?tab=produit-special" className="font-extrabold underline">Boutique › Produit spécial</a>.
                 </p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Surtitre" value={sections.featured.eyebrow} onChange={(v) => updateSection('featured', { eyebrow: v })} />

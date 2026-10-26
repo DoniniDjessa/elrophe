@@ -10,7 +10,7 @@ import AdminGate from '../components/AdminGate';
 import CrudList from '../components/CrudList';
 import { Field, ImageField, PageTitle, Switch, useRows } from '../components/ui';
 import CollectionTab from './CollectionTab';
-import FeaturedTab from './FeaturedTab';
+import SpecialTab from './SpecialTab';
 import ProductsTab from './ProductsTab';
 
 const tabs = [
@@ -18,7 +18,7 @@ const tabs = [
   { id: 'categories', label: 'Catégories' },
   { id: 'nouveautes', label: 'Nouveautés' },
   { id: 'meilleures-ventes', label: 'Meilleures ventes' },
-  { id: 'moment', label: 'Produit du moment' },
+  { id: 'produit-special', label: 'Produit spécial' },
 ] as const;
 type TabId = (typeof tabs)[number]['id'];
 
@@ -68,7 +68,7 @@ function Boutique() {
       <PageTitle
         eyebrow="Catalogue"
         title="Boutique"
-        subtitle="Produits, catégories, collections et produit du moment."
+        subtitle="Produits, catégories, collections, et produit spécial."
         actions={<a href="/boutique" target="_blank" rel="noopener noreferrer" className="pz-btn pz-btn-outline"><ExternalLink className="h-3.5 w-3.5" />Voir la boutique</a>}
       />
 
@@ -85,7 +85,7 @@ function Boutique() {
       {tab === 'categories' && <CategoriesTab />}
       {tab === 'nouveautes' && <CollectionTab rows={rows} collection="is_new" label="Nouveautés" publicPath="/boutique?collection=nouveautes" reload={products.reload} />}
       {tab === 'meilleures-ventes' && <CollectionTab rows={rows} collection="is_bestseller" label="Meilleures ventes" publicPath="/boutique?collection=meilleures-ventes" reload={products.reload} />}
-      {tab === 'moment' && <FeaturedTab rows={rows} reload={products.reload} />}
+      {tab === 'produit-special' && <SpecialTab rows={rows} reload={products.reload} />}
     </>
   );
 }

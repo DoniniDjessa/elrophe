@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/site/ProductCard';
 import ProductDetail from '@/components/site/ProductDetail';
 import { SectionHeading } from '@/components/site/Typography';
 import { getCategories, getProductBySlug, getProducts, getSettings } from '@/lib/data';
+import { SPECIAL_PATH } from '@/lib/landing';
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -29,6 +30,8 @@ async function ProductContent({ params }: Pick<PageProps<'/produit/[slug]'>, 'pa
   const { slug } = await params;
   const [product, products, categories, settings] = await Promise.all([getProductBySlug(slug), getProducts(), getCategories(), getSettings()]);
   if (!product) notFound();
+  // Le produit spécial a sa propre page de vente
+  if (product.is_featured) redirect(SPECIAL_PATH);
 
   const category = categories.find((c) => c.slug === product.category_slug);
   const related = products.filter((p) => p.id !== product.id && p.category_slug === product.category_slug).slice(0, 4);

@@ -98,7 +98,7 @@ export default function ProductsTab({
                   <th>Catégorie</th>
                   <th className="text-right">Prix</th>
                   <th className="text-right">Stock</th>
-                  <th title="Produit du moment">Moment</th>
+                  <th title="Produit spécial (page /best-seller)">Spécial</th>
                   <th>Visible</th>
                   <th>Top vente</th>
                   <th>Nouveau</th>
@@ -134,10 +134,10 @@ export default function ProductsTab({
                       <td>
                         <button
                           className="pz-btn pz-btn-ghost px-1.5!"
-                          onClick={() => run(setFeatured(p.is_featured ? null : p.id), p.is_featured ? 'Produit du moment retiré' : `« ${p.name} » est le produit du moment`)}
+                          onClick={() => run(setFeatured(p.is_featured ? null : p.id), p.is_featured ? 'Produit spécial retiré' : `« ${p.name} » est le produit spécial`)}
                           aria-pressed={p.is_featured}
                           aria-label={p.is_featured ? `Retirer ${p.name} du produit du moment` : `Faire de ${p.name} le produit du moment`}
-                          title="Produit du moment"
+                          title="Produit spécial"
                         >
                           <Star className={`h-4 w-4 ${p.is_featured ? 'fill-amber-400 text-amber-500' : 'text-slate-300'}`} />
                         </button>

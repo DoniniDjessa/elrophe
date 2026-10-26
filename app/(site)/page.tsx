@@ -8,6 +8,7 @@ import Philosophy from '@/components/site/Philosophy';
 import Ritual from '@/components/site/Ritual';
 import Solutions from '@/components/site/Solutions';
 import Testimonials from '@/components/site/Testimonials';
+import { pickSpecialProduct, SPECIAL_PATH } from '@/lib/landing';
 import { getCategories, getIngredients, getProducts, getSettings, getSolutions, getTestimonials } from '@/lib/data';
 
 export default async function HomePage() {
@@ -20,14 +21,12 @@ export default async function HomePage() {
     getSolutions(),
   ]);
   const { hero, sections } = settings;
-  // « Le plus recommandé » du hero mène au produit du moment (même choix que FeaturedProduct)
-  const recommended =
-    products.find((p) => p.is_featured) ??
-    [...products].sort((a, b) => Number(b.is_bestseller) - Number(a.is_bestseller) || b.reviews_count - a.reviews_count)[0];
+  // « Le plus recommandé » du hero mène à la page du produit spécial
+  const recommended = pickSpecialProduct(products);
 
   return (
     <>
-      <Hero hero={hero} recommendedHref={recommended && `/produit/${recommended.slug}`} />
+      <Hero hero={hero} recommendedHref={recommended && SPECIAL_PATH} />
       {sections.solutions.visible && <Solutions items={solutions} heading={sections.solutions} />}
       {sections.featured.visible && <FeaturedProduct data={sections.featured} products={products} categories={categories} />}
       {sections.categories.visible && <CategoryGrid categories={categories} title={sections.categories.title} linkLabel={sections.categories.link_label} />}

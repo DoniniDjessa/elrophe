@@ -203,3 +203,16 @@ export function ImageField({
 export function Empty({ children }: { children: ReactNode }) {
   return <div className="pz-empty">{children}</div>;
 }
+
+/** Bloc affichable ou masquable sur le site : interrupteur « Affiché » en haut à droite, contenu grisé quand masqué */
+export function Shown({ shown, onChange, children }: { shown: boolean; onChange: (shown: boolean) => void; children: ReactNode }) {
+  return (
+    <div className={`relative rounded-md ${shown ? '' : 'bg-gray-50 outline-1 outline-dashed outline-gray-300 outline-offset-4'}`}>
+      <label className="absolute -top-0.5 right-0 z-10 flex cursor-pointer items-center gap-1.5 text-[0.6875rem] font-extrabold tracking-[0.04em] text-[var(--pz-muted)] uppercase">
+        <input type="checkbox" checked={shown} onChange={(e) => onChange(e.target.checked)} className="h-3.5 w-3.5 accent-indigo-600" />
+        {shown ? 'Affiché' : 'Masqué'}
+      </label>
+      <div className={shown ? '' : 'opacity-55'}>{children}</div>
+    </div>
+  );
+}
