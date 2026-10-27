@@ -325,6 +325,8 @@ export interface BrandSettings {
   slogan: string;
   /** Pays de présence : drapeaux de l'en-tête (codes ISO, ex. ci, in, us) */
   countries: string[];
+  /** Bande défilante au-dessus de la barre de navigation (vide : masquée) */
+  marquee: string[];
 }
 
 export interface ShopSettings {

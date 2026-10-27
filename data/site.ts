@@ -126,7 +126,8 @@ export const defaultSettings: SiteSettings = {
   },
 
   brand: {
-    countries: ['in', 'ci', 'us'],
+    countries: ['in', 'ca', 'us'],
+    marquee: ['Livraison fluide et rapide', 'Paiement à la livraison', 'Produits naturels sélectionnés', 'Service client à votre écoute'],
     name: 'El Rophe',
     tagline: 'Produits naturels pour votre bien-être',
     footer_text: 'Des produits naturels, tracés et testés, pour prendre soin de vous chaque jour.',

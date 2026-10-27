@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
-import { ChevronRight, CircleHelp, HandHeart, Heart, House, Menu, Package, Phone, Search, ShieldCheck, ShoppingBag, Truck, User, X } from 'lucide-react';
+import { ChevronRight, CircleHelp, HandHeart, Heart, House, Menu, Package, Phone, Search, ShieldCheck, ShoppingBag, User, X } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import Brand, { Wordmark } from './Brand';
 import Flags from './Flags';
@@ -19,6 +19,14 @@ export const navLinks = [
   { href: '/contact', label: 'Contact', Icon: Phone },
 ];
 
+
+const marqueeCss = `
+@keyframes elrophe-marquee { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-100%, 0, 0); } }
+.marquee { display: flex; overflow: hidden; white-space: nowrap; }
+.marquee-track { display: flex; flex-shrink: 0; animation: elrophe-marquee 45s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+`;
 
 const isActive = (pathname: string, href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
@@ -35,7 +43,18 @@ function CartButton({ count, className = '' }: { count: number; className?: stri
   );
 }
 
-export default function Navbar({ iconUrl, countries = [], transparentOnHome = false }: { iconUrl: string; countries?: string[]; transparentOnHome?: boolean }) {
+export default function Navbar({
+  iconUrl,
+  countries = [],
+  marquee = [],
+  transparentOnHome = false,
+}: {
+  iconUrl: string;
+  countries?: string[];
+  marquee?: string[];
+  transparentOnHome?: boolean;
+}) {
+  const messages = marquee.map((m) => m.trim()).filter(Boolean);
   const pathname = usePathname() ?? '/';
   const router = useRouter();
   const { count } = useCart();
@@ -82,13 +101,27 @@ export default function Navbar({ iconUrl, countries = [], transparentOnHome = fa
 
   return (
     <>
-      {/* Bande d'information : un seul message */}
-      <div className="bg-forest text-ivory/90">
-        <p className="container-site flex h-9 items-center justify-center gap-2 text-[13px]">
-          <Truck className="h-4 w-4 text-champagne" strokeWidth={1.6} aria-hidden="true" />
-          Livraison fluide et rapide
-        </p>
-      </div>
+      {/* Bande défilante (Pilotage › Personnalisation › Marque) : deux pistes identiques pour une boucle sans couture */}
+      {messages.length > 0 && (
+        <>
+        {/* Animation propre au composant (React la place dans le <head>, une seule fois) */}
+        <style href="elrophe-marquee" precedence="default">{marqueeCss}</style>
+        <div className="marquee bg-forest py-2 text-[13px] text-ivory/90" role="marquee" aria-label={messages.join(' · ')}>
+          {[0, 1].map((track) => (
+            <div key={track} className="marquee-track" aria-hidden="true">
+              {Array.from({ length: 3 }, (_, round) =>
+                messages.map((m, i) => (
+                  <span key={`${round}-${i}`} className="flex items-center gap-6 pr-6">
+                    {m}
+                    <span className="h-1 w-1 rounded-full bg-champagne" />
+                  </span>
+                )),
+              )}
+            </div>
+          ))}
+        </div>
+        </>
+      )}
 
       <header
         className={`sticky top-0 z-50 border-b transition-colors duration-300 ${overlay ? '-mb-16 lg:-mb-20' : ''} ${

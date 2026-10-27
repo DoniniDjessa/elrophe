@@ -463,6 +463,16 @@ function Personnalisation() {
                 <Field label="Bandeau d’annonce (haut de page)" value={brand.announcement} onChange={(v) => update('brand', { announcement: v })} hint="Laisser vide pour masquer le bandeau" />
                 <Field label="Slogan (sous le nom, menu mobile)" value={brand.slogan} onChange={(v) => update('brand', { slogan: v })} />
               </Card>
+              <Card title="Bande défilante (au-dessus de la barre de navigation)">
+                <Field
+                  label="Messages"
+                  textarea
+                  rows={5}
+                  value={brand.marquee.join('\n')}
+                  onChange={(v) => update('brand', { marquee: v.split('\n') })}
+                  hint="Un message par ligne. Laisser vide pour masquer la bande. Pensez à enregistrer."
+                />
+              </Card>
               <Card title="Pays de présence (drapeaux de l’en-tête)">
                 <p className="text-xs text-slate-500">Affichés à droite de la barre de navigation, dans cet ordre (4 au maximum). Pensez à enregistrer.</p>
                 <ul className="flex flex-wrap gap-2">

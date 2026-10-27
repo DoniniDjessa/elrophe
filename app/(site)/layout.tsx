@@ -14,7 +14,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-md focus:bg-forest focus:px-4 focus:py-2 focus:text-white">
           Aller au contenu
         </a>
-        <Navbar iconUrl={settings.brand.icon_url} countries={settings.brand.countries} transparentOnHome={settings.hero.transparent_nav} />
+        <Navbar iconUrl={settings.brand.icon_url} countries={settings.brand.countries} marquee={settings.brand.marquee} transparentOnHome={settings.hero.transparent_nav} />
         <main id="contenu">{children}</main>
         <Footer brand={settings.brand} categories={categories} />
       </div>
