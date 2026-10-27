@@ -9,8 +9,8 @@ export default async function PanierPage() {
   const { shop } = await getSettings();
   return (
     <>
-      <PageHeader eyebrow="Votre" accent="panier" title="Mon panier" crumbs={[{ label: 'Panier' }]} />
-      <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6 lg:px-10">
+      <PageHeader title="Votre panier" crumbs={[{ label: 'Panier' }]} />
+      <div className="container-site pb-16">
         <CartView shop={shop} />
       </div>
     </>

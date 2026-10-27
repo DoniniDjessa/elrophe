@@ -5,13 +5,14 @@ import { ArrowDown, ArrowUp, ExternalLink, Plus, Save, Sparkles, Trash2 } from '
 import { toast } from 'sonner';
 import { TABLES, updateRow } from '@/lib/admin';
 import { defaultLanding, normalizeLanding, SPECIAL_PATH } from '@/lib/landing';
-import type { LandingBlocks, LandingFaq, LandingReview, LandingSection, Product, ProductLanding } from '@/lib/types';
+import type { LandingBlocks, LandingFaq, LandingIngredient, LandingReview, LandingSection, Product, ProductLanding } from '@/lib/types';
 import { Field, ImageField, Shown, Switch } from '../components/ui';
 import { setFeatured } from './actions';
 import { RichContentFields } from './ProductForm';
 import VariantsEditor, { cleanVariants, variantsError } from './VariantsEditor';
 
 const input = 'w-full border border-gray-300 bg-transparent px-3 py-2 text-black';
+const reasonExamples = ['Ex. Formule naturelle et complète', 'Ex. Ingrédients de qualité sélectionnés', 'Ex. Adapté à une utilisation quotidienne', 'Ex. Sans additifs inutiles', ''];
 
 /**
  * Produit spécial : un seul produit, mis en avant sur l'accueil et présenté sur sa propre page /best-seller
@@ -80,6 +81,7 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
   const set = (patch: Partial<ProductLanding>) => setLanding((l) => ({ ...l, ...patch }));
   const setInfoPatch = (patch: Partial<Product>) => setInfo((f) => ({ ...f, ...patch }));
   const trust = Array.from({ length: 4 }, (_, i) => landing.trust[i] ?? '');
+  const reasons = Array.from({ length: 5 }, (_, i) => landing.reasons[i] ?? '');
   const block = (key: keyof LandingBlocks) => ({
     shown: landing.blocks[key],
     onShown: (v: boolean) => set({ blocks: { ...landing.blocks, [key]: v } }),
@@ -88,12 +90,11 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
   const checks = [
     { label: 'Bannière (texte ou visuel)', ok: !!(landing.hero_text.trim() || landing.hero_image || info.tagline?.trim()) },
     { label: '3 points forts ou plus', ok: (info.highlights ?? []).filter((h) => h.trim()).length >= 3 },
-    { label: 'Histoire « Pourquoi on l’aime »', ok: !!info.story?.trim() },
-    { label: '3 bienfaits', ok: (info.benefits ?? []).filter((b) => b.title.trim() && b.text.trim()).length >= 3 },
-    { label: '2 sections ou plus', ok: landing.sections.length >= 2 },
-    { label: 'Au moins une variante visible', ok: landing.offers.some((o) => !o.hidden) },
-    { label: '3 avis clients', ok: landing.reviews.length >= 3 },
-    { label: '3 questions fréquentes', ok: landing.faq.length >= 3 },
+    { label: 'Texte « À propos »', ok: !!(landing.about_text.trim() || info.description?.trim()) },
+    { label: '4 ingrédients illustrés', ok: landing.ingredient_cards.filter((c) => c.name.trim() && c.image_url).length >= 4 },
+    { label: 'Conseils et précautions', ok: !!info.usage?.trim() && !!landing.precautions.trim() },
+    { label: '« Pourquoi choisir » (3 lignes)', ok: landing.reasons.filter((r) => r.trim()).length >= 3 },
+    { label: 'Au moins une offre visible', ok: landing.offers.some((o) => !o.hidden) },
   ];
   const done = checks.filter((c) => c.ok).length;
 
@@ -116,6 +117,9 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
         sections: landing.sections.filter((s) => s.title.trim() || s.text.trim() || s.image_url),
         reviews: landing.reviews.filter((r) => r.name.trim() && r.text.trim()),
         faq: landing.faq.filter((f) => f.question.trim() && f.answer.trim()),
+        ingredient_cards: landing.ingredient_cards.filter((c) => c.name.trim()),
+        reasons: landing.reasons.map((r) => r.trim()).filter(Boolean),
+        reasons_image: landing.reasons_image || null,
         offers: cleanVariants(landing.offers),
       },
     });
@@ -137,19 +141,20 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[1fr_280px]">
       <div className="space-y-6">
-        <Card title="1. Bannière" hint="Le haut de la page /best-seller, sur fond vert. Vides : nom, accroche et photo du produit.">
+        <Card title="1. Bannière" hint="Haut de la page /best-seller. Vides : catégorie, nom et accroche du produit, feuillage par défaut.">
           <div className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
             <div className="space-y-3">
+              <Field label="Pastille au-dessus du titre" value={landing.hero_badge} onChange={(v) => set({ hero_badge: v })} placeholder="Ex. Santé digestive" />
               <Field label="Grand titre" value={landing.hero_title} onChange={(v) => set({ hero_title: v })} placeholder={product.name} />
               <Shown shown={landing.blocks.hero_text} onChange={block('hero_text').onShown}>
-                <Field label="Texte d’accroche" textarea rows={4} value={landing.hero_text} onChange={(v) => set({ hero_text: v })} placeholder="Ex. Brûlures, ballonnements, lourdeurs ? Retrouvez un estomac apaisé avec une formule complète." />
+                <Field label="Sous-titre" textarea rows={3} value={landing.hero_text} onChange={(v) => set({ hero_text: v })} placeholder="Ex. Complément alimentaire à base d’extraits végétaux sélectionnés." />
               </Shown>
             </div>
-            <ImageField label="Visuel de la bannière (carré)" value={landing.hero_image} onChange={(v) => set({ hero_image: v })} folder="landing" />
+            <ImageField label="Visuel de fond (paysage, sujet à droite)" value={landing.hero_image} onChange={(v) => set({ hero_image: v })} folder="landing" aspect="aspect-[4/3]" />
           </div>
         </Card>
 
-        <Card title="2. Arguments de confiance" hint="4 phrases courtes affichées dans la bande sous la bannière." {...block('trust')}>
+        <Card title="2. Pictogrammes de la bannière" hint="3 ou 4 libellés courts sous le titre (ex. Ingrédients naturels, Livraison express gratuite)." {...block('trust')}>
           <div className="grid gap-2 sm:grid-cols-2">
             {trust.map((t, i) => (
               <input
@@ -157,32 +162,80 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
                 value={t}
                 onChange={(e) => set({ trust: trust.map((x, j) => (j === i ? e.target.value : x)) })}
                 placeholder={defaultLanding.trust[i]}
-                aria-label={`Argument ${i + 1}`}
+                aria-label={`Pictogramme ${i + 1}`}
                 className={input}
               />
             ))}
           </div>
         </Card>
 
-        <Card title="3. Présentation du produit" hint="Points forts dans la bannière ; histoire et bienfaits plus bas dans la page.">
+        <Card title="3. À propos du produit" hint="Texte de présentation, puis 4 pictogrammes : les points forts ci-dessous." {...block('about')}>
           <div className="space-y-4">
+            <Field label="Texte « À propos du produit »" textarea rows={4} value={landing.about_text} onChange={(v) => set({ about_text: v })} placeholder={info.description || 'Vide : description du produit'} />
             <RichContentFields value={info} set={setInfoPatch} blocks={landing.blocks} onBlock={(key, v) => block(key).onShown(v)} />
             <Shown shown={landing.blocks.description} onChange={block('description').onShown}>
-              <Field label="Description" textarea rows={3} value={info.description} onChange={(v) => setInfoPatch({ description: v })} hint="Affichée sur l’accueil (bloc produit spécial)." />
+              <Field label="Description du produit" textarea rows={3} value={info.description} onChange={(v) => setInfoPatch({ description: v })} hint="Utilisée sur la fiche produit et l’accueil." />
             </Shown>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Shown shown={landing.blocks.ingredients} onChange={block('ingredients').onShown}>
-                <Field label="Composition" textarea rows={3} value={info.ingredients} onChange={(v) => setInfoPatch({ ingredients: v })} hint="Affichée dans les questions fréquentes." />
-              </Shown>
-              <Shown shown={landing.blocks.usage} onChange={block('usage').onShown}>
-                <Field label="Conseils d’utilisation" textarea rows={3} value={info.usage} onChange={(v) => setInfoPatch({ usage: v })} hint="Affichés dans les questions fréquentes." />
-              </Shown>
+          </div>
+        </Card>
+
+        <ListCard<LandingIngredient>
+          title="4. Ingrédients principaux"
+          hint="Cartes illustrées (4 conseillées). Le bouton « Voir la liste complète » affiche la composition ci-dessous."
+          {...block('ingredient_cards')}
+          items={landing.ingredient_cards}
+          onChange={(ingredient_cards) => set({ ingredient_cards })}
+          empty={{ name: '', image_url: '' }}
+          addLabel="Ajouter un ingrédient"
+          render={(c, update) => (
+            <div className="grid gap-4 md:grid-cols-[1fr_1.2fr]">
+              <Field label="Nom" value={c.name} onChange={(v) => update({ name: v })} placeholder="Ex. Gomme de mastic" />
+              <ImageField label="Photo (carrée)" value={c.image_url} onChange={(v) => update({ image_url: v })} folder="landing" />
             </div>
+          )}
+        />
+
+        <Card title="5. Composition, conseils et précautions">
+          <div className="space-y-4">
+            <Shown shown={landing.blocks.ingredients} onChange={block('ingredients').onShown}>
+              <Field label="Liste complète des ingrédients" textarea rows={3} value={info.ingredients} onChange={(v) => setInfoPatch({ ingredients: v })} />
+            </Shown>
+            <Shown shown={landing.blocks.usage} onChange={block('usage').onShown}>
+              <Field label="Conseils d’utilisation" textarea rows={3} value={info.usage} onChange={(v) => setInfoPatch({ usage: v })} />
+            </Shown>
+            <Shown shown={landing.blocks.precautions} onChange={block('precautions').onShown}>
+              <Field
+                label="Précautions"
+                textarea
+                rows={3}
+                value={landing.precautions}
+                onChange={(v) => set({ precautions: v })}
+                placeholder="Ex. Complément alimentaire. Ne se substitue pas à une alimentation variée et équilibrée. Tenir hors de portée des enfants."
+              />
+            </Shown>
+          </div>
+        </Card>
+
+        <Card title={`6. « Pourquoi choisir ${product.name} ? »`} hint="Liste cochée en bas de la présentation (5 lignes max.)." {...block('reasons')}>
+          <div className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
+            <div className="space-y-2">
+              {reasons.map((r, i) => (
+                <input
+                  key={i}
+                  value={r}
+                  onChange={(e) => set({ reasons: reasons.map((x, j) => (j === i ? e.target.value : x)) })}
+                  placeholder={reasonExamples[i]}
+                  aria-label={`Raison ${i + 1}`}
+                  className={input}
+                />
+              ))}
+            </div>
+            <ImageField label="Visuel (portrait)" value={landing.reasons_image} onChange={(v) => set({ reasons_image: v })} folder="landing" aspect="aspect-[3/4]" />
           </div>
         </Card>
 
         <ListCard<LandingSection>
-          title="4. Sections (texte + image)"
+          title="7. Sections complémentaires (facultatif)"
           hint="Une bannière par section : titre, image en grand, puis le texte."
           {...block('sections')}
           items={landing.sections}
@@ -201,14 +254,14 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
         />
 
         <Card
-          title="5. Variantes (formulaire de commande)"
+          title="8. Offres du formulaire « Commandez maintenant »"
           hint="Le client les coche dans « Détails de la commande ». Aussi modifiables depuis la fiche du produit (onglet Produits)."
         >
           <VariantsEditor value={landing.offers} onChange={(offers) => set({ offers })} />
         </Card>
 
         <ListCard<LandingReview>
-          title="6. Avis clients"
+          title="9. Avis clients"
           hint="Section « Ils l’ont adopté ». Utilisez de vrais retours clients."
           {...block('reviews')}
           items={landing.reviews}
@@ -227,7 +280,7 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
         />
 
         <ListCard<LandingFaq>
-          title="7. Questions fréquentes"
+          title="10. Questions fréquentes"
           hint="Affichées avant le formulaire, après la composition et les conseils d’utilisation."
           {...block('faq')}
           items={landing.faq}
@@ -242,7 +295,7 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
           )}
         />
 
-        <Card title="8. Formulaire de commande">
+        <Card title="11. Formulaire de commande">
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Titre" value={landing.order_title} onChange={(v) => set({ order_title: v })} />
             <Field label="Sous-titre" value={landing.order_subtitle} onChange={(v) => set({ order_subtitle: v })} />

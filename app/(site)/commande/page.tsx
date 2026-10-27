@@ -9,8 +9,8 @@ export default async function CommandePage() {
   const { shop } = await getSettings();
   return (
     <>
-      <PageHeader eyebrow="Finaliser" accent="ma commande" title="Commande" crumbs={[{ href: '/panier', label: 'Panier' }, { label: 'Commande' }]} />
-      <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6 lg:px-10">
+      <PageHeader title="Commande" crumbs={[{ href: '/panier', label: 'Panier' }, { label: 'Commande' }]} />
+      <div className="container-site pb-16">
         <CheckoutForm shop={shop} />
       </div>
     </>

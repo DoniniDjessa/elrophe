@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { insertRow, TABLES, updateRow } from '@/lib/admin';
 import { slugify } from '@/lib/format';
 import { normalizeLanding } from '@/lib/landing';
-import type { Category, LandingBlocks, Product, ProductBenefit } from '@/lib/types';
+import type { Category, LandingBlocks, Product, ProductBenefit, ProductLanding } from '@/lib/types';
 import { Field, ImageField, Modal, Shown, Switch } from '../components/ui';
 import { setFeatured } from './actions';
 import VariantsEditor, { cleanVariants, variantsError } from './VariantsEditor';
@@ -135,6 +135,9 @@ export default function ProductForm({
   const blocks = normalizeLanding(form.landing).blocks;
   const setBlock = (key: keyof LandingBlocks, shown: boolean) =>
     set({ landing: { ...normalizeLanding(form.landing), ...form.landing, blocks: { ...blocks, [key]: shown } } });
+  // Champs rangés dans « landing » (format, précautions) : pas de colonne dédiée
+  const extra = normalizeLanding(form.landing);
+  const setExtra = (patch: Partial<ProductLanding>) => set({ landing: { ...extra, ...form.landing, ...patch } });
 
   const save = async () => {
     if (!form.name?.trim() || !form.price) return toast.error('Nom et prix obligatoires');
@@ -189,6 +192,7 @@ export default function ProductForm({
           </select>
         </div>
         <Field label="Bénéfice court" value={form.benefit} onChange={(v) => set({ benefit: v })} placeholder="Ex. Énergie et vitalité au quotidien" />
+        <Field label="Format et quantité" value={extra.format} onChange={(v) => setExtra({ format: v })} placeholder="Ex. 120 capsules | 500 mg" hint="Affiché sous le nom, sur les cartes et la fiche produit." />
         <Field label="Prix (FCFA)" type="number" required value={form.price} onChange={(v) => set({ price: Number(v) })} />
         <Field label="Prix barré (optionnel)" type="number" value={form.compare_at_price} onChange={(v) => set({ compare_at_price: num(v) })} />
         <Field label="Stock" type="number" value={form.stock} onChange={(v) => set({ stock: num(v) })} hint="Laisser vide pour ne pas suivre le stock" />
@@ -228,6 +232,14 @@ export default function ProductForm({
         <Shown shown={blocks.usage} onChange={(v) => setBlock('usage', v)}>
           <Field label="Conseils d'utilisation" textarea value={form.usage} onChange={(v) => set({ usage: v })} />
         </Shown>
+        <Field
+          className="md:col-span-2"
+          label="Précautions et informations réglementaires"
+          textarea
+          value={extra.precautions}
+          onChange={(v) => setExtra({ precautions: v })}
+          placeholder="Ex. Complément alimentaire. Ne pas dépasser la dose journalière recommandée. Tenir hors de portée des jeunes enfants. Déconseillé aux femmes enceintes ou allaitantes."
+        />
 
         <div className="md:col-span-2 border-t border-[var(--pz-border)] pt-4">
           <p className="pz-card-title mb-1">Variantes</p>

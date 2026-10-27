@@ -1,118 +1,131 @@
 import Link from 'next/link';
-import SmartImage from '@/components/ui/SmartImage';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import type { BrandSettings, Category } from '@/lib/types';
+import Brand from './Brand';
 import { FacebookIcon, InstagramIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } from './Icons';
 
+/** Pied de page : uniquement les coordonnées et réseaux renseignés dans Pilotage › Personnalisation */
 export default function Footer({ brand, categories }: { brand: BrandSettings; categories: Category[] }) {
+  const wa = brand.whatsapp.replace(/\D/g, '');
   const socials = [
-    { href: brand.socials.instagram, label: 'Instagram', Icon: InstagramIcon },
+    { href: wa ? `https://wa.me/${wa}` : '', label: 'WhatsApp', Icon: WhatsappIcon },
     { href: brand.socials.facebook, label: 'Facebook', Icon: FacebookIcon },
+    { href: brand.socials.instagram, label: 'Instagram', Icon: InstagramIcon },
     { href: brand.socials.tiktok, label: 'TikTok', Icon: TiktokIcon },
     { href: brand.socials.youtube, label: 'YouTube', Icon: YoutubeIcon },
-    { href: brand.whatsapp ? `https://wa.me/${brand.whatsapp.replace(/\D/g, '')}` : '', label: 'WhatsApp', Icon: WhatsappIcon },
   ].filter((s) => s.href);
 
   const columns = [
     {
-      title: 'Boutique',
+      title: 'Catalogue',
+      links: [{ href: '/boutique', label: 'Nos produits' }, ...categories.slice(0, 3).map((c) => ({ href: `/boutique?categorie=${c.slug}`, label: c.name }))],
+    },
+    {
+      title: 'Notre maison',
       links: [
-        { href: '/boutique', label: 'Tous les produits' },
-        ...categories.slice(0, 5).map((c) => ({ href: `/boutique?categorie=${c.slug}`, label: c.name })),
+        { href: '/notre-maison', label: 'Notre histoire' },
+        { href: '/engagements', label: 'Nos engagements' },
+        { href: '/avis', label: 'Avis clients' },
       ],
     },
     {
-      title: 'Découvrir',
+      title: 'Service client',
       links: [
-        { href: '/boutique?collection=meilleures-ventes', label: 'Meilleures ventes' },
-        { href: '/boutique?collection=nouveautes', label: 'Nouveautés' },
-        { href: '/#rituel', label: 'Rituels bien-être' },
-        { href: '/a-propos', label: 'Notre histoire' },
-      ],
-    },
-    {
-      title: 'Aide',
-      links: [
-        { href: '/compte', label: 'Suivre ma commande' },
-        { href: '/panier', label: 'Mon panier' },
-        { href: '/favoris', label: 'Mes favoris' },
+        { href: '/faq', label: 'Questions fréquentes' },
+        { href: '/mentions-legales#livraison', label: 'Livraison et retours' },
+        { href: '/compte', label: 'Suivi de commande' },
         { href: '/contact', label: 'Nous contacter' },
+      ],
+    },
+    {
+      title: 'Informations légales',
+      links: [
+        { href: '/mentions-legales#cgv', label: 'Conditions générales de vente' },
+        { href: '/mentions-legales', label: 'Mentions légales' },
+        { href: '/mentions-legales#confidentialite', label: 'Politique de confidentialité' },
       ],
     },
   ];
 
   return (
-    <footer className="mt-10 border-t border-line bg-[color-mix(in_srgb,var(--bg-sage)_90%,var(--forest))]">
-      <div className="mx-auto max-w-[1440px] px-4 pt-16 pb-8 sm:px-6 lg:px-10">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
-          <div className="max-w-sm">
-            <Link href="/" className="inline-flex" aria-label={`${brand.name} — accueil`}>
-              <SmartImage src={brand.logo_url} alt={brand.name} width={1240} height={1288} sizes="120px" className="h-28 w-auto" />
-            </Link>
-            <p className="mt-5 text-[15px] leading-relaxed text-ink/85">{brand.footer_text}</p>
-            {socials.length > 0 && (
-              <ul className="mt-6 flex gap-2" aria-label="Réseaux sociaux">
-                {socials.map(({ href, label, Icon }) => (
-                  <li key={label}>
-                    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="icon-btn glass">
-                      <Icon className="h-[18px] w-[18px]" />
-                    </a>
+    <footer className="border-t border-ivory/10 bg-forest text-ivory/80">
+      <div className="container-site grid gap-10 py-14 lg:grid-cols-[1.2fr_repeat(4,1fr)_1.3fr] lg:gap-8 lg:py-16">
+        <div>
+          <Brand iconUrl={brand.icon_url} tone="light" />
+          <p className="mt-5 font-serif text-lg leading-snug text-ivory italic">
+            La nature nous inspire.
+            <br />
+            La qualité nous distingue.
+          </p>
+          {socials.length > 0 && (
+            <ul className="mt-6 flex gap-2">
+              {socials.map(({ href, label, Icon }) => (
+                <li key={label}>
+                  <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-full border border-ivory/20 transition-colors hover:border-champagne hover:text-champagne">
+                    <Icon className="h-4 w-4" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-4 lg:gap-6">
+          {columns.map((col) => (
+            <div key={col.title}>
+              <h2 className="font-sans! text-[13px] font-semibold! tracking-[0.12em] text-ivory! uppercase">{col.title}</h2>
+              <ul className="mt-4 space-y-2.5 text-[14px]">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="transition-colors hover:text-champagne">
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-[1fr_1fr_1fr_1.35fr]">
-            {columns.map((col) => (
-              <nav key={col.title} aria-label={col.title}>
-                <h2 className="text-[11px] font-semibold tracking-[0.24em] text-ink uppercase">{col.title}</h2>
-                <ul className="mt-4 space-y-2.5">
-                  {col.links.map((l) => (
-                    <li key={l.href + l.label}>
-                      <Link href={l.href} className="text-[14px] text-ink/85 transition-colors hover:text-ink">
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
-            <div>
-              <h2 className="text-[11px] font-semibold tracking-[0.24em] text-ink uppercase">Contact</h2>
-              <ul className="mt-4 space-y-3 text-[14px] text-ink/85">
-                {brand.phone && (
-                  <li className="flex gap-2">
-                    <Phone className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                    <a href={`tel:${brand.phone.replace(/\s/g, '')}`} className="hover:text-ink">{brand.phone}</a>
-                  </li>
-                )}
-                {brand.email && (
-                  <li className="flex gap-2">
-                    <Mail className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                    <a href={`mailto:${brand.email}`} className="[overflow-wrap:anywhere] hover:text-ink">{brand.email}</a>
-                  </li>
-                )}
-                {brand.address && (
-                  <li className="flex gap-2">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span>{brand.address}</span>
-                  </li>
-                )}
-              </ul>
             </div>
-          </div>
+          ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-3 border-t border-line pt-6 text-xs text-ink/85 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {brand.name}. Tous droits réservés. Ces produits ne se substituent pas à une alimentation variée et équilibrée.
-          </p>
-          <ul className="flex flex-wrap gap-x-5 gap-y-2">
-            <li><Link href="/mentions-legales" className="hover:text-ink">Mentions légales</Link></li>
-            <li><Link href="/mentions-legales#cgv" className="hover:text-ink">CGV</Link></li>
-            <li><Link href="/mentions-legales#confidentialite" className="hover:text-ink">Confidentialité</Link></li>
+        <div>
+          <h2 className="font-sans! text-[13px] font-semibold! tracking-[0.12em] text-ivory! uppercase">Nous contacter</h2>
+          <ul className="mt-4 space-y-3 text-[14px]">
+            {brand.email && (
+              <li>
+                <a href={`mailto:${brand.email}`} className="flex items-start gap-2.5 hover:text-champagne">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-champagne" aria-hidden="true" />
+                  {brand.email}
+                </a>
+              </li>
+            )}
+            {brand.phone && (
+              <li>
+                <a href={`tel:${brand.phone.replace(/\s/g, '')}`} className="flex items-start gap-2.5 hover:text-champagne">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-champagne" aria-hidden="true" />
+                  {brand.phone}
+                </a>
+              </li>
+            )}
+            {brand.address && (
+              <li className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-champagne" aria-hidden="true" />
+                {brand.address}
+              </li>
+            )}
+            {brand.hours && (
+              <li className="flex items-start gap-2.5">
+                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-champagne" aria-hidden="true" />
+                {brand.hours}
+              </li>
+            )}
           </ul>
+        </div>
+      </div>
+
+      <div className="border-t border-ivory/10">
+        <div className="container-site flex flex-col gap-2 py-5 text-[13px] text-ivory/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>© EL ROPHE. Tous droits réservés. Les compléments alimentaires ne se substituent pas à une alimentation variée et équilibrée.</p>
+          <p className="shrink-0 font-serif text-[15px] italic">La nature nous inspire. La qualité nous distingue.</p>
         </div>
       </div>
     </footer>

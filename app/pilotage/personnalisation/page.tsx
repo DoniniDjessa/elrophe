@@ -164,6 +164,23 @@ function Personnalisation() {
     toast.success('Enregistré — le site est à jour');
   };
 
+  /** Interrupteur de la barre transparente : enregistré immédiatement (avec le reste de l'onglet Hero) */
+  const saveTransparentNav = async (on: boolean) => {
+    const next = { ...settings.hero, transparent_nav: on };
+    setSettings((s) => ({ ...s, hero: next }));
+    const { error } = await saveSetting('hero', next);
+    if (error) {
+      setSettings((s) => ({ ...s, hero: { ...s.hero, transparent_nav: !on } }));
+      return toast.error(error);
+    }
+    setDirty((d) => {
+      const rest = new Set(d);
+      rest.delete('hero');
+      return rest;
+    });
+    toast.success(on ? 'Barre transparente activée — le site est à jour' : 'Barre claire rétablie — le site est à jour');
+  };
+
   const reset = () => {
     if (!confirm('Rétablir les valeurs d’origine pour cet onglet ? (Il faudra enregistrer.)')) return;
     setSettings((s) => ({ ...s, [tab]: defaultSettings[tab] }));
@@ -270,6 +287,14 @@ function Personnalisation() {
 
           {tab === 'hero' && (
             <div className="grid gap-6 lg:grid-cols-2">
+              <Card title="Barre de navigation">
+                <Switch
+                  label="Transparente sur l’image d’accueil"
+                  checked={!!hero.transparent_nav}
+                  onChange={saveTransparentNav}
+                  hint="Enregistré dès le clic. Activée : la barre se pose sur la photo du hero et redevient claire au défilement. Désactivée : fond clair en permanence."
+                />
+              </Card>
               <Card title="Textes">
                 <Field label="Texte tapé lettre par lettre (au-dessus du surtitre)" value={hero.typed_text} onChange={(v) => update('hero', { typed_text: v })} hint="Vide : masqué" />
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -441,6 +466,7 @@ function Personnalisation() {
                   <Field label="Livraison offerte dès" type="number" value={shop.free_shipping_threshold} onChange={(v) => update('shop', { free_shipping_threshold: Number(v) })} hint="0 = jamais" />
                 </div>
                 <Field label="Informations de livraison" textarea rows={2} value={shop.delivery_info} onChange={(v) => update('shop', { delivery_info: v })} />
+                <Field label="Politique de retour" textarea rows={3} value={shop.returns_info} onChange={(v) => update('shop', { returns_info: v })} hint="Affichée sur chaque fiche produit, rubrique « Livraison et retours »." />
               </Card>
               <Card title="Paiement">
                 <Switch label="Paiement à la livraison" checked={shop.cash_on_delivery} onChange={(v) => update('shop', { cash_on_delivery: v })} />

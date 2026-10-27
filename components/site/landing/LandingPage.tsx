@@ -1,23 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Award, Banknote, Check, Headset, Plus, Quote, ShieldCheck, Truck } from 'lucide-react';
+import { CalendarCheck, Check, ChevronRight, FileText, Flower2, Headset, Leaf, Plus, Quote, ShieldCheck, Sprout, Truck } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
 import { landingOffers, offerSoldOut, visible } from '@/lib/landing';
 import type { Product, ProductLanding, ShopSettings } from '@/lib/types';
-import { LogoMark } from '../Icons';
 import { useSite } from '../Providers';
-import Reveal from '../Reveal';
 import Stars from '../Stars';
-import { Script, SectionHeading } from '../Typography';
-import DirectOrder from './DirectOrder';
+import DirectOrder, { SectionTitle } from './DirectOrder';
 
-const trustIcons = [Truck, Banknote, ShieldCheck, Headset];
-/** Une seule colonne centrée : les blocs se suivent verticalement */
-const column = 'mx-auto w-full max-w-3xl px-4 sm:px-6';
+const trustIcons = [Leaf, ShieldCheck, Truck, Headset];
+const aboutIcons = [Sprout, Leaf, Flower2, ShieldCheck];
+const column = 'mx-auto w-full max-w-3xl px-5 sm:px-8';
 
-/** Page /best-seller : grande présentation du produit spécial, puis commande directe en bas de page */
+/** Pictogramme cerclé champagne + libellé, centré */
+function IconBadge({ Icon, label }: { Icon: typeof Leaf; label: string }) {
+  return (
+    <li className="flex flex-col items-center gap-2 text-center text-[14px] leading-snug text-anthracite">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full border border-champagne bg-white/80 text-[#a58c62] sm:h-16 sm:w-16">
+        <Icon className="h-6 w-6" strokeWidth={1.3} aria-hidden="true" />
+      </span>
+      {label}
+    </li>
+  );
+}
+
+/** Page /best-seller : présentation du produit spécial (maquette validée), formulaire de commande en bas */
 export default function LandingPage({
   product,
   landing,
@@ -30,188 +39,200 @@ export default function LandingPage({
   shop: ShopSettings;
 }) {
   const { currency } = useSite();
+  const [allIngredients, setAllIngredients] = useState(false);
+  const show = landing.blocks;
   const offers = landingOffers(product);
   const fromPrice = Math.min(...offers.map((o) => o.price));
   const allSoldOut = offers.every((o) => offerSoldOut(product, o));
-  const heroImage = landing.hero_image || product.image_url;
-  const details = [
-    { question: 'Composition', answer: product.ingredients },
-    { question: 'Conseils d’utilisation', answer: product.usage },
-  ].filter((d): d is { question: string; answer: string } => !!d.answer?.trim());
-  // Blocs et éléments cochés dans Pilotage › Produit spécial
-  const show = landing.blocks;
-  const highlights = show.highlights ? product.highlights : [];
-  const trust = show.trust ? landing.trust : [];
-  const story = show.story ? product.story : null;
+  const heroImage = landing.hero_image || '/images/refonte/bestseller-feuillage.png';
+  const subtitle = show.hero_text ? landing.hero_text || product.tagline || product.benefit : null;
+  const about = show.about ? landing.about_text || product.description : null;
   const sections = show.sections ? visible(landing.sections) : [];
-  const benefits = show.benefits ? product.benefits : [];
   const reviews = show.reviews ? visible(landing.reviews) : [];
-  const faq = show.faq ? [...details, ...visible(landing.faq)] : [];
+  const faq = show.faq ? visible(landing.faq) : [];
 
   return (
     <>
-      {/* Bannière : tout s'enchaîne verticalement, centré */}
-      <section className="relative overflow-hidden bg-forest text-white">
-        <LogoMark aria-hidden="true" className="pointer-events-none absolute -top-16 -left-16 h-72 w-72 text-white/[0.04]" />
-        <LogoMark aria-hidden="true" className="pointer-events-none absolute -right-20 -bottom-24 h-96 w-96 rotate-12 text-white/[0.05]" />
-        <div className={`${column} relative flex flex-col items-center pt-10 pb-24 text-center lg:pt-14 lg:pb-28`}>
-          <p className="inline-flex items-center gap-2 rounded-full bg-lime px-3.5 py-1.5 text-[11px] font-bold tracking-[0.16em] text-forest uppercase">
-            <Award className="h-3.5 w-3.5" aria-hidden="true" />
-            Best-seller{categoryName ? ` · ${categoryName}` : ''}
-          </p>
-          <h1 className="mt-5 font-serif text-[clamp(2.4rem,6vw,4.4rem)] leading-[1.04] font-bold text-white!">{landing.hero_title || product.name}</h1>
-          {product.benefit && (
-            <p className="mt-2 text-[clamp(2rem,4.6vw,3rem)]">
-              <Script className="text-lime!">{product.benefit}</Script>
+      {/* Bannière */}
+      <section aria-labelledby="special-title" className="relative overflow-hidden">
+        <div className="absolute inset-y-0 right-0 w-full sm:w-[75%]">
+          <SmartImage src={heroImage} alt="" fill preload sizes="(min-width: 640px) 75vw, 100vw" className="object-cover object-right-top" />
+          <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,var(--ivory)_0%,rgba(246,243,236,0.85)_35%,rgba(246,243,236,0.1)_75%)]" />
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(0deg,var(--ivory),transparent)]" />
+        </div>
+        <div className={`${column} relative pt-10 pb-8 sm:pt-16`}>
+          {(landing.hero_badge || categoryName) && (
+            <p className="inline-flex rounded-full border border-champagne/70 bg-champagne/20 px-3.5 py-1.5 text-[12px] font-semibold tracking-[0.14em] text-forest uppercase">
+              {landing.hero_badge || categoryName}
             </p>
           )}
-          <Stars rating={product.rating} count={product.reviews_count} className="mt-5 justify-center" onDark />
-          {show.hero_text && (landing.hero_text || product.tagline) && (
-            <p className="mt-5 text-lg leading-relaxed text-white/85 md:text-xl">{landing.hero_text || product.tagline}</p>
-          )}
+          <h1 id="special-title" className="title-xl mt-5 max-w-[14ch] text-[clamp(2.6rem,9vw,4.2rem)] text-forest!">
+            {landing.hero_title || product.name}
+          </h1>
+          {subtitle && <p className="mt-3 max-w-[30ch] text-[17px] leading-snug text-anthracite sm:text-[18px]">{subtitle}</p>}
+          {product.reviews_count > 0 && <Stars rating={product.rating} count={product.reviews_count} className="mt-4" />}
 
-          <div className="relative mt-10 w-full">
-            <span aria-hidden="true" className="absolute top-1/2 left-1/2 aspect-square w-[110%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(182,225,90,0.2)_0%,transparent_65%)]" />
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.55)]">
-              <SmartImage src={heroImage} alt={product.name} fill priority sizes="(min-width: 1024px) 860px, 92vw" className="object-cover" />
-              {allSoldOut && (
-                <span className="absolute top-4 left-4 rounded-full bg-ink px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase">En rupture</span>
-              )}
-            </div>
-          </div>
-
-          {highlights.length > 0 && (
-            <ul className="mt-10 grid w-full gap-3 text-left sm:grid-cols-2">
-              {highlights.map((h) => (
-                <li key={h} className="flex items-center gap-3 rounded-2xl border border-white/12 bg-white/[0.06] px-4 py-3.5 text-[15px] text-white/90">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-lime text-forest">
-                    <Check className="h-4 w-4" strokeWidth={2.6} aria-hidden="true" />
-                  </span>
-                  {h}
-                </li>
+          {show.trust && landing.trust.length > 0 && (
+            <ul className={`mt-10 grid gap-3 ${landing.trust.length >= 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              {landing.trust.slice(0, 4).map((t, i) => (
+                <IconBadge key={t} Icon={trustIcons[i % trustIcons.length]} label={t} />
               ))}
             </ul>
           )}
         </div>
       </section>
 
-      {/* Arguments de confiance, à cheval sur la bannière */}
-      {trust.length > 0 && (
-        <div className={`${column} relative -mt-12`}>
-          <ul className="card grid grid-cols-2 gap-px overflow-hidden bg-line p-0">
-            {trust.map((t, i) => {
-              const Icon = trustIcons[i % trustIcons.length];
-              return (
-                <li key={t} className="flex flex-col items-center gap-2.5 bg-cream p-4 text-center sm:p-5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest text-lime">
-                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
-                  </span>
-                  <span className="text-[13px] leading-snug font-semibold text-ink sm:text-sm">{t}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {/* Histoire */}
-      {story && (
-        <Reveal className={`${column} mt-20 text-center lg:mt-24`}>
-          <SectionHeading eyebrow="Pourquoi on" accent="l’aime" title={product.name} script="en détail" align="center" />
-          <p className="mt-6 text-base leading-relaxed whitespace-pre-line text-ink-muted md:text-lg">{story}</p>
-        </Reveal>
-      )}
-
-      {/* Sections : une bannière par section (titre, image en grand, puis le texte), fond alterné */}
-      {sections.map((s, i) => (
-        <section key={i} className={`mt-20 py-16 lg:mt-24 lg:py-20 ${i % 2 === 0 ? 'bg-cream/70' : ''}`}>
-          <div className={`${column} text-center`}>
-            <Reveal>
-              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-forest font-display text-sm font-extrabold text-lime">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              {s.title && <h2 className="heading-lg mt-5 text-[clamp(1.8rem,4vw,2.6rem)]">{s.title}</h2>}
-            </Reveal>
-            {s.image_url && (
-              <Reveal delay={0.06} className="relative mt-8 aspect-[16/10] overflow-hidden rounded-[2rem] shadow-[var(--shadow-soft)]">
-                <SmartImage src={s.image_url} alt={s.title} fill sizes="(min-width: 1024px) 860px, 92vw" className="object-cover" />
-              </Reveal>
+      <div className={`${column} space-y-14 pt-6 pb-16 sm:space-y-16`}>
+        {/* À propos */}
+        {(about || (show.highlights && product.highlights.length > 0)) && (
+          <section aria-labelledby="special-about" className="space-y-5">
+            <SectionTitle id="special-about">À propos du produit</SectionTitle>
+            {about && <p className="font-serif text-[1.25rem] leading-relaxed text-anthracite">{about}</p>}
+            {product.highlights.length > 0 && (
+              <ul className="grid grid-cols-4 gap-3 pt-2">
+                {product.highlights.slice(0, 4).map((h, i) => (
+                  <IconBadge key={h} Icon={aboutIcons[i % aboutIcons.length]} label={h} />
+                ))}
+              </ul>
             )}
-            {s.text && (
-              <Reveal delay={0.1}>
-                <p className="mt-8 text-left text-base leading-relaxed whitespace-pre-line text-ink-muted md:text-lg">{s.text}</p>
-              </Reveal>
-            )}
-          </div>
-        </section>
-      ))}
-
-      <div className={`${column} pb-16`}>
-        {/* Bienfaits, l'un sous l'autre */}
-        {benefits.length > 0 && (
-          <section aria-labelledby="special-benefits" className="mt-20 lg:mt-24">
-            <SectionHeading id="special-benefits" eyebrow="Ses" accent="bienfaits" title="Ce qu’il vous apporte" script="au quotidien" align="center" />
-            <ol className="mt-10 space-y-4">
-              {benefits.map((b, i) => (
-                <li key={b.title + i}>
-                  <Reveal delay={i * 0.06} className="flex gap-5 rounded-[1.5rem] bg-forest p-6 text-white sm:p-7">
-                    <span className="font-display text-2xl font-extrabold text-lime">{String(i + 1).padStart(2, '0')}</span>
-                    <span>
-                      <h3 className="font-display text-xl font-bold text-white!">{b.title}</h3>
-                      <p className="mt-2 text-[15px] leading-relaxed text-white/80">{b.text}</p>
-                    </span>
-                  </Reveal>
-                </li>
-              ))}
-            </ol>
           </section>
         )}
 
-        {/* Avis, l'un sous l'autre */}
+        {/* Ingrédients principaux */}
+        {(landing.ingredient_cards.length > 0 || product.ingredients) && (
+          <section aria-labelledby="special-ingredients" className="space-y-5">
+            <SectionTitle id="special-ingredients">Ingrédients principaux</SectionTitle>
+            {landing.ingredient_cards.length > 0 && (
+              <ul className="grid grid-cols-4 gap-3">
+                {landing.ingredient_cards.map((c) => (
+                  <li key={c.name} className="text-center">
+                    <span className="relative block aspect-square overflow-hidden rounded-lg border border-line bg-white">
+                      {c.image_url && <SmartImage src={c.image_url} alt={c.name} fill sizes="(min-width: 768px) 180px, 25vw" className="object-cover" />}
+                    </span>
+                    <span className="mt-2 block text-[14px] leading-snug">{c.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {product.ingredients && (
+              <div className="rounded-lg border border-line bg-white">
+                <button
+                  type="button"
+                  onClick={() => setAllIngredients((v) => !v)}
+                  aria-expanded={allIngredients}
+                  className="flex w-full items-center gap-3 px-4 py-4 text-left text-[16px]"
+                >
+                  <FileText className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.4} aria-hidden="true" />
+                  <span className="flex-1">Voir la liste complète des ingrédients</span>
+                  <ChevronRight className={`h-5 w-5 shrink-0 transition-transform ${allIngredients ? 'rotate-90' : ''}`} aria-hidden="true" />
+                </button>
+                {allIngredients && <p className="border-t border-line px-4 py-4 text-[15px] leading-relaxed whitespace-pre-line text-muted">{product.ingredients}</p>}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Conseils d'utilisation */}
+        {product.usage && (
+          <section aria-labelledby="special-usage" className="space-y-5">
+            <SectionTitle id="special-usage">Conseils d’utilisation</SectionTitle>
+            <div className="flex gap-4">
+              <CalendarCheck className="mt-0.5 h-8 w-8 shrink-0 text-[#a58c62]" strokeWidth={1.3} aria-hidden="true" />
+              <p className="text-[16px] leading-relaxed whitespace-pre-line text-muted">{product.usage}</p>
+            </div>
+          </section>
+        )}
+
+        {/* Précautions */}
+        {landing.precautions && (
+          <section aria-labelledby="special-precautions" className="flex gap-4">
+            <ShieldCheck className="mt-1 h-10 w-10 shrink-0 text-[#a58c62]" strokeWidth={1.2} aria-hidden="true" />
+            <div>
+              <h2 id="special-precautions" className="font-serif text-[1.7rem] leading-tight">
+                Précautions
+              </h2>
+              <p className="mt-2 text-[16px] leading-relaxed whitespace-pre-line text-muted">{landing.precautions}</p>
+            </div>
+          </section>
+        )}
+
+        {/* Pourquoi choisir */}
+        {landing.reasons.length > 0 && (
+          <section aria-labelledby="special-reasons" className="grid overflow-hidden rounded-xl border border-line bg-white sm:grid-cols-[180px_1fr]">
+            <div className="relative hidden sm:block">
+              <SmartImage src={landing.reasons_image || '/images/refonte/raisons-feuilles.png'} alt="" fill sizes="180px" className="object-cover" />
+              <span className="absolute top-1/2 left-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-forest text-white">
+                <Leaf className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />
+              </span>
+            </div>
+            <div className="p-5 sm:p-6">
+              <h2 id="special-reasons" className="font-serif text-[1.5rem] leading-tight">
+                Pourquoi choisir {product.name} ?
+              </h2>
+              <ul className="mt-4 space-y-2.5">
+                {landing.reasons.map((r) => (
+                  <li key={r} className="flex items-start gap-3 text-[15px]">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-forest" strokeWidth={2} aria-hidden="true" />
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
+
+        {/* Sections complémentaires (Pilotage › Produit spécial) */}
+        {sections.map((s, i) => (
+          <section key={i} className="space-y-5">
+            {s.title && <SectionTitle>{s.title}</SectionTitle>}
+            {s.image_url && (
+              <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
+                <SmartImage src={s.image_url} alt={s.title} fill sizes="(min-width: 768px) 720px, 100vw" className="object-cover" />
+              </div>
+            )}
+            {s.text && <p className="text-[16px] leading-relaxed whitespace-pre-line text-muted">{s.text}</p>}
+          </section>
+        ))}
+
         {reviews.length > 0 && (
-          <section aria-labelledby="special-reviews" className="mt-20 lg:mt-24">
-            <SectionHeading id="special-reviews" eyebrow="Ils l’ont" accent="adopté" title="Ce qu’en disent nos clients" align="center" />
-            <ul className="mt-10 space-y-4">
+          <section aria-labelledby="special-reviews" className="space-y-5">
+            <SectionTitle id="special-reviews">Ils l’ont adopté</SectionTitle>
+            <ul className="space-y-3">
               {reviews.map((r, i) => (
-                <li key={r.name + i}>
-                  <Reveal delay={i * 0.06} className="card p-6">
-                    <div className="flex items-center justify-between gap-3">
-                      <Quote className="h-6 w-6 text-leaf" aria-hidden="true" />
-                      <Stars rating={5} />
-                    </div>
-                    <p className="mt-3 text-[15px] leading-relaxed text-ink">{r.text}</p>
-                    <p className="mt-4 text-sm font-bold text-ink">
-                      {r.name}
-                      {r.location && <span className="font-normal text-ink-muted"> · {r.location}</span>}
-                    </p>
-                  </Reveal>
+                <li key={r.name + i} className="rounded-xl border border-line bg-white p-5">
+                  <div className="flex items-center justify-between">
+                    <Quote className="h-6 w-6 text-champagne" strokeWidth={1.4} aria-hidden="true" />
+                    <Stars rating={5} />
+                  </div>
+                  <p className="mt-3 font-serif text-[1.25rem] leading-snug">{r.text}</p>
+                  <p className="mt-3 text-[14px] text-muted">
+                    <span className="font-medium text-anthracite">{r.name}</span>
+                    {r.location && ` · ${r.location}`}
+                  </p>
                 </li>
               ))}
             </ul>
           </section>
         )}
 
-        {/* Questions fréquentes */}
         {faq.length > 0 && (
-          <section aria-labelledby="special-faq" className="mt-20 lg:mt-24">
-            <SectionHeading id="special-faq" eyebrow="Tout" accent="savoir" title="Vos questions" script="nos réponses" align="center" />
-            <div className="mt-10 divide-y divide-line border-y border-line">
+          <section aria-labelledby="special-faq" className="space-y-5">
+            <SectionTitle id="special-faq">Questions fréquentes</SectionTitle>
+            <div className="space-y-3">
               {faq.map((f, i) => (
-                <details key={f.question + i} className="group py-5">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-bold">
+                <details key={f.question + i} className="group rounded-lg border border-line bg-white px-5">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[16px] font-medium">
                     {f.question}
-                    <Plus className="h-4 w-4 shrink-0 transition-transform group-open:rotate-45" aria-hidden="true" />
+                    <Plus className="h-4 w-4 shrink-0 text-muted transition-transform group-open:rotate-45" aria-hidden="true" />
                   </summary>
-                  <p className="mt-3 text-[15px] leading-relaxed whitespace-pre-line text-ink-muted">{f.answer}</p>
+                  <p className="pb-5 text-[15px] leading-relaxed whitespace-pre-line text-muted">{f.answer}</p>
                 </details>
               ))}
             </div>
           </section>
         )}
 
-        <div className="mt-20 lg:mt-24">
-          <DirectOrder product={product} landing={landing} shop={shop} />
-        </div>
+        <DirectOrder product={product} landing={landing} shop={shop} />
       </div>
 
       <StickyOrderBar label={allSoldOut ? 'Voir les offres' : 'Commander'} price={formatPrice(fromPrice, currency)} />
@@ -219,7 +240,7 @@ export default function LandingPage({
   );
 }
 
-/** Mobile : bouton « Commander » toujours à portée, masqué une fois le bloc commande visible */
+/** Mobile : bouton « Commander » au-dessus de la barre d'onglets, masqué une fois le formulaire visible */
 function StickyOrderBar({ label, price }: { label: string; price: string }) {
   const [visible, setVisible] = useState(false);
 
@@ -236,12 +257,14 @@ function StickyOrderBar({ label, price }: { label: string; price: string }) {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 p-3 transition-transform duration-300 lg:hidden ${visible ? 'translate-y-0' : 'translate-y-full'}`}
+      className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 px-4 pb-3 transition-all duration-300 lg:hidden ${
+        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
+      }`}
       aria-hidden={!visible}
     >
-      <a href="#commander" tabIndex={visible ? 0 : -1} className="btn-primary w-full justify-between! shadow-[var(--shadow-soft)]">
+      <a href="#commander" tabIndex={visible ? 0 : -1} className="btn btn-forest w-full justify-between! shadow-[var(--shadow-soft)]">
         <span>{label}</span>
-        <span className="tracking-normal normal-case">{price}</span>
+        <span>{price}</span>
       </a>
     </div>
   );

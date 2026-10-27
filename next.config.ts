@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       // Collections de la vitrine, devenues des filtres de la boutique
       { source: '/meilleures-ventes', destination: '/boutique?collection=meilleures-ventes', permanent: true },
       { source: '/nouveautes', destination: '/boutique?collection=nouveautes', permanent: true },
+      // Refonte : « À propos » devient « Notre maison »
+      { source: '/a-propos', destination: '/notre-maison', permanent: true },
     ];
   },
   images: {

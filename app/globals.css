@@ -1,42 +1,59 @@
 @import "tailwindcss";
 
 /* ==========================================================
-   ELROPHE — tokens (surchargés par le thème du pilotage, voir lib/settings.ts)
+   EL ROPHE — charte graphique (refonte premium)
+   Vert forêt #17372C · Ivoire #F6F3EC · Sauge #78816B · Champagne #C4AD86 · Anthracite #302F2A · Blanc
    ========================================================== */
 :root {
-  --bg-sage: #c9cbb9;
-  --bg-sage-light: #dedfd0;
-  --surface-cream: #f3f0e8;
-  --forest: #1e3524;
-  --ink: #1a211b;
-  --ink-muted: #4e554c;
-  --leaf: #3f7d34;
-  --lime: #b6e15a;
-  --gold: #a8803a;
-  --line: color-mix(in srgb, var(--forest) 15%, transparent);
+  --ivory: #f6f3ec;
+  --white: #ffffff;
+  --forest: #17372c;
+  --forest-soft: #21473a;
+  --sage: #78816b;
+  --champagne: #c4ad86;
+  --anthracite: #302f2a;
+  --muted: #625f56;
+  --line: color-mix(in srgb, var(--anthracite) 12%, transparent);
+  --line-strong: color-mix(in srgb, var(--anthracite) 20%, transparent);
 
-  --shadow-soft: 0 18px 50px -24px color-mix(in srgb, var(--forest) 35%, transparent);
-  --shadow-card: 0 10px 30px -18px color-mix(in srgb, var(--forest) 40%, transparent);
+  /* Alias des anciens noms : les pages non refondues suivent la charte */
+  --bg-sage: var(--ivory);
+  --bg-sage-light: var(--white);
+  --surface-cream: var(--white);
+  --ink: var(--anthracite);
+  --ink-muted: var(--muted);
+  --leaf: var(--sage);
+  --lime: var(--champagne);
+  --gold: var(--champagne);
+
+  --shadow-soft: 0 14px 34px -22px color-mix(in srgb, var(--forest) 40%, transparent);
+  --shadow-card: 0 1px 2px color-mix(in srgb, var(--anthracite) 6%, transparent);
 }
 
 @theme inline {
-  --color-sage: var(--bg-sage);
-  --color-sage-light: var(--bg-sage-light);
-  --color-cream: var(--surface-cream);
+  --color-ivory: var(--ivory);
   --color-forest: var(--forest);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-leaf: var(--leaf);
-  --color-lime: var(--lime);
-  --color-gold: var(--gold);
+  --color-forest-soft: var(--forest-soft);
+  --color-sage: var(--sage);
+  --color-champagne: var(--champagne);
+  --color-anthracite: var(--anthracite);
+  --color-muted: var(--muted);
   --color-line: var(--line);
+  /* anciens noms */
+  --color-sage-light: var(--white);
+  --color-cream: var(--white);
+  --color-ink: var(--anthracite);
+  --color-ink-muted: var(--muted);
+  --color-leaf: var(--sage);
+  --color-lime: var(--champagne);
+  --color-gold: var(--champagne);
 
-  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-script: var(--font-allura), cursive;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-script: var(--font-cormorant), ui-serif, Georgia, serif;
 
-  --radius-card: 1.25rem;
+  --radius-card: 0.5rem;
   --shadow-soft: var(--shadow-soft);
   --shadow-card: var(--shadow-card);
 }
@@ -50,135 +67,136 @@ html {
 }
 
 body {
-  background: var(--bg-sage);
-  color: var(--ink);
+  background: var(--ivory);
+  color: var(--anthracite);
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-::selection { background: color-mix(in srgb, var(--leaf) 30%, transparent); }
+::selection { background: color-mix(in srgb, var(--champagne) 45%, transparent); }
 
 /* ==========================================================
    Vitrine (scopée à .site pour ne pas toucher le pilotage)
    ========================================================== */
-
-/* Fond organique : base sauge + halos + grain */
 .site {
-  position: relative;
-  isolation: isolate;
+  /* Chiffres alignés : les chiffres elzéviriens de Cormorant rendent mal les prix */
+  font-variant-numeric: lining-nums;
   min-height: 100vh;
   overflow-x: clip;
-  background:
-    radial-gradient(60rem 40rem at -10% -10%, color-mix(in srgb, var(--surface-cream) 85%, transparent), transparent 60%),
-    radial-gradient(45rem 35rem at 20% 35%, color-mix(in srgb, var(--bg-sage-light) 70%, transparent), transparent 65%),
-    radial-gradient(55rem 45rem at 110% 105%, color-mix(in srgb, var(--forest) 18%, transparent), transparent 60%),
-    var(--bg-sage);
-  background-attachment: scroll;
-  color: var(--ink);
-}
-.site::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.045;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background: var(--ivory);
+  color: var(--anthracite);
 }
 
 .site :is(h1, h2, h3, h4) {
-  font-family: var(--font-display);
-  color: var(--ink);
+  font-family: var(--font-serif);
+  font-weight: 500;
+  color: var(--anthracite);
+  letter-spacing: -0.005em;
 }
 
 .site :focus-visible {
+  /* Le contour suit l'arrondi de chaque élément (boutons ronds, champs…) */
   outline: 2px solid var(--forest);
   outline-offset: 3px;
-  border-radius: 6px;
 }
 
 @layer components {
-  /* Verre dépoli léger */
-  .glass {
-    background: color-mix(in srgb, var(--surface-cream) 80%, transparent);
-    backdrop-filter: blur(14px) saturate(1.1);
-    -webkit-backdrop-filter: blur(14px) saturate(1.1);
-    border: 1px solid color-mix(in srgb, white 45%, transparent);
+  .container-site {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 1240px;
+    padding-inline: 1.25rem;
   }
+  @media (min-width: 640px) { .container-site { padding-inline: 2rem; } }
 
-  .heading-xl {
-    font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.04;
-  }
-  .heading-lg {
-    font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  .script {
-    font-family: var(--font-script);
-    color: var(--leaf);
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1;
-  }
-
-  .eyebrow {
-    display: flex;
+  /* Surtitre : petites capitales champagne, filets de part et d'autre */
+  .kicker {
+    display: inline-flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 0.75rem;
+    font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--ink);
+    color: #a58c62;
   }
-  .eyebrow::after {
+  .kicker-lines::before,
+  .kicker-lines::after {
     content: "";
-    flex: 0 1 4.5rem;
+    width: 2.25rem;
     height: 1px;
-    background: color-mix(in srgb, var(--forest) 35%, transparent);
+    background: var(--champagne);
   }
 
+  .title-xl {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .title-lg {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.12;
+  }
+
+  /* Boutons : 15–16 px, parfaitement lisibles */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn-forest { background: var(--forest); color: #fff; }
+  .btn-forest:hover:not(:disabled) { background: var(--forest-soft); }
+  .btn-champagne { background: var(--champagne); color: var(--forest); }
+  .btn-champagne:hover:not(:disabled) { background: #cfbb98; }
+  .btn-outline { border: 1px solid var(--forest); color: var(--forest); background: transparent; }
+  .btn-outline:hover:not(:disabled) { background: color-mix(in srgb, var(--forest) 6%, transparent); }
+
+  /* Anciennes classes : alignées sur la charte */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.65rem;
-    border-radius: 999px;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
     background: var(--forest);
     color: #fff;
-    font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 1rem 1.6rem;
-    box-shadow: var(--shadow-soft);
-    transition: transform 0.25s ease, background-color 0.25s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
   }
-  .btn-primary:hover { background: color-mix(in srgb, var(--forest) 88%, white); }
-  .btn-primary:active { transform: translateY(1px); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
+  .btn-primary:hover:not(:disabled) { background: var(--forest-soft); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
   .btn-ghost {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: color-mix(in srgb, var(--surface-cream) 70%, transparent);
-    color: var(--ink);
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 0.8rem 1.3rem;
-    transition: background-color 0.25s ease;
+    min-height: 3rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--forest);
+    color: var(--forest);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
   }
-  .btn-ghost:hover { background: var(--surface-cream); }
+  .btn-ghost:hover { background: color-mix(in srgb, var(--forest) 6%, transparent); }
 
   .icon-btn {
     display: inline-flex;
@@ -187,139 +205,94 @@ body {
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 999px;
-    color: var(--ink);
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    color: var(--anthracite);
+    transition: background-color 0.2s ease;
   }
-  .icon-btn:hover { background: var(--surface-cream); }
+  .icon-btn:hover { background: color-mix(in srgb, var(--anthracite) 6%, transparent); }
 
   .card {
     border-radius: var(--radius-card);
-    background: color-mix(in srgb, var(--surface-cream) 92%, transparent);
+    background: var(--white);
     border: 1px solid var(--line);
-    box-shadow: var(--shadow-card);
   }
 
   .field {
     width: 100%;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: color-mix(in srgb, var(--surface-cream) 85%, transparent);
-    padding: 0.85rem 1.2rem;
-    font-size: 0.95rem;
-    color: var(--ink);
+    min-height: 3rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    padding: 0.7rem 0.95rem;
+    font-size: 1rem;
+    color: var(--anthracite);
   }
-  textarea.field { border-radius: 1.1rem; }
-  .field::placeholder { color: color-mix(in srgb, var(--ink-muted) 75%, transparent); }
-  .field:focus { outline: 2px solid var(--forest); outline-offset: 1px; }
+  textarea.field { min-height: 5.5rem; }
+  .field::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
+  .field:focus { outline: 2px solid var(--forest); outline-offset: 0; border-color: transparent; }
 
   .label {
     display: block;
     margin-bottom: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--anthracite);
+  }
+
+  /* Pastille de filtre (catégories) */
+  .chip {
+    flex-shrink: 0;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    font-size: 0.9rem;
+    color: var(--anthracite);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .chip[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: #fff; }
+
+  /* Pictogramme cerclé champagne (engagements, réassurance) */
+  .ring-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--champagne);
+    color: #a58c62;
+  }
+
+  /* Anciennes classes encore utilisées par quelques pages */
+  .glass { background: var(--white); border: 1px solid var(--line); }
+  .heading-xl { font-family: var(--font-serif); font-weight: 500; line-height: 1.05; }
+  .heading-lg { font-family: var(--font-serif); font-weight: 500; line-height: 1.12; }
+  .script { font-family: var(--font-serif); font-style: italic; color: var(--sage); line-height: 1.1; }
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--ink-muted);
+    color: #a58c62;
   }
 
   .no-scrollbar { scrollbar-width: none; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
 }
 
-/* Ombres de feuilles qui se balancent lentement */
-@keyframes leaf-sway {
-  0%, 100% { transform: rotate(-2deg) translate3d(0, 0, 0); }
-  50% { transform: rotate(2.5deg) translate3d(-10px, 6px, 0); }
-}
-.leaf-shadow {
-  animation: leaf-sway 14s ease-in-out infinite;
-  transform-origin: 80% 0%;
-}
-@keyframes underline-draw {
-  from { stroke-dashoffset: 320; }
-  to { stroke-dashoffset: 0; }
-}
-.underline-draw path {
-  stroke-dasharray: 320;
-  animation: underline-draw 1.4s 0.6s cubic-bezier(0.65, 0, 0.35, 1) both;
-}
-/* Produit du hero : incliné, flotte lentement */
-@keyframes hero-float {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(-7deg); }
-  50% { transform: translate3d(0, -14px, 0) rotate(-4.5deg); }
-}
-@keyframes hero-float-shadow {
-  0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
-  50% { transform: translateX(-50%) scale(0.86); opacity: 0.7; }
-}
-.hero-float {
-  transform: rotate(-7deg);
-  transform-origin: 50% 85%;
-  animation: hero-float 7s ease-in-out infinite;
-  will-change: transform;
-}
-.hero-float-shadow { animation: hero-float-shadow 7s ease-in-out infinite; }
-
-/* Bandeau d'annonce qui défile comme une barre d'infos */
-@keyframes marquee {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-100%, 0, 0); }
-}
-.marquee { display: flex; overflow: hidden; white-space: nowrap; }
-.marquee-track { display: flex; flex-shrink: 0; animation: marquee 40s linear infinite; }
-.marquee:hover .marquee-track { animation-play-state: paused; }
-
-/* Texte du hero tapé lettre par lettre : chaque lettre s'ouvre à son tour, le curseur suit */
-@keyframes type-letter {
-  from { max-width: 0; opacity: 0; }
-  to { max-width: 1.5em; opacity: 1; }
-}
-@keyframes caret-blink {
-  50% { opacity: 0; }
-}
-.typewriter { display: flex; align-items: center; white-space: nowrap; }
-.typewriter-letter {
-  display: inline-block;
-  overflow: hidden;
-  max-width: 0;
-  opacity: 0;
-  animation: type-letter 0.01s steps(1, end) forwards;
-}
-.typewriter-caret {
-  display: inline-block;
-  width: 3px;
-  height: 0.85em;
-  margin-left: 0.12em;
-  border-radius: 2px;
-  background: var(--leaf);
-  animation: caret-blink 1s steps(1, end) infinite;
-}
-
-/* Étiquette « Le plus recommandé » qui flotte doucement */
-@keyframes tag-bob {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
-  50% { transform: translate3d(0, -8px, 0) rotate(0.5deg); }
-}
-.tag-bob { animation: tag-bob 4.5s ease-in-out infinite; }
-
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
-  .leaf-shadow, .underline-draw path, .hero-float, .hero-float-shadow, .tag-bob { animation: none; }
-  .typewriter-letter { animation: none; max-width: none; opacity: 1; }
-  .typewriter-caret { animation: none; }
-}
-
-/* Entrée du hero (CSS pur) */
+/* Entrée douce (CSS pur) */
 @keyframes rise {
   /* 0.01 et non 0 : Chrome ignore les éléments à opacité nulle pour le LCP */
-  from { opacity: 0.01; transform: translate3d(0, 16px, 0); }
+  from { opacity: 0.01; transform: translate3d(0, 12px, 0); }
   to { opacity: 1; transform: none; }
 }
-.rise { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.rise { animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.underline-draw { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .rise { animation: none; }
-}
-
-@media (max-width: 639px) {
-  .eyebrow { letter-spacing: 0.22em; font-size: 0.68rem; }
 }

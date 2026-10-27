@@ -1,15 +1,13 @@
 import type { Metadata, Viewport } from 'next';
-import { Allura, Inter, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import { Cormorant_Garamond, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { FacebookPixel } from '@/components/FacebookPixel';
 import { getSettings } from '@/lib/data';
-import { themeToCss } from '@/lib/settings';
 import './globals.css';
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-jakarta', display: 'swap' });
+// Charte : titres en Cormorant Garamond, textes et interface en Inter
+const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500', '600'], style: ['normal', 'italic'], variable: '--font-cormorant', display: 'swap' });
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const allura = Allura({ subsets: ['latin'], weight: '400', variable: '--font-allura', display: 'swap' });
-const playfair = Playfair_Display({ subsets: ['latin'], weight: '700', variable: '--font-playfair', display: 'swap' });
 
 export async function generateMetadata(): Promise<Metadata> {
   const { brand } = await getSettings();
@@ -20,15 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: '#C9CBB9' };
+export const viewport: Viewport = { themeColor: '#17372C' };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { theme } = await getSettings();
+// Couleurs fixées par la charte graphique (globals.css) : le thème du pilotage n'est plus injecté
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${jakarta.variable} ${inter.variable} ${allura.variable} ${playfair.variable}`}>
-      <head>
-        <style id="elrophe-theme" dangerouslySetInnerHTML={{ __html: themeToCss(theme) }} />
-      </head>
+    <html lang="fr" className={`${cormorant.variable} ${inter.variable}`}>
       <body>
         <FacebookPixel />
         {children}

@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { LazyMotion, MotionConfig, domAnimation } from 'framer-motion';
 import { toast } from 'sonner';
-import type { Product } from '@/lib/types';
+import type { LandingOffer, Product } from '@/lib/types';
 
 /* ---------- Contexte du site (valeurs du pilotage utiles côté client) ---------- */
 interface SiteInfo {
@@ -15,22 +15,31 @@ export const useSite = () => useContext(SiteContext);
 
 /* ---------- Panier ---------- */
 export interface CartLine {
+  /** Identifiant de ligne : produit + variante */
+  key: string;
   product_id: string;
+  /** Variante (format) choisie ; vide = produit à l'unité */
+  offer_id: string;
+  variant: string;
   slug: string;
   name: string;
   price: number;
   image_url: string | null;
   quantity: number;
+  /** Format d'un produit à livraison offerte (même règle que elrophe_place_order) */
+  free_shipping?: boolean;
 }
+
+export const lineKey = (productId: string, offerId = '') => `${productId}:${offerId}`;
 
 interface CartState {
   lines: CartLine[];
   count: number;
   subtotal: number;
   ready: boolean;
-  add: (product: Product, quantity?: number) => void;
-  setQuantity: (productId: string, quantity: number) => void;
-  remove: (productId: string) => void;
+  add: (product: Product, quantity?: number, variant?: LandingOffer | null) => void;
+  setQuantity: (key: string, quantity: number) => void;
+  remove: (key: string) => void;
   clear: () => void;
 }
 const CartContext = createContext<CartState | null>(null);
@@ -117,19 +126,37 @@ function usePersistentState<T>(key: string, initial: T) {
 }
 
 export default function Providers({ children, site }: { children: ReactNode; site: SiteInfo }) {
-  const [lines, setLines, ready] = usePersistentState<CartLine[]>('elrophe-cart', []);
+  const [storedLines, setLines, ready] = usePersistentState<CartLine[]>('elrophe-cart', []);
+  // Paniers enregistrés avant les variantes : complétés à la lecture
+  const lines = useMemo(
+    () => storedLines.map((l) => (l.key ? l : { ...l, key: lineKey(l.product_id), offer_id: '', variant: '' })),
+    [storedLines],
+  );
   const [favIds, setFavIds] = usePersistentState<string[]>('elrophe-favorites', []);
 
   const add = useCallback(
-    (product: Product, quantity = 1) => {
+    (product: Product, quantity = 1, variant?: LandingOffer | null) => {
+      const offerId = variant?.id ?? '';
+      const key = lineKey(product.id, offerId);
       setLines((prev) => {
-        const existing = prev.find((l) => l.product_id === product.id);
+        const existing = prev.find((l) => (l.key ?? lineKey(l.product_id)) === key);
         if (existing) {
-          return prev.map((l) => (l.product_id === product.id ? { ...l, quantity: Math.min(99, l.quantity + quantity) } : l));
+          return prev.map((l) => ((l.key ?? lineKey(l.product_id)) === key ? { ...l, quantity: Math.min(99, l.quantity + quantity) } : l));
         }
         return [
           ...prev,
-          { product_id: product.id, slug: product.slug, name: product.name, price: product.price, image_url: product.image_url, quantity },
+          {
+            key,
+            product_id: product.id,
+            offer_id: offerId,
+            variant: offerId ? (variant?.label ?? '') : '',
+            slug: product.slug,
+            name: product.name,
+            price: variant?.price ?? product.price,
+            image_url: product.image_url,
+            quantity,
+            free_shipping: !!(offerId && product.landing?.free_shipping),
+          },
         ];
       });
       toast.success(`${product.name} ajouté au panier`);
@@ -153,11 +180,13 @@ export default function Providers({ children, site }: { children: ReactNode; sit
       count: lines.reduce((n, l) => n + l.quantity, 0),
       subtotal: lines.reduce((n, l) => n + l.price * l.quantity, 0),
       add,
-      setQuantity: (id, q) =>
+      setQuantity: (key, q) =>
         setLines((prev) =>
-          q <= 0 ? prev.filter((l) => l.product_id !== id) : prev.map((l) => (l.product_id === id ? { ...l, quantity: Math.min(99, q) } : l)),
+          q <= 0
+            ? prev.filter((l) => (l.key ?? lineKey(l.product_id)) !== key)
+            : prev.map((l) => ((l.key ?? lineKey(l.product_id)) === key ? { ...l, quantity: Math.min(99, q) } : l)),
         ),
-      remove: (id) => setLines((prev) => prev.filter((l) => l.product_id !== id)),
+      remove: (key) => setLines((prev) => prev.filter((l) => (l.key ?? lineKey(l.product_id)) !== key)),
       clear: () => setLines([]),
     }),
     [lines, ready, add, setLines],

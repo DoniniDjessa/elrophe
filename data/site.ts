@@ -17,6 +17,7 @@ export const defaultSettings: SiteSettings = {
   },
 
   hero: {
+    transparent_nav: false,
     eyebrow: 'Collection équilibre',
     eyebrow_accent: 'naturel',
     title_line1: 'Le meilleur de la nature.',
@@ -149,5 +150,7 @@ export const defaultSettings: SiteSettings = {
     mobile_money_instructions:
       'Nous vous appelons pour confirmer la commande et vous transmettre le numéro Mobile Money (Orange, MTN, Moov, Wave).',
     delivery_info: 'Livraison sous 24 à 72 h à Abidjan, 3 à 5 jours ouvrés à l’intérieur du pays.',
+    returns_info:
+      'Un produit abîmé ou non conforme à la livraison ? Signalez-le-nous sous 48 h : nous le remplaçons. Pour des raisons d’hygiène, un produit ouvert ne peut être ni repris ni échangé.',
   },
 };

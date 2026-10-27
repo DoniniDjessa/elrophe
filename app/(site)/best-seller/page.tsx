@@ -26,7 +26,7 @@ async function SpecialProduct() {
 
 export default function BestSellerPage() {
   return (
-    <Suspense fallback={<div className="min-h-[80vh] bg-forest" aria-busy="true" />}>
+    <Suspense fallback={<div className="min-h-[80vh]" aria-busy="true" />}>
       <SpecialProduct />
     </Suspense>
   );

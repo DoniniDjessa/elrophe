@@ -4,19 +4,19 @@ import PageHeader from './PageHeader';
 import ShopView from './ShopView';
 
 export default async function ShopPage() {
-  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  const [products, allCategories] = await Promise.all([getProducts(), getCategories()]);
+  // Filtres : uniquement les catégories réellement disponibles
+  const categories = allCategories.filter((c) => products.some((p) => p.category_slug === c.slug));
   return (
     <>
       <PageHeader
-        eyebrow="La"
-        accent="boutique"
-        title="Tous nos produits"
-        script="naturels"
-        text="Compléments, huiles, tisanes et soins : des formules simples, tracées et testées."
-        crumbs={[{ label: 'Boutique' }]}
+        kicker="Nos produits"
+        title="Une sélection pensée avec exigence."
+        text="Des produits naturels haut de gamme, choisis pour votre bien-être global."
+        crumbs={[{ label: 'Nos produits' }]}
       />
       {/* useSearchParams : la grille lit les filtres de l'URL au moment de la requête */}
-      <Suspense fallback={<div className="mx-auto min-h-[60vh] max-w-[1440px] px-4 sm:px-6 lg:px-10" aria-busy="true" />}>
+      <Suspense fallback={<div className="container-site min-h-[60vh]" aria-busy="true" />}>
         <ShopView products={products} categories={categories} />
       </Suspense>
     </>

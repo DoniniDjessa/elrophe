@@ -1,88 +1,109 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Heart } from 'lucide-react';
+import { ArrowRight, ShoppingBag } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
-import { productHref, SPECIAL_PATH } from '@/lib/landing';
+import { landingOffers, offerSoldOut } from '@/lib/landing';
 import type { Product } from '@/lib/types';
-import { useCart, useFavorites, useSite } from './Providers';
-import Stars from './Stars';
+import { useCart, useSite } from './Providers';
 
-export default function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
+/**
+ * Carte produit : photo réelle, nom exact, catégorie, format, prix.
+ * cta « discover » : bouton Découvrir (accueil) ; « cart » : ajout rapide au panier (grille Nos produits).
+ */
+export default function ProductCard({
+  product,
+  categoryName,
+  cta = 'cart',
+  priority = false,
+}: {
+  product: Product;
+  categoryName?: string;
+  cta?: 'discover' | 'cart';
+  priority?: boolean;
+}) {
   const { add } = useCart();
-  const router = useRouter();
-  const favorites = useFavorites();
   const { currency } = useSite();
-  const liked = favorites.has(product.id);
-  const soldOut = product.stock !== null && product.stock <= 0;
-  const href = productHref(product);
+  const href = `/produit/${product.slug}`;
+  const variants = landingOffers(product);
+  const comingSoon = !!product.coming_soon;
+  const available = comingSoon ? undefined : variants.find((v) => !offerSoldOut(product, v));
+  const soldOut = !available;
+  // « dès » : le plus petit prix parmi les formats disponibles
+  const priced = variants.filter((v) => !offerSoldOut(product, v));
+  const fromPrice = Math.min(...(priced.length ? priced : variants).map((v) => v.price));
+  const several = (priced.length ? priced : variants).length > 1;
+  const format = product.landing?.format;
+  const isPhoto = !!product.image_url && !product.image_url.endsWith('.svg');
 
   return (
-    <article className="card group relative flex h-full flex-col overflow-hidden p-2.5">
-      <div className="relative aspect-square overflow-hidden rounded-[14px] bg-cream">
-        <Link href={href} aria-label={product.name} className="absolute inset-0">
-          <SmartImage
-            src={product.image_url}
-            alt=""
-            fill
-            priority={priority}
-            sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 90vw"
-            className="object-contain transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-          />
-        </Link>
-        <div className="pointer-events-none absolute top-2.5 left-2.5 flex gap-1.5">
-          {soldOut && <span className="rounded-full bg-ink px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-white uppercase">En rupture</span>}
-          {product.is_new && <span className="rounded-full bg-forest px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-white uppercase">Nouveau</span>}
-          {product.compare_at_price && product.compare_at_price > product.price && (
-            <span className="rounded-full bg-lime px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-forest uppercase">
-              −{Math.round((1 - product.price / product.compare_at_price) * 100)} %
-            </span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => favorites.toggle(product)}
-          aria-pressed={liked}
-          aria-label={liked ? `Retirer ${product.name} des favoris` : `Ajouter ${product.name} aux favoris`}
-          className="glass absolute top-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full transition-transform hover:scale-105"
-        >
-          <Heart className={`h-4 w-4 ${liked ? 'fill-leaf text-leaf' : 'text-ink'}`} strokeWidth={1.8} />
-        </button>
-      </div>
+    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-white">
+      <Link href={href} className="relative block aspect-square overflow-hidden bg-[#efebe1]" aria-label={product.name}>
+        <SmartImage
+          src={product.image_url}
+          alt=""
+          fill
+          preload={priority}
+          sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 50vw"
+          className={`${isPhoto ? 'object-cover' : 'object-contain p-4'} transition-transform duration-700 ease-out group-hover:scale-[1.03]`}
+        />
+        {soldOut && (
+          <span className={`absolute top-2.5 left-2.5 rounded px-2 py-1 text-[11px] font-medium ${comingSoon ? 'bg-champagne text-forest' : 'bg-anthracite/85 text-white'}`}>
+            {comingSoon ? 'Bientôt disponible' : 'Rupture de stock'}
+          </span>
+        )}
+      </Link>
 
-      <div className="flex flex-1 flex-col px-2 pt-4 pb-2">
-        <h3 className="font-display text-[15.5px] leading-snug font-bold">
-          <Link href={href} className="hover:text-leaf">
+      <div className={`flex flex-1 flex-col p-3 sm:p-4 ${cta === 'discover' ? 'items-center text-center' : ''}`}>
+        <h3 className="font-serif text-[1.15rem] leading-tight font-medium sm:text-[1.3rem]">
+          <Link href={href} className="hover:text-forest">
             {product.name}
           </Link>
         </h3>
-        {product.benefit && <p className="mt-1 text-[13px] leading-snug text-ink-muted">{product.benefit}</p>}
-        <Stars rating={product.rating} count={product.reviews_count} className="mt-2.5" />
-        <div className="mt-auto flex items-end justify-between gap-3 pt-4">
-          <p className="leading-tight">
-            <span className="font-display text-[17px] font-extrabold text-ink">{formatPrice(product.price, currency)}</span>
-            {product.compare_at_price && product.compare_at_price > product.price && (
-              <span className="ml-2 text-xs text-ink-muted line-through">{formatPrice(product.compare_at_price, currency)}</span>
-            )}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              // Produit spécial : commande directe en bas de sa page, sinon panier → commande
-              if (product.is_featured) return router.push(`${SPECIAL_PATH}#commander`);
-              add(product);
-              router.push('/commande');
-            }}
-            disabled={soldOut}
-            aria-label={soldOut ? `${product.name} en rupture` : `Commander ${product.name}`}
-            className="shrink-0 rounded-full bg-forest px-4 py-2.5 text-[13px] font-semibold text-white shadow-[var(--shadow-soft)] transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Commander
-          </button>
-        </div>
-        {soldOut && <p className="mt-2 text-xs font-medium text-ink-muted">Bientôt de retour</p>}
+        {categoryName && cta === 'discover' && <p className="mt-1 text-[13px] text-muted">{categoryName}</p>}
+        {format && <p className="mt-1 text-[13px] text-muted">{format}</p>}
+
+        {cta === 'discover' ? (
+          <>
+            <p className="mt-3 font-serif text-[1.35rem] font-semibold text-anthracite">
+              {comingSoon ? (
+                <span className="font-normal text-muted italic">Bientôt disponible</span>
+              ) : (
+                <>
+                  {several && <span className="mr-1 text-[0.8em] font-normal text-muted">dès</span>}
+                  {formatPrice(fromPrice, currency)}
+                </>
+              )}
+            </p>
+            <Link href={href} className="btn btn-forest mt-4 w-full max-w-60">
+              Découvrir
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </>
+        ) : (
+          <div className="mt-auto flex items-end justify-between gap-2 pt-3">
+            <p className="font-serif text-[1.15rem] leading-tight font-semibold sm:text-[1.25rem]">
+              {comingSoon ? (
+                <span className="text-[1rem] font-normal text-muted italic">Bientôt disponible</span>
+              ) : (
+                <>
+                  {several && <span className="block text-[12px] font-normal text-muted">dès</span>}
+                  {formatPrice(fromPrice, currency)}
+                </>
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={() => available && add(product, 1, available.id ? available : null)}
+              disabled={soldOut}
+              aria-label={comingSoon ? `${product.name} : bientôt disponible` : soldOut ? `${product.name} : rupture de stock` : `Ajouter ${product.name}${available?.id ? ` (${available.label})` : ''} au panier`}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-forest text-white transition-colors hover:bg-forest-soft disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.7} />
+            </button>
+          </div>
+        )}
       </div>
     </article>
   );

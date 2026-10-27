@@ -2,20 +2,14 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { previewOrder } from '@/lib/preview';
 import { byRank } from '@/lib/ranking';
 import type { Category, Product } from '@/lib/types';
 import ProductCard from './ProductCard';
 
-const collections = [
-  { id: '', label: 'Tous les produits' },
-  { id: 'meilleures-ventes', label: 'Meilleures ventes' },
-  { id: 'nouveautes', label: 'Nouveautés' },
-] as const;
-
 const sorts = [
   { id: 'selection', label: 'Notre sélection' },
-  { id: 'populaires', label: 'Popularité' },
   { id: 'prix-croissant', label: 'Prix croissant' },
   { id: 'prix-decroissant', label: 'Prix décroissant' },
   { id: 'nom', label: 'Nom (A → Z)' },
@@ -23,11 +17,12 @@ const sorts = [
 
 const normalize = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-/** Grille de la boutique : filtre catégorie / recherche / tri, état conservé dans l'URL */
+/** Grille « Nos produits » : catégories, recherche et tri, état conservé dans l'URL */
 export default function ShopView({ products, categories }: { products: Product[]; categories: Category[] }) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  // ?collection= : anciens liens (meilleures ventes, nouveautés)
   const collection = params.get('collection') ?? '';
   const category = params.get('categorie') ?? '';
   const query = params.get('q') ?? '';
@@ -54,95 +49,65 @@ export default function ShopView({ products, categories }: { products: Product[]
     if (sort === 'prix-croissant') sorted.sort((a, b) => a.price - b.price);
     else if (sort === 'prix-decroissant') sorted.sort((a, b) => b.price - a.price);
     else if (sort === 'nom') sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-    else if (sort === 'populaires') sorted.sort((a, b) => b.reviews_count - a.reviews_count || a.sort_order - b.sort_order);
-    // « Notre sélection » : l'ordre défini dans Pilotage › Boutique
-    else sorted.sort(byRank(collection === 'nouveautes' ? 'new_order' : collection === 'meilleures-ventes' ? 'bestseller_order' : 'sort_order'));
+    // « Notre sélection » : les produits mis en avant d'abord, puis l'ordre défini dans Pilotage › Boutique
+    else {
+      const rank = byRank(collection === 'nouveautes' ? 'new_order' : collection === 'meilleures-ventes' ? 'bestseller_order' : 'sort_order');
+      const lead = (p: Product) => (previewOrder.includes(p.slug) ? previewOrder.indexOf(p.slug) : previewOrder.length);
+      sorted.sort((a, b) => lead(a) - lead(b) || rank(a, b));
+    }
     return sorted;
   }, [products, collection, category, query, sort]);
 
   return (
-    <section aria-labelledby="shop-products" className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6 lg:px-10">
-      <h2 id="shop-products" className="sr-only">Produits</h2>
-      <div className="no-scrollbar -mx-4 mb-5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        <div role="group" aria-label="Collections" className="glass inline-flex gap-1 rounded-full p-1.5">
-          {collections.map((c) => (
-            <button
-              key={c.id || 'all'}
-              type="button"
-              aria-pressed={collection === c.id}
-              onClick={() => setParam('collection', c.id)}
-              className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-medium whitespace-nowrap transition-colors ${
-                collection === c.id ? 'bg-forest text-white shadow-sm' : 'text-ink hover:bg-white/60'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="flex flex-col gap-4 border-y border-line py-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
-          {[{ slug: '', name: 'Tout' }, ...categories].map((c) => (
-            <button
-              key={c.slug || 'all'}
-              type="button"
-              aria-pressed={category === c.slug}
-              onClick={() => setParam('categorie', c.slug)}
-              className={`shrink-0 rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
-                category === c.slug ? 'border-forest bg-forest text-white' : 'border-line bg-cream/60 text-ink hover:bg-cream'
-              }`}
-            >
+    <section aria-labelledby="shop-products" className="container-site pb-16">
+      <h2 id="shop-products" className="sr-only">
+        Produits
+      </h2>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
+          {[{ slug: '', name: 'Tous' }, ...categories].map((c) => (
+            <button key={c.slug || 'all'} type="button" aria-pressed={category === c.slug} onClick={() => setParam('categorie', c.slug)} className="chip">
               {c.name}
             </button>
           ))}
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative sm:w-64">
-            <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
+        <div className="flex gap-3">
+          <div className="relative flex-1 lg:w-64 lg:flex-none">
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true" />
             <label htmlFor="shop-search" className="sr-only">
               Rechercher un produit
             </label>
-            <input
-              id="shop-search"
-              type="search"
-              defaultValue={query}
-              placeholder="Rechercher…"
-              onChange={(e) => setParam('q', e.target.value.trim())}
-              className="field py-2.5! pl-10!"
-            />
+            <input id="shop-search" type="search" defaultValue={query} placeholder="Rechercher…" onChange={(e) => setParam('q', e.target.value.trim())} className="field pl-10!" />
           </div>
-          <div className="relative">
-            <SlidersHorizontal className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
-            <label htmlFor="shop-sort" className="sr-only">
-              Trier par
-            </label>
-            <select id="shop-sort" value={sort} onChange={(e) => setParam('tri', e.target.value)} className="field appearance-none py-2.5! pr-8! pl-10!">
-              {sorts.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <label htmlFor="shop-sort" className="sr-only">
+            Trier par
+          </label>
+          <select id="shop-sort" value={sort} onChange={(e) => setParam('tri', e.target.value)} className="field w-auto! pr-8">
+            {sorts.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <p className="mt-6 text-sm text-ink-muted" aria-live="polite">
+      <p className="mt-6 text-[14px] text-muted" aria-live="polite">
         {list.length} produit{list.length > 1 ? 's' : ''}
       </p>
 
       {list.length === 0 ? (
         <div className="card mt-6 p-10 text-center">
-          <p className="font-display text-lg font-bold">Aucun produit ne correspond à votre recherche.</p>
-          <button type="button" className="btn-ghost mt-5" onClick={() => router.replace(pathname)}>
+          <p className="font-serif text-2xl">Aucun produit ne correspond à votre recherche.</p>
+          <button type="button" className="btn btn-outline mt-6" onClick={() => router.replace(pathname)}>
             Réinitialiser les filtres
           </button>
         </div>
       ) : (
-        <ul className="mt-6 grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4">
+        <ul className="mt-5 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
           {list.map((p, i) => (
             <li key={p.id}>
-              <ProductCard product={p} priority={i < 4} />
+              <ProductCard product={p} priority={i < 2} />
             </li>
           ))}
         </ul>

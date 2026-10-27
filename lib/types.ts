@@ -42,6 +42,8 @@ export interface Product {
   benefits: ProductBenefit[];
   /** Contenu de la page /best-seller quand le produit est le produit spécial */
   landing?: ProductLanding | null;
+  /** Pas encore en vente : affiché sans prix, non commandable */
+  coming_soon?: boolean;
   created_at?: string;
 }
 
@@ -85,8 +87,19 @@ export interface LandingReview {
   hidden?: boolean;
 }
 
+/** Carte « Ingrédients principaux » de la page /best-seller */
+export interface LandingIngredient {
+  name: string;
+  image_url: string | null;
+  hidden?: boolean;
+}
+
 /** Blocs du produit que l'on peut afficher ou masquer (fiche produit, page /best-seller, accueil) */
 export interface LandingBlocks {
+  about: boolean;
+  ingredient_cards: boolean;
+  precautions: boolean;
+  reasons: boolean;
   gallery: boolean;
   tagline: boolean;
   description: boolean;
@@ -104,10 +117,22 @@ export interface LandingBlocks {
 
 /** Page de vente du produit spécial (/best-seller) */
 export interface ProductLanding {
+  /** Format et quantité affichés sur les cartes et la fiche (ex. 120 capsules | 500 mg) */
+  format: string;
+  /** Précautions et informations réglementaires (fiche produit) */
+  precautions: string;
   /** Bannière : titre, texte et visuel (sinon nom, accroche et photo du produit) */
   hero_title: string;
   hero_text: string;
   hero_image: string | null;
+  /** Pastille au-dessus du titre (ex. Santé digestive) */
+  hero_badge: string;
+  /** « À propos du produit » (vide : description du produit) */
+  about_text: string;
+  ingredient_cards: LandingIngredient[];
+  /** « Pourquoi choisir … ? » */
+  reasons: string[];
+  reasons_image: string | null;
   blocks: LandingBlocks;
   /** Arguments courts sous la bannière (livraison, qualité…) */
   trust: string[];
@@ -231,6 +256,8 @@ export interface HeroSettings {
   recommended_cta: string;
   /** Vide : page du produit du moment */
   recommended_href: string;
+  /** Accueil : barre de navigation transparente posée sur l'image du hero (sinon fond clair) */
+  transparent_nav: boolean;
 }
 
 export interface SectionHeading {
@@ -306,6 +333,8 @@ export interface ShopSettings {
   mobile_money: boolean;
   mobile_money_instructions: string;
   delivery_info: string;
+  /** Politique de retour, affichée sur les fiches produit */
+  returns_info: string;
 }
 
 export interface SiteSettings {

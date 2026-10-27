@@ -1,41 +1,58 @@
-import BestSellers from '@/components/site/BestSellers';
-import CategoryGrid from '@/components/site/CategoryGrid';
-import FeaturedProduct from '@/components/site/FeaturedProduct';
-import Hero from '@/components/site/Hero';
-import Ingredients from '@/components/site/Ingredients';
-import Newsletter from '@/components/site/Newsletter';
-import Philosophy from '@/components/site/Philosophy';
-import Ritual from '@/components/site/Ritual';
-import Solutions from '@/components/site/Solutions';
-import Testimonials from '@/components/site/Testimonials';
-import { pickSpecialProduct, SPECIAL_PATH } from '@/lib/landing';
-import { getCategories, getIngredients, getProducts, getSettings, getSolutions, getTestimonials } from '@/lib/data';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import ProductCard from '@/components/site/ProductCard';
+import BestSellerSpotlight from '@/components/site/home/BestSellerSpotlight';
+import Engagements from '@/components/site/home/Engagements';
+import HomeHero from '@/components/site/home/HomeHero';
+import MaisonSplit from '@/components/site/home/MaisonSplit';
+import { getCategories, getProducts, getSettings } from '@/lib/data';
+import { pickSpecialProduct } from '@/lib/landing';
+import { previewOrder } from '@/lib/preview';
+import { byRank } from '@/lib/ranking';
 
+/** Accueil : bannière, sélection, maison, engagements — rien de plus (cahier des charges) */
 export default async function HomePage() {
-  const [settings, categories, products, testimonials, ingredients, solutions] = await Promise.all([
-    getSettings(),
-    getCategories(),
-    getProducts(),
-    getTestimonials(),
-    getIngredients(),
-    getSolutions(),
-  ]);
-  const { hero, sections } = settings;
-  // « Le plus recommandé » du hero mène à la page du produit spécial
-  const recommended = pickSpecialProduct(products);
+  const [products, categories, { hero, shop }] = await Promise.all([getProducts(), getCategories(), getSettings()]);
+  const special = pickSpecialProduct(products);
+  // Sélection : les 3 produits mis en avant dans la préversion (Pylor, Moringa, Curcuma), complétés par les meilleures ventes
+  const featured = previewOrder.slice(0, 3).flatMap((slug) => products.filter((p) => p.slug === slug && !p.coming_soon));
+  const selection = [
+    ...featured,
+    ...products.filter((p) => !featured.includes(p) && p.is_bestseller && !p.coming_soon).sort(byRank('bestseller_order')),
+  ].slice(0, 3);
+  const categoryName = (slug: string | null) => categories.find((c) => c.slug === slug)?.name ?? 'Complément alimentaire';
 
   return (
     <>
-      <Hero hero={hero} recommendedHref={recommended && SPECIAL_PATH} />
-      {sections.solutions.visible && <Solutions items={solutions} heading={sections.solutions} />}
-      {sections.featured.visible && <FeaturedProduct data={sections.featured} products={products} categories={categories} />}
-      {sections.categories.visible && <CategoryGrid categories={categories} title={sections.categories.title} linkLabel={sections.categories.link_label} />}
-      {sections.bestsellers.visible && products.length > 0 && <BestSellers products={products} heading={sections.bestsellers} />}
-      {sections.philosophy.visible && <Philosophy data={sections.philosophy} />}
-      {sections.ritual.visible && <Ritual data={sections.ritual} />}
-      {sections.ingredients.visible && <Ingredients items={ingredients} heading={sections.ingredients} />}
-      {sections.testimonials.visible && <Testimonials items={testimonials} heading={sections.testimonials} />}
-      {sections.newsletter.visible && <Newsletter data={sections.newsletter} />}
+      <HomeHero underNav={hero.transparent_nav} />
+
+      {selection.length > 0 && (
+        <section aria-labelledby="selection-title" className="container-site py-14 lg:py-20">
+          <div className="text-center">
+            <p className="kicker kicker-lines">Notre sélection</p>
+            <h2 id="selection-title" className="title-lg mt-3 text-[clamp(1.9rem,4vw,2.7rem)]">
+              Une sélection pensée avec exigence.
+            </h2>
+          </div>
+          <ul className="no-scrollbar -mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0">
+            {selection.map((p) => (
+              <li key={p.id} className="w-[72%] shrink-0 snap-start sm:w-auto">
+                <ProductCard product={p} categoryName={categoryName(p.category_slug)} cta="discover" />
+              </li>
+            ))}
+          </ul>
+          {special && <BestSellerSpotlight product={special} currency={shop.currency} />}
+          <div className="mt-10 text-center">
+            <Link href="/boutique" className="btn btn-outline">
+              Voir tous nos produits
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      <MaisonSplit />
+      <Engagements />
     </>
   );
 }
