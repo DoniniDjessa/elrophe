@@ -13,11 +13,23 @@ export function Fill({ value }: { value?: string | null }) {
 }
 
 /** Page juridique : sommaire puis sections numérotées */
-export default function LegalDocument({ title, updatedAt, intro, sections }: { title: string; updatedAt?: string; intro?: ReactNode; sections: LegalSection[] }) {
+export default function LegalDocument({
+  kicker,
+  title,
+  updatedAt,
+  intro,
+  sections,
+}: {
+  kicker: string;
+  title: string;
+  updatedAt?: string;
+  intro?: ReactNode;
+  sections: LegalSection[];
+}) {
   const date = updatedAt ? new Date(updatedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
   return (
     <>
-      <PageHeader kicker="Informations légales" title={title} crumbs={[{ label: title }]} />
+      <PageHeader kicker={kicker} title={title} crumbs={[{ label: title }]} />
       <div className="container-site grid gap-10 pb-20 lg:grid-cols-[240px_1fr] lg:gap-16">
         <nav aria-label="Sommaire" className="lg:sticky lg:top-28 lg:self-start">
           <p className="text-[13px] font-semibold tracking-[0.12em] text-muted uppercase">Sommaire</p>

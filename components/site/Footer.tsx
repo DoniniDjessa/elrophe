@@ -42,7 +42,7 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
       links: [
         { href: '/conditions-generales-de-vente', label: 'Conditions générales de vente' },
         { href: '/mentions-legales', label: 'Mentions légales' },
-        { href: '/mentions-legales#confidentialite', label: 'Politique de confidentialité' },
+        { href: '/politique-de-confidentialite', label: 'Politique de confidentialité' },
       ],
     },
   ];

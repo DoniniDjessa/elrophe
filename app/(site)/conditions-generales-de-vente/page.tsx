@@ -158,7 +158,7 @@ export default async function CgvPage() {
       body: (
         <p>
           Les données collectées lors de la commande servent uniquement à son traitement et à sa livraison. Leur utilisation et vos droits sont détaillés dans notre{' '}
-          <Link href="/mentions-legales#confidentialite">politique de confidentialité</Link>.
+          <Link href="/politique-de-confidentialite">politique de confidentialité</Link>.
         </p>
       ),
     },
@@ -189,5 +189,5 @@ export default async function CgvPage() {
     },
   ];
 
-  return <LegalDocument title="Conditions générales de vente" updatedAt={legal.updated_at} sections={sections} />;
+  return <LegalDocument kicker="Vente en ligne" title="Conditions générales de vente" updatedAt={legal.updated_at} sections={sections} />;
 }

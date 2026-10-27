@@ -3,9 +3,9 @@ import Link from 'next/link';
 import LegalDocument, { Fill, type LegalSection } from '@/components/site/LegalDocument';
 import { getSettings } from '@/lib/data';
 
-export const metadata: Metadata = { title: 'Mentions légales et confidentialité', description: 'Mentions légales, données personnelles et cookies du site EL ROPHE.' };
+export const metadata: Metadata = { title: 'Mentions légales', description: 'Mentions légales du site EL ROPHE : éditeur, hébergement, propriété intellectuelle.' };
 
-/** Mentions légales et politique de confidentialité : informations société dans Pilotage › Personnalisation › Légal */
+/** Mentions légales : informations société dans Pilotage › Personnalisation › Légal */
 export default async function MentionsPage() {
   const { brand, legal } = await getSettings();
   const contact = (
@@ -76,50 +76,13 @@ export default async function MentionsPage() {
       ),
     },
     {
-      id: 'confidentialite',
-      title: 'Données personnelles (politique de confidentialité)',
+      id: 'donnees',
+      title: 'Données personnelles et cookies',
       body: (
-        <>
-          <p>
-            Nous traitons vos données personnelles dans le respect de la loi ivoirienne n° 2013-450 du 19 juin 2013 relative à la protection des données à
-            caractère personnel. L’Autorité de régulation des télécommunications de Côte d’Ivoire (ARTCI) veille à son application.
-          </p>
-          <p>
-            <strong>Données collectées :</strong> nom, numéro de téléphone, adresse e-mail (facultative), adresse de livraison, instructions de livraison et contenu de
-            vos commandes.
-          </p>
-          <p>
-            <strong>Finalités :</strong> traiter et livrer vos commandes, vous contacter pour les confirmer, assurer le service client et le suivi de commande. Ces
-            traitements sont nécessaires à l’exécution de la vente.
-          </p>
-          <p>
-            <strong>Destinataires :</strong> notre équipe et, pour la seule livraison, nos livreurs. Vos données ne sont jamais vendues ni cédées à des tiers à des
-            fins commerciales.
-          </p>
-          <p>
-            <strong>Durée de conservation :</strong> le temps nécessaire au traitement de la commande et au respect de nos obligations légales, notamment comptables.
-          </p>
-          <p>
-            <strong>Vos droits :</strong> vous pouvez demander l’accès à vos données, leur rectification, leur suppression ou vous opposer à leur traitement, {contact}.
-            Vous pouvez également saisir l’ARTCI.
-          </p>
-        </>
-      ),
-    },
-    {
-      id: 'cookies',
-      title: 'Cookies et stockage local',
-      body: (
-        <>
-          <p>
-            Le site enregistre votre panier et vos favoris dans votre navigateur (stockage local) pour les conserver d’une visite à l’autre. Ces informations ne nous
-            sont pas transmises.
-          </p>
-          <p>
-            Le site peut utiliser un outil de mesure publicitaire (pixel Meta) afin de mesurer l’efficacité de nos campagnes. Vous pouvez limiter ce suivi depuis les
-            réglages de votre navigateur ou de votre compte Meta.
-          </p>
-        </>
+        <p>
+          La collecte et l’utilisation de vos données personnelles, vos droits et l’usage des cookies sont détaillés dans notre{' '}
+          <Link href="/politique-de-confidentialite">politique de confidentialité</Link>.
+        </p>
       ),
     },
     {
@@ -145,5 +108,5 @@ export default async function MentionsPage() {
     },
   ];
 
-  return <LegalDocument title="Mentions légales" updatedAt={legal.updated_at} sections={sections} />;
+  return <LegalDocument kicker="Informations légales" title="Mentions légales" updatedAt={legal.updated_at} sections={sections} />;
 }

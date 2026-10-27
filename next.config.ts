@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
       { source: '/nouveautes', destination: '/boutique?collection=nouveautes', permanent: true },
       // Refonte : « À propos » devient « Notre maison »
       { source: '/a-propos', destination: '/notre-maison', permanent: true },
+      // Les CGV et la confidentialité ont désormais leur propre page
+      { source: '/cgv', destination: '/conditions-generales-de-vente', permanent: true },
     ];
   },
   images: {
