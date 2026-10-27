@@ -327,6 +327,9 @@ export interface BrandSettings {
   countries: string[];
   /** Bande défilante au-dessus de la barre de navigation (vide : masquée) */
   marquee: string[];
+  /** Référencement : titre et méta-description de l'accueil (résultats Google, partages) */
+  seo_title: string;
+  seo_description: string;
 }
 
 export interface ShopSettings {

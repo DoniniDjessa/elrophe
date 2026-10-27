@@ -463,6 +463,22 @@ function Personnalisation() {
                 <Field label="Bandeau d’annonce (haut de page)" value={brand.announcement} onChange={(v) => update('brand', { announcement: v })} hint="Laisser vide pour masquer le bandeau" />
                 <Field label="Slogan (sous le nom, menu mobile)" value={brand.slogan} onChange={(v) => update('brand', { slogan: v })} />
               </Card>
+              <Card title="Référencement (Google)">
+                <Field
+                  label={`Titre de l’accueil (${brand.seo_title.length}/60)`}
+                  value={brand.seo_title}
+                  onChange={(v) => update('brand', { seo_title: v })}
+                  hint="Titre affiché dans les résultats Google et l’onglet du navigateur. Les autres pages : « Page | EL ROPHE »."
+                />
+                <Field
+                  label={`Méta-description (${brand.seo_description.length}/160)`}
+                  textarea
+                  rows={3}
+                  value={brand.seo_description}
+                  onChange={(v) => update('brand', { seo_description: v })}
+                  hint="Texte sous le titre dans Google (160 caractères environ). N’y mettez que des mentions justifiées pour tous les produits."
+                />
+              </Card>
               <Card title="Bande défilante (au-dessus de la barre de navigation)">
                 <Field
                   label="Messages"

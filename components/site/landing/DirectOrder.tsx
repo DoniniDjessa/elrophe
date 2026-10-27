@@ -80,7 +80,7 @@ export default function DirectOrder({ product, landing, shop }: { product: Produ
         {landing.order_subtitle && <p className="mt-1 text-[16px] text-muted">{landing.order_subtitle}</p>}
       </div>
 
-      <form onSubmit={submit} className="mt-6 space-y-10">
+      <form onSubmit={submit} className="mt-5 space-y-8">
         {/* Offres */}
         <fieldset className="space-y-4">
           <legend className="sr-only">Choisissez votre offre</legend>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CalendarCheck, Check, ChevronRight, FileText, Flower2, Headset, Leaf, Plus, Quote, ShieldCheck, Sprout, Truck } from 'lucide-react';
+import { CalendarCheck, Check, ChevronRight, FileText, Flower2, Leaf, Plus, Quote, ShieldCheck, Sprout } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
 import { landingOffers, offerSoldOut, visible } from '@/lib/landing';
@@ -10,7 +10,6 @@ import { useSite } from '../Providers';
 import Stars from '../Stars';
 import DirectOrder, { SectionTitle } from './DirectOrder';
 
-const trustIcons = [Leaf, ShieldCheck, Truck, Headset];
 const aboutIcons = [Sprout, Leaf, Flower2, ShieldCheck];
 const column = 'mx-auto w-full max-w-3xl px-3 sm:px-5';
 
@@ -53,39 +52,33 @@ export default function LandingPage({
 
   return (
     <>
-      {/* Bannière */}
-      <section aria-labelledby="special-title" className="relative overflow-hidden">
-        <div className="absolute inset-y-0 right-0 w-full sm:w-[75%]">
-          <SmartImage src={heroImage} alt="" fill preload sizes="(min-width: 640px) 75vw, 100vw" className="object-cover object-right-top" />
-          <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,var(--ivory)_0%,rgba(246,243,236,0.85)_35%,rgba(246,243,236,0.1)_75%)]" />
-          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(0deg,var(--ivory),transparent)]" />
+      {/* Bannière — mobile : image nette en haut, texte dessous ; grand écran : image sur toute la bannière, texte ivoire à gauche */}
+      <section aria-labelledby="special-title" className="relative lg:flex lg:min-h-[600px] lg:items-center">
+        <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
+          <SmartImage src={heroImage} alt="" fill preload sizes="100vw" className="object-cover lg:object-[70%_center]" />
+          {/* Lisibilité du texte (grand écran) : dégradé vert forêt côté texte uniquement */}
+          <div aria-hidden="true" className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(23,55,44,0.92)_0%,rgba(23,55,44,0.7)_38%,transparent_62%)] lg:block" />
         </div>
-        <div className={`${column} relative pt-10 pb-8 sm:pt-16`}>
-          {(landing.hero_badge || categoryName) && (
-            <p className="inline-flex rounded-full border border-champagne/70 bg-champagne/20 px-3.5 py-1.5 text-[12px] font-semibold tracking-[0.14em] text-forest uppercase">
-              {landing.hero_badge || categoryName}
-            </p>
-          )}
-          <h1 id="special-title" className="title-xl mt-5 max-w-[14ch] text-[clamp(2.6rem,9vw,4.2rem)] text-forest!">
-            {landing.hero_title || product.name}
-          </h1>
-          {subtitle && <p className="mt-3 max-w-[30ch] text-[17px] leading-snug text-anthracite sm:text-[18px]">{subtitle}</p>}
-          {product.reviews_count > 0 && <Stars rating={product.rating} count={product.reviews_count} className="mt-4" />}
-
-          {show.trust && landing.trust.length > 0 && (
-            <ul className={`mt-10 grid gap-3 ${landing.trust.length >= 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
-              {landing.trust.slice(0, 4).map((t, i) => (
-                <IconBadge key={t} Icon={trustIcons[i % trustIcons.length]} label={t} />
-              ))}
-            </ul>
-          )}
+        <div className="container-site relative pt-6 pb-6 lg:py-16">
+          <div className="max-w-xl">
+            {(landing.hero_badge || categoryName) && (
+              <p className="inline-flex rounded-full border border-champagne/70 bg-champagne/20 px-3.5 py-1.5 text-[12px] font-semibold tracking-[0.14em] text-forest uppercase lg:text-ivory">
+                {landing.hero_badge || categoryName}
+              </p>
+            )}
+            <h1 id="special-title" className="title-xl mt-4 max-w-[14ch] text-[clamp(2.6rem,9vw,4.2rem)] text-forest lg:text-ivory">
+              {landing.hero_title || product.name}
+            </h1>
+            {subtitle && <p className="mt-3 max-w-[34ch] text-[17px] leading-snug text-anthracite sm:text-[18px] lg:text-ivory/90">{subtitle}</p>}
+            {product.reviews_count > 0 && <Stars rating={product.rating} count={product.reviews_count} className="mt-3" />}
+          </div>
         </div>
       </section>
 
-      <div className={`${column} space-y-14 pt-6 pb-16 sm:space-y-16`}>
+      <div className={`${column} space-y-10 pt-4 pb-14 sm:space-y-12`}>
         {/* À propos */}
         {(about || (show.highlights && product.highlights.length > 0)) && (
-          <section aria-labelledby="special-about" className="space-y-5">
+          <section aria-labelledby="special-about" className="space-y-4">
             <SectionTitle id="special-about">À propos du produit</SectionTitle>
             {about && <p className="font-serif text-[1.25rem] leading-relaxed text-anthracite">{about}</p>}
             {product.highlights.length > 0 && (
@@ -100,7 +93,7 @@ export default function LandingPage({
 
         {/* Ingrédients principaux */}
         {(landing.ingredient_cards.length > 0 || product.ingredients) && (
-          <section aria-labelledby="special-ingredients" className="space-y-5">
+          <section aria-labelledby="special-ingredients" className="space-y-4">
             <SectionTitle id="special-ingredients">Ingrédients principaux</SectionTitle>
             {landing.ingredient_cards.length > 0 && (
               <ul className="grid grid-cols-4 gap-3">
@@ -134,7 +127,7 @@ export default function LandingPage({
 
         {/* Conseils d'utilisation */}
         {product.usage && (
-          <section aria-labelledby="special-usage" className="space-y-5">
+          <section aria-labelledby="special-usage" className="space-y-4">
             <SectionTitle id="special-usage">Conseils d’utilisation</SectionTitle>
             <div className="flex gap-4">
               <CalendarCheck className="mt-0.5 h-8 w-8 shrink-0 text-[#a58c62]" strokeWidth={1.3} aria-hidden="true" />
@@ -183,7 +176,7 @@ export default function LandingPage({
 
         {/* Sections complémentaires (Pilotage › Produit spécial) */}
         {sections.map((s, i) => (
-          <section key={i} className="space-y-5">
+          <section key={i} className="space-y-4">
             {s.title && <SectionTitle>{s.title}</SectionTitle>}
             {s.image_url && (
               <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
@@ -195,7 +188,7 @@ export default function LandingPage({
         ))}
 
         {reviews.length > 0 && (
-          <section aria-labelledby="special-reviews" className="space-y-5">
+          <section aria-labelledby="special-reviews" className="space-y-4">
             <SectionTitle id="special-reviews">Ils l’ont adopté</SectionTitle>
             <ul className="space-y-3">
               {reviews.map((r, i) => (
@@ -216,7 +209,7 @@ export default function LandingPage({
         )}
 
         {faq.length > 0 && (
-          <section aria-labelledby="special-faq" className="space-y-5">
+          <section aria-labelledby="special-faq" className="space-y-4">
             <SectionTitle id="special-faq">Questions fréquentes</SectionTitle>
             <div className="space-y-3">
               {faq.map((f, i) => (

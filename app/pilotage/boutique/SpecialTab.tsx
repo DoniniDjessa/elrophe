@@ -154,7 +154,7 @@ function SpecialEditor({ product, reload }: { product: Product; reload: () => vo
           </div>
         </Card>
 
-        <Card title="2. Pictogrammes de la bannière" hint="3 ou 4 libellés courts sous le titre (ex. Ingrédients naturels, Livraison express gratuite)." {...block('trust')}>
+        <Card title="2. Arguments de la carte best-seller (accueil)" hint="3 libellés courts affichés sur la carte « Notre best-seller » de l’accueil. Ils ne figurent plus dans la bannière de la page." {...block('trust')}>
           <div className="grid gap-2 sm:grid-cols-2">
             {trust.map((t, i) => (
               <input

@@ -7,7 +7,11 @@ import { defaultSettings } from '@/data/site';
 import { fallbackCategories, fallbackIngredients, fallbackProducts, fallbackSolutions, fallbackTestimonials } from '@/data/catalog';
 import type { Category, Ingredient, Product, SiteSettings, Solution, Testimonial } from './types';
 
-/** Tag commun à tout le contenu du site : le pilotage l'invalide après chaque modification */
+/**
+ * Tag commun à tout le contenu du site : le pilotage l'invalide après chaque modification.
+ * Durée « minutes » (revalidation chaque minute) : la base est partagée entre plusieurs déploiements
+ * (site en ligne, préversion, local) et l'invalidation n'atteint que celui où l'on enregistre.
+ */
 export const SITE_TAG = 'elrophe';
 
 const normalizeProduct = (p: Product): Product => ({
@@ -38,7 +42,7 @@ async function readTable<T>(table: string, fallback: T[], order = 'sort_order'):
 
 export async function getSettings(): Promise<SiteSettings> {
   'use cache';
-  cacheLife('max');
+  cacheLife('minutes');
   cacheTag(SITE_TAG);
   const { data, error } = await supabasePublic.from('elrophe_settings').select('key, value');
   if (error) return defaultSettings;
@@ -47,14 +51,14 @@ export async function getSettings(): Promise<SiteSettings> {
 
 export async function getCategories(): Promise<Category[]> {
   'use cache';
-  cacheLife('max');
+  cacheLife('minutes');
   cacheTag(SITE_TAG);
   return readTable<Category>('elrophe_categories', fallbackCategories);
 }
 
 export async function getProducts(): Promise<Product[]> {
   'use cache';
-  cacheLife('max');
+  cacheLife('minutes');
   cacheTag(SITE_TAG);
   const rows = await readTable<Product>('elrophe_products', fallbackProducts);
   return applyPreview(rows.map(normalizeProduct).map(applyVisibility));
@@ -67,21 +71,21 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getTestimonials(): Promise<Testimonial[]> {
   'use cache';
-  cacheLife('max');
+  cacheLife('minutes');
   cacheTag(SITE_TAG);
   return readTable<Testimonial>('elrophe_testimonials', fallbackTestimonials);
 }
 
 export async function getIngredients(): Promise<Ingredient[]> {
   'use cache';
-  cacheLife('max');
+  cacheLife('minutes');
   cacheTag(SITE_TAG);
   return readTable<Ingredient>('elrophe_ingredients', fallbackIngredients);
 }
 
 export async function getSolutions(): Promise<Solution[]> {
   'use cache';
-  cacheLife('max');
+  cacheLife('minutes');
   cacheTag(SITE_TAG);
   const rows = await readTable<Solution>('elrophe_solutions', fallbackSolutions);
   return rows.map((s) => ({ ...s, product_ids: s.product_ids ?? [] }));
