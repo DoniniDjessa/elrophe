@@ -19,9 +19,9 @@ export function OrderSummary({ shop, children }: { shop: ShopSettings; children?
   const shipping = shippingFor(subtotal, shop, lines);
   const remaining = shop.free_shipping_threshold - subtotal;
   return (
-    <aside className="card h-fit p-5 sm:p-6 lg:sticky lg:top-28" aria-label="Récapitulatif">
-      <h2 className="font-serif text-[1.6rem]">Récapitulatif</h2>
-      <dl className="mt-4 space-y-3 text-[15px]">
+    <aside className="card h-fit p-4 sm:p-6 lg:sticky lg:top-28" aria-label="Récapitulatif">
+      <h2 className="font-serif text-[1.4rem] font-semibold">Récapitulatif</h2>
+      <dl className="mt-3 space-y-2.5 text-[15px]">
         <div className="flex justify-between">
           <dt className="text-muted">Sous-total</dt>
           <dd>{formatPrice(subtotal, currency)}</dd>
@@ -46,9 +46,9 @@ export function OrderSummary({ shop, children }: { shop: ShopSettings; children?
 }
 
 const reassurance = [
-  { Icon: Truck, label: 'Livraison suivie' },
+  { Icon: Truck, label: 'Livraison sécurisée' },
   { Icon: Banknote, label: 'Paiement à la livraison' },
-  { Icon: Headset, label: 'Service client' },
+  { Icon: Headset, label: 'Service client à votre écoute' },
 ];
 
 export default function CartView({ shop }: { shop: ShopSettings }) {
@@ -71,69 +71,76 @@ export default function CartView({ shop }: { shop: ShopSettings }) {
     );
   }
 
-  return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
-      <div>
-        <ul className="divide-y divide-line border-y border-line">
-          {lines.map((line) => (
-            <li key={line.key} className="flex gap-4 py-4">
-              <Link href={`/produit/${line.slug}`} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md bg-[#efebe1]">
-                <SmartImage src={line.image_url} alt={line.name} fill sizes="96px" className={line.image_url?.endsWith('.svg') ? 'object-contain p-2' : 'object-cover'} />
-              </Link>
-              <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
-                <div className="flex justify-between gap-3">
-                  <div className="min-w-0">
-                    <Link href={`/produit/${line.slug}`} className="font-serif text-[1.25rem] leading-tight hover:text-forest">
-                      {line.name}
-                    </Link>
-                    {line.variant && <p className="text-[14px] text-muted">{line.variant}</p>}
-                    <p className="mt-1 text-[15px] font-medium">{formatPrice(line.price, currency)}</p>
-                  </div>
-                  <button type="button" className="icon-btn -mt-1 -mr-2 h-10! w-10! shrink-0 text-muted" onClick={() => remove(line.key)} aria-label={`Retirer ${line.name} du panier`}>
-                    <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.6} />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center rounded-md border" style={{ borderColor: 'var(--line-strong)' }}>
-                    <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setQuantity(line.key, line.quantity - 1)} aria-label={`Diminuer la quantité de ${line.name}`}>
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <span className="w-8 text-center text-[15px] font-medium" aria-live="polite">
-                      {line.quantity}
-                    </span>
-                    <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setQuantity(line.key, line.quantity + 1)} aria-label={`Augmenter la quantité de ${line.name}`}>
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <p className="font-serif text-[1.2rem] font-semibold">{formatPrice(line.price * line.quantity, currency)}</p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        <Link href="/boutique" className="mt-5 inline-flex items-center gap-2 text-[15px] text-forest hover:underline">
-          Continuer mes achats
-        </Link>
-      </div>
+  const count = lines.reduce((n, l) => n + l.quantity, 0);
 
-      <div>
-        <OrderSummary shop={shop}>
-          <Link href="/commande" className="btn btn-forest mt-6 w-full">
-            Passer la commande
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+  return (
+    <>
+      <h1 className="title-xl text-[clamp(2rem,6vw,2.8rem)]">
+        Votre panier <span className="text-muted">({count})</span>
+      </h1>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
+        <div>
+          <ul className="divide-y divide-line rounded-lg border border-line bg-white px-3 sm:px-5">
+            {lines.map((line) => (
+              <li key={line.key} className="flex gap-3 py-4 sm:gap-4">
+                <Link href={`/produit/${line.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-[#efebe1] sm:h-24 sm:w-24">
+                  <SmartImage src={line.image_url} alt={line.name} fill sizes="96px" className={line.image_url?.endsWith('.svg') ? 'object-contain p-2' : 'object-cover'} />
+                </Link>
+                <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link href={`/produit/${line.slug}`} className="block font-serif text-[1.2rem] leading-[1.1] font-semibold hover:text-forest">
+                        {line.name}
+                      </Link>
+                      {line.variant && <p className="mt-0.5 text-[13px] leading-tight text-muted">{line.variant}</p>}
+                      <p className="mt-1 text-[15px] font-semibold">{formatPrice(line.price, currency)}</p>
+                    </div>
+                    <button type="button" className="icon-btn -mt-2 -mr-2 h-10! w-10! shrink-0 text-muted" onClick={() => remove(line.key)} aria-label={`Retirer ${line.name} du panier`}>
+                      <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.6} />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center rounded-md border bg-white" style={{ borderColor: 'var(--line-strong)' }}>
+                      <button type="button" className="flex h-9 w-9 items-center justify-center" onClick={() => setQuantity(line.key, line.quantity - 1)} aria-label={`Diminuer la quantité de ${line.name}`}>
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-7 text-center text-[15px] font-medium" aria-live="polite">
+                        {line.quantity}
+                      </span>
+                      <button type="button" className="flex h-9 w-9 items-center justify-center" onClick={() => setQuantity(line.key, line.quantity + 1)} aria-label={`Augmenter la quantité de ${line.name}`}>
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <p className="font-serif text-[1.15rem] font-semibold">{formatPrice(line.price * line.quantity, currency)}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <Link href="/boutique" className="mt-4 inline-flex items-center gap-2 text-[15px] text-forest hover:underline">
+            ← Continuer mes achats
           </Link>
-        </OrderSummary>
-        <ul className="mt-6 grid grid-cols-3 gap-3 text-center text-[13px] text-muted">
-          {reassurance.map(({ Icon, label }) => (
-            <li key={label} className="flex flex-col items-center gap-2">
-              <span className="ring-icon h-11! w-11!">
-                <Icon className="h-5 w-5" strokeWidth={1.4} aria-hidden="true" />
-              </span>
-              {label}
-            </li>
-          ))}
-        </ul>
+        </div>
+
+        <div>
+          <OrderSummary shop={shop}>
+            <Link href="/commande" className="btn btn-forest mt-5 w-full">
+              Passer la commande
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </OrderSummary>
+          <ul className="mt-6 grid grid-cols-3 divide-x divide-line text-center text-[13px] leading-snug text-muted">
+            {reassurance.map(({ Icon, label }) => (
+              <li key={label} className="flex flex-col items-center gap-2 px-2">
+                <span className="ring-icon h-11! w-11!">
+                  <Icon className="h-5 w-5" strokeWidth={1.4} aria-hidden="true" />
+                </span>
+                {label}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

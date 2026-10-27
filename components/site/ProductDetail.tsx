@@ -80,12 +80,15 @@ export default function ProductDetail({ product, categoryName, shop }: { product
         {(format || product.benefit) && <p className="mt-2 text-[16px] text-muted">{format || product.benefit}</p>}
         {product.reviews_count > 0 && <Stars rating={product.rating} count={product.reviews_count} className="mt-3" />}
 
-        <p className="mt-5 font-serif text-[2rem] leading-none font-semibold">
-          {comingSoon ? <span className="font-normal text-muted italic">Prix communiqué prochainement</span> : formatPrice(variant.price, currency)}
-          {variant.compare_at_price && variant.compare_at_price > variant.price && (
-            <span className="ml-3 align-middle font-sans text-[15px] font-normal text-muted line-through">{formatPrice(variant.compare_at_price, currency)}</span>
-          )}
-        </p>
+        {/* Pas encore en vente : pas de prix, la disponibilité est indiquée juste en dessous */}
+        {!comingSoon && (
+          <p className="mt-5 font-serif text-[2rem] leading-none font-semibold">
+            {formatPrice(variant.price, currency)}
+            {variant.compare_at_price && variant.compare_at_price > variant.price && (
+              <span className="ml-3 align-middle font-sans text-[15px] font-normal text-muted line-through">{formatPrice(variant.compare_at_price, currency)}</span>
+            )}
+          </p>
+        )}
         <p className={`mt-3 flex items-center gap-2 text-[14px] font-medium ${soldOut ? 'text-[#9a4b2f]' : 'text-sage'}`}>
           <span className={`h-2 w-2 rounded-full ${soldOut ? 'bg-[#9a4b2f]' : 'bg-sage'}`} aria-hidden="true" />
           {comingSoon ? 'Bientôt disponible' : soldOut ? 'Rupture de stock' : lowStock ? `En stock — plus que ${product.stock} disponible${product.stock! > 1 ? 's' : ''}` : 'En stock'}

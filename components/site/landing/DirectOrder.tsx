@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { ArrowRight, Check, Headset, Leaf, Lock, Minus, Plus, ShieldCheck, Star, Truck } from 'lucide-react';
@@ -248,6 +249,13 @@ export default function DirectOrder({ product, landing, shop }: { product: Produ
             {soldOut ? 'Offre en rupture de stock' : submitting ? 'Envoi…' : `Commander maintenant — ${formatPrice(subtotal + shipping, currency)}`}
             {!soldOut && !submitting && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </button>
+          <p className="mt-3 text-center text-[13px] text-muted">
+          En confirmant votre commande, vous acceptez nos{' '}
+          <Link href="/conditions-generales-de-vente" className="underline hover:text-forest">
+            conditions générales de vente
+          </Link>
+          .
+          </p>
           <ul className="mt-6 grid grid-cols-3 divide-x divide-line text-center text-[13px] leading-snug text-muted">
             {[
               { Icon: ShieldCheck, label: 'Paiement sécurisé à la livraison' },

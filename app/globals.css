@@ -89,13 +89,6 @@ body {
   color: var(--anthracite);
 }
 
-.site :is(h1, h2, h3, h4) {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  color: var(--anthracite);
-  letter-spacing: -0.005em;
-}
-
 .site :focus-visible {
   /* Le contour suit l'arrondi de chaque élément (boutons ronds, champs…) */
   outline: 2px solid var(--forest);
@@ -103,13 +96,22 @@ body {
 }
 
 @layer components {
+  /* Titres par défaut, dans une couche : les classes posées sur un titre (font-bold, text-ivory…) l'emportent.
+     (Un bloc @layer base est retiré à la compilation par Tailwind, d'où cette place.) */
+  .site :is(h1, h2, h3, h4) {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--anthracite);
+    letter-spacing: -0.005em;
+  }
+
   .container-site {
     margin-inline: auto;
     width: 100%;
     max-width: 1240px;
-    padding-inline: 1.25rem;
+    padding-inline: 0.75rem;
   }
-  @media (min-width: 640px) { .container-site { padding-inline: 2rem; } }
+  @media (min-width: 640px) { .container-site { padding-inline: 1.25rem; } }
 
   /* Surtitre : petites capitales champagne, filets de part et d'autre */
   .kicker {

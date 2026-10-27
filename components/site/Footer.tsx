@@ -32,7 +32,7 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
       title: 'Service client',
       links: [
         { href: '/faq', label: 'Questions fréquentes' },
-        { href: '/mentions-legales#livraison', label: 'Livraison et retours' },
+        { href: '/conditions-generales-de-vente#livraison', label: 'Livraison et retours' },
         { href: '/compte', label: 'Suivi de commande' },
         { href: '/contact', label: 'Nous contacter' },
       ],
@@ -40,7 +40,7 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
     {
       title: 'Informations légales',
       links: [
-        { href: '/mentions-legales#cgv', label: 'Conditions générales de vente' },
+        { href: '/conditions-generales-de-vente', label: 'Conditions générales de vente' },
         { href: '/mentions-legales', label: 'Mentions légales' },
         { href: '/mentions-legales#confidentialite', label: 'Politique de confidentialité' },
       ],

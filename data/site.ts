@@ -126,6 +126,7 @@ export const defaultSettings: SiteSettings = {
   },
 
   brand: {
+    countries: ['in', 'ci', 'us'],
     name: 'El Rophe',
     tagline: 'Produits naturels pour votre bien-être',
     footer_text: 'Des produits naturels, tracés et testés, pour prendre soin de vous chaque jour.',
@@ -152,5 +153,17 @@ export const defaultSettings: SiteSettings = {
     delivery_info: 'Livraison sous 24 à 72 h à Abidjan, 3 à 5 jours ouvrés à l’intérieur du pays.',
     returns_info:
       'Un produit abîmé ou non conforme à la livraison ? Signalez-le-nous sous 48 h : nous le remplaçons. Pour des raisons d’hygiène, un produit ouvert ne peut être ni repris ni échangé.',
+  },
+  legal: {
+    company: '',
+    legal_form: '',
+    capital: '',
+    rccm: '',
+    ncc: '',
+    address: '',
+    director: '',
+    host_name: '',
+    host_address: '',
+    updated_at: '',
   },
 };

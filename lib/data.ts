@@ -21,6 +21,8 @@ const normalizeProduct = (p: Product): Product => ({
   is_featured: !!p.is_featured,
   new_order: p.new_order ?? 0,
   bestseller_order: p.bestseller_order ?? 0,
+  // Prix à 0 : produit annoncé, pas encore en vente (« Bientôt disponible »)
+  coming_soon: !(Number(p.price) > 0),
   landing: p.landing ? normalizeLanding(p.landing) : null,
 });
 

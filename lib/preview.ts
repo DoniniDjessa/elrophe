@@ -3,13 +3,13 @@ import type { Product } from './types';
 
 /**
  * Préversion de la refonte (branche refonte-premium) : nouveaux visuels produit fournis par le client.
- * Aucune écriture en base : les images sont remplacées à la lecture, noms et prix restent ceux du catalogue.
- * À retirer une fois les visuels téléversés dans Pilotage › Boutique.
+ * Tant que la base garde les anciennes images, elles sont remplacées à la lecture. Dès qu'une autre image
+ * est enregistrée (script scripts/catalogue-refonte.mjs ou Pilotage › Boutique), c'est elle qui s'affiche.
  */
-export const previewVisuals: Record<string, string> = {
-  'pylor-health-sulfomas': '/produits/pylor-health-sulfomas.png',
-  'moringa-vitalite': '/produits/moringa-premium.png',
-  'curcuma-poivre-noir': '/produits/curcuma-premium.png',
+export const previewVisuals: Record<string, { from: string; to: string }> = {
+  'pylor-health-sulfomas': { from: '1792803887044-sujgco.webp', to: '/produits/pylor-health-sulfomas.png' },
+  'moringa-vitalite': { from: '1792799984985-lo9rfs.webp', to: '/produits/moringa-premium.png' },
+  'curcuma-poivre-noir': { from: '/images/products/curcuma-poivre-noir.svg', to: '/produits/curcuma-premium.png' },
 };
 
 /** Ordre de mise en avant : accueil (3 premiers) et tête de « Nos produits » (4) */
@@ -48,7 +48,10 @@ const digesta: Product = {
 };
 
 export function applyPreview(products: Product[]): Product[] {
-  const withVisuals = products.map((p) => (previewVisuals[p.slug] ? { ...p, image_url: previewVisuals[p.slug] } : p));
+  const withVisuals = products.map((p) => {
+    const v = previewVisuals[p.slug];
+    return v && p.image_url?.endsWith(v.from) ? { ...p, image_url: v.to } : p;
+  });
   const all = withVisuals.some((p) => p.slug === digesta.slug) ? withVisuals : [...withVisuals, digesta];
   const rank = (p: Product) => {
     const i = previewOrder.indexOf(p.slug);

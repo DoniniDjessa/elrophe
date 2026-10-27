@@ -6,7 +6,7 @@ import { getSettings } from '@/lib/data';
 import './globals.css';
 
 // Charte : titres en Cormorant Garamond, textes et interface en Inter
-const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500', '600'], style: ['normal', 'italic'], variable: '--font-cormorant', display: 'swap' });
+const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500', '600', '700'], style: ['normal', 'italic'], variable: '--font-cormorant', display: 'swap' });
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export async function generateMetadata(): Promise<Metadata> {

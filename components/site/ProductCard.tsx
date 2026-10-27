@@ -56,37 +56,33 @@ export default function ProductCard({
       </Link>
 
       <div className={`flex flex-1 flex-col p-3 sm:p-4 ${cta === 'discover' ? 'items-center text-center' : ''}`}>
-        <h3 className="font-serif text-[1.15rem] leading-tight font-medium sm:text-[1.3rem]">
+        <h3 className="font-serif text-[1.15rem] leading-[1.1] font-bold sm:text-[1.3rem]">
           <Link href={href} className="hover:text-forest">
             {product.name}
           </Link>
         </h3>
-        {categoryName && cta === 'discover' && <p className="mt-1 text-[13px] text-muted">{categoryName}</p>}
-        {format && <p className="mt-1 text-[13px] text-muted">{format}</p>}
+        {categoryName && cta === 'discover' && <p className="mt-0.5 text-[13px] leading-tight text-muted">{categoryName}</p>}
+        {format && <p className="mt-0.5 text-[13px] leading-tight text-muted">{format}</p>}
 
         {cta === 'discover' ? (
-          <>
-            <p className="mt-3 font-serif text-[1.35rem] font-semibold text-anthracite">
-              {comingSoon ? (
-                <span className="font-normal text-muted italic">Bientôt disponible</span>
-              ) : (
-                <>
-                  {several && <span className="mr-1 text-[0.8em] font-normal text-muted">dès</span>}
-                  {formatPrice(fromPrice, currency)}
-                </>
-              )}
-            </p>
-            <Link href={href} className="btn btn-forest mt-4 w-full max-w-60">
+          // Prix et bouton poussés en bas : alignés d'une carte à l'autre, quelle que soit la longueur du texte
+          <div className="mt-auto flex w-full flex-col items-center pt-2">
+            {/* Pas encore en vente : pas de prix (le badge sur la photo l'indique) */}
+            {!comingSoon && (
+              <p className="font-serif text-[1.35rem] leading-tight font-semibold text-anthracite">
+                {several && <span className="mr-1 text-[0.8em] font-normal text-muted">dès</span>}
+                {formatPrice(fromPrice, currency)}
+              </p>
+            )}
+            <Link href={href} className="btn btn-forest mt-3 w-full max-w-60">
               Découvrir
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-          </>
+          </div>
         ) : (
-          <div className="mt-auto flex items-end justify-between gap-2 pt-3">
+          <div className="mt-auto flex items-end justify-between gap-2 pt-2">
             <p className="font-serif text-[1.15rem] leading-tight font-semibold sm:text-[1.25rem]">
-              {comingSoon ? (
-                <span className="text-[1rem] font-normal text-muted italic">Bientôt disponible</span>
-              ) : (
+              {!comingSoon && (
                 <>
                   {several && <span className="block text-[12px] font-normal text-muted">dès</span>}
                   {formatPrice(fromPrice, currency)}

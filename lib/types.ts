@@ -323,6 +323,8 @@ export interface BrandSettings {
   icon_url: string;
   /** Sous le nom dans le menu mobile */
   slogan: string;
+  /** Pays de présence : drapeaux de l'en-tête (codes ISO, ex. ci, in, us) */
+  countries: string[];
 }
 
 export interface ShopSettings {
@@ -337,12 +339,30 @@ export interface ShopSettings {
   returns_info: string;
 }
 
+/** Informations légales (Pilotage › Personnalisation › Légal) : mentions légales et CGV */
+export interface LegalSettings {
+  /** Raison sociale (ex. EL ROPHE SARL) */
+  company: string;
+  legal_form: string;
+  capital: string;
+  rccm: string;
+  /** Numéro de compte contribuable (Côte d'Ivoire) */
+  ncc: string;
+  address: string;
+  director: string;
+  host_name: string;
+  host_address: string;
+  /** Date de dernière mise à jour des CGV et mentions */
+  updated_at: string;
+}
+
 export interface SiteSettings {
   theme: ThemeSettings;
   hero: HeroSettings;
   sections: SectionsSettings;
   brand: BrandSettings;
   shop: ShopSettings;
+  legal: LegalSettings;
 }
 
 export type SettingsKey = keyof SiteSettings;

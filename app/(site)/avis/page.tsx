@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Quote } from 'lucide-react';
 import HelpBanner from '@/components/site/HelpBanner';
 import PageHeader from '@/components/site/PageHeader';
-import Stars from '@/components/site/Stars';
+import { RatingStars } from '@/components/site/home/Testimonials';
 import { getTestimonials } from '@/lib/data';
 
 export const metadata: Metadata = { title: 'Avis clients', description: 'Les retours de nos clients sur les produits EL ROPHE.' };
@@ -22,7 +22,7 @@ export default async function AvisPage() {
               <li key={t.id} className="card flex flex-col p-6">
                 <div className="flex items-center justify-between">
                   <Quote className="h-6 w-6 text-champagne" strokeWidth={1.4} aria-hidden="true" />
-                  <Stars rating={t.rating} />
+                  <RatingStars rating={t.rating} />
                 </div>
                 <blockquote className="mt-4 flex-1 font-serif text-[1.3rem] leading-snug">{t.text.replace(/^«\s*|\s*»$/g, '')}</blockquote>
                 <p className="mt-5 flex items-center gap-3 border-t border-line pt-4 text-[15px]">

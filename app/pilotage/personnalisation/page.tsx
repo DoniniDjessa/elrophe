@@ -9,6 +9,7 @@ import { defaultSettings } from '@/data/site';
 import type { Badge, SectionHeading, SettingsKey, SiteSettings, ThemeSettings } from '@/lib/types';
 import AdminGate, { MigrationNotice } from '../components/AdminGate';
 import { Field, ImageField, PageTitle, Switch } from '../components/ui';
+import { countries, countryName } from '@/lib/countries';
 
 /* ---------- Contraste WCAG ---------- */
 function luminance(hex: string) {
@@ -59,6 +60,7 @@ const tabs: { id: SettingsKey; label: string }[] = [
   { id: 'sections', label: 'Sections' },
   { id: 'brand', label: 'Marque & contact' },
   { id: 'shop', label: 'Boutique' },
+  { id: 'legal', label: 'Légal' },
 ];
 
 function Card({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
@@ -187,7 +189,7 @@ function Personnalisation() {
     setDirty((d) => new Set(d).add(tab));
   };
 
-  const { theme, hero, sections, brand, shop } = settings;
+  const { theme, hero, sections, brand, shop, legal } = settings;
   const checks = [
     { label: 'Texte blanc sur vert forêt (boutons)', ratio: contrast('#ffffff', theme.forest), min: 4.5 },
     { label: 'Titres sur fond principal', ratio: contrast(theme.ink, theme.bg_sage), min: 4.5 },
@@ -424,6 +426,34 @@ function Personnalisation() {
             </div>
           )}
 
+          {tab === 'legal' && (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card title="Société (mentions légales et CGV)">
+                <p className="rounded-md bg-amber-50 p-3 text-xs text-amber-900">
+                  Ces informations figurent sur les pages Mentions légales et Conditions générales de vente. Tant qu’un champ est vide, la page affiche « [à compléter] ».
+                  Faites valider ces pages par un juriste avant la mise en ligne.
+                </p>
+                <Field label="Raison sociale" value={legal.company} onChange={(v) => update('legal', { company: v })} placeholder="Ex. EL ROPHE SARL" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Forme juridique" value={legal.legal_form} onChange={(v) => update('legal', { legal_form: v })} placeholder="Ex. SARL, SAS, entreprise individuelle" />
+                  <Field label="Capital social" value={legal.capital} onChange={(v) => update('legal', { capital: v })} placeholder="Ex. 1 000 000 FCFA" />
+                  <Field label="N° RCCM" value={legal.rccm} onChange={(v) => update('legal', { rccm: v })} placeholder="Ex. CI-ABJ-2024-B-12345" />
+                  <Field label="N° de compte contribuable (NCC)" value={legal.ncc} onChange={(v) => update('legal', { ncc: v })} />
+                </div>
+                <Field label="Siège social" textarea rows={2} value={legal.address} onChange={(v) => update('legal', { address: v })} />
+                <Field label="Directeur de la publication" value={legal.director} onChange={(v) => update('legal', { director: v })} placeholder="Nom et fonction" />
+              </Card>
+              <Card title="Hébergement et mise à jour">
+                <Field label="Hébergeur du site" value={legal.host_name} onChange={(v) => update('legal', { host_name: v })} placeholder="Ex. Vercel Inc." />
+                <Field label="Adresse de l’hébergeur" textarea rows={2} value={legal.host_address} onChange={(v) => update('legal', { host_address: v })} />
+                <Field label="Date de dernière mise à jour" type="date" value={legal.updated_at} onChange={(v) => update('legal', { updated_at: v })} hint="Affichée en tête des Mentions légales et des CGV." />
+                <p className="text-xs text-slate-500">
+                  Coordonnées (e-mail, téléphone, adresse) : onglet Marque &amp; contact. Délais de livraison et politique de retour : onglet Boutique.
+                </p>
+              </Card>
+            </div>
+          )}
+
           {tab === 'brand' && (
             <div className="grid gap-6 lg:grid-cols-2">
               <Card title="Identité">
@@ -432,6 +462,57 @@ function Personnalisation() {
                 <Field label="Phrase du pied de page" textarea rows={2} value={brand.footer_text} onChange={(v) => update('brand', { footer_text: v })} />
                 <Field label="Bandeau d’annonce (haut de page)" value={brand.announcement} onChange={(v) => update('brand', { announcement: v })} hint="Laisser vide pour masquer le bandeau" />
                 <Field label="Slogan (sous le nom, menu mobile)" value={brand.slogan} onChange={(v) => update('brand', { slogan: v })} />
+              </Card>
+              <Card title="Pays de présence (drapeaux de l’en-tête)">
+                <p className="text-xs text-slate-500">Affichés à droite de la barre de navigation, dans cet ordre (4 au maximum). Pensez à enregistrer.</p>
+                <ul className="flex flex-wrap gap-2">
+                  {brand.countries.map((code, i) => (
+                    <li key={code} className="flex items-center gap-2 rounded-full border border-gray-300 py-1 pr-1 pl-2 text-sm">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={`https://flagcdn.com/${code}.svg`} alt="" className="h-5 w-5 rounded-full object-cover" />
+                      {countryName(code)}
+                      <button
+                        type="button"
+                        className="pz-btn pz-btn-ghost px-1.5! py-0.5!"
+                        aria-label={`Avancer ${countryName(code)}`}
+                        disabled={i === 0}
+                        onClick={() => {
+                          const next = [...brand.countries];
+                          [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                          update('brand', { countries: next });
+                        }}
+                      >
+                        ←
+                      </button>
+                      <button
+                        type="button"
+                        className="pz-btn pz-btn-ghost px-1.5! py-0.5!"
+                        aria-label={`Retirer ${countryName(code)}`}
+                        onClick={() => update('brand', { countries: brand.countries.filter((c) => c !== code) })}
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  ))}
+                  {brand.countries.length === 0 && <li className="text-sm text-slate-400">Aucun drapeau affiché.</li>}
+                </ul>
+                {brand.countries.length < 4 && (
+                  <select
+                    value=""
+                    onChange={(e) => e.target.value && update('brand', { countries: [...brand.countries, e.target.value] })}
+                    aria-label="Ajouter un pays"
+                    className="w-full border border-gray-300 bg-transparent px-3 py-2 text-black"
+                  >
+                    <option value="">+ Ajouter un pays…</option>
+                    {countries
+                      .filter((c) => !brand.countries.includes(c.code))
+                      .map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.name}
+                        </option>
+                      ))}
+                  </select>
+                )}
               </Card>
               <Card title="Logos">
                 <ImageField label="Emblème (barre de navigation et menu)" value={brand.icon_url} onChange={(v) => update('brand', { icon_url: v })} folder="brand" max={512} />

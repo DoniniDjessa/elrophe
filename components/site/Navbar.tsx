@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
-import { Banknote, ChevronRight, CircleHelp, HandHeart, Headset, Heart, House, Leaf, Menu, Package, Phone, Search, ShieldCheck, ShoppingBag, Truck, User, X } from 'lucide-react';
+import { ChevronRight, CircleHelp, HandHeart, Heart, House, Menu, Package, Phone, Search, ShieldCheck, ShoppingBag, Truck, User, X } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
-import Brand from './Brand';
+import Brand, { Wordmark } from './Brand';
+import Flags from './Flags';
 import { useCart } from './Providers';
 
 export const navLinks = [
@@ -18,12 +19,6 @@ export const navLinks = [
   { href: '/contact', label: 'Contact', Icon: Phone },
 ];
 
-const reassurance = [
-  { Icon: Leaf, label: 'Produits naturels sélectionnés' },
-  { Icon: Truck, label: 'Livraison rapide' },
-  { Icon: Banknote, label: 'Paiement à la livraison' },
-  { Icon: Headset, label: 'Service client dédié' },
-];
 
 const isActive = (pathname: string, href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
@@ -40,7 +35,7 @@ function CartButton({ count, className = '' }: { count: number; className?: stri
   );
 }
 
-export default function Navbar({ iconUrl, transparentOnHome = false }: { iconUrl: string; transparentOnHome?: boolean }) {
+export default function Navbar({ iconUrl, countries = [], transparentOnHome = false }: { iconUrl: string; countries?: string[]; transparentOnHome?: boolean }) {
   const pathname = usePathname() ?? '/';
   const router = useRouter();
   const { count } = useCart();
@@ -87,16 +82,12 @@ export default function Navbar({ iconUrl, transparentOnHome = false }: { iconUrl
 
   return (
     <>
-      {/* Réassurance (ordinateur) */}
-      <div className="hidden bg-forest text-ivory/90 lg:block">
-        <ul className="container-site flex h-10 items-center justify-center gap-10 text-[13px]">
-          {reassurance.map(({ Icon, label }) => (
-            <li key={label} className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-champagne" strokeWidth={1.6} aria-hidden="true" />
-              {label}
-            </li>
-          ))}
-        </ul>
+      {/* Bande d'information : un seul message */}
+      <div className="bg-forest text-ivory/90">
+        <p className="container-site flex h-9 items-center justify-center gap-2 text-[13px]">
+          <Truck className="h-4 w-4 text-champagne" strokeWidth={1.6} aria-hidden="true" />
+          Livraison fluide et rapide
+        </p>
       </div>
 
       <header
@@ -104,13 +95,14 @@ export default function Navbar({ iconUrl, transparentOnHome = false }: { iconUrl
           clear ? 'border-transparent bg-transparent text-ivory' : 'border-line bg-ivory/95 backdrop-blur-sm'
         }`}
       >
-        <div className="container-site grid h-16 grid-cols-[1fr_auto_1fr] items-center lg:h-20 lg:grid-cols-[auto_1fr_auto] lg:gap-8">
-          {/* Mobile : menu à gauche */}
-          <button type="button" onClick={() => setMenu(true)} className={`icon-btn -ml-2 lg:hidden ${clear ? 'text-ivory! hover:bg-ivory/10!' : ''}`} aria-label="Ouvrir le menu" aria-expanded={menu} aria-controls="mobile-menu">
-            <Menu className="h-6 w-6" strokeWidth={1.6} />
-          </button>
-
-          <Brand iconUrl={iconUrl} tone={clear ? 'light' : 'dark'} className="justify-self-center lg:justify-self-start" />
+        <div className="container-site grid h-16 grid-cols-[auto_1fr_auto] items-center gap-2 lg:h-20 lg:gap-8">
+          {/* Menu (mobile), logo puis pays de présence */}
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
+            <button type="button" onClick={() => setMenu(true)} className={`icon-btn -ml-2 shrink-0 lg:hidden ${clear ? 'text-ivory! hover:bg-ivory/10!' : ''}`} aria-label="Ouvrir le menu" aria-expanded={menu} aria-controls="mobile-menu">
+              <Menu className="h-6 w-6" strokeWidth={1.6} />
+            </button>
+            <Brand iconUrl={iconUrl} tone={clear ? 'light' : 'dark'} badge />
+          </div>
 
           <nav aria-label="Navigation principale" className="hidden justify-center lg:flex">
             <ul className="flex items-center gap-7 xl:gap-9">
@@ -140,7 +132,10 @@ export default function Navbar({ iconUrl, transparentOnHome = false }: { iconUrl
           </nav>
 
           <div className={`-mr-2 flex items-center justify-self-end ${clear ? '[&_.icon-btn]:text-ivory [&_.icon-btn:hover]:bg-ivory/10' : ''}`}>
-            <button type="button" onClick={() => setSearch(true)} className="icon-btn" aria-label="Rechercher un produit">
+            {/* Pays de présence, à droite avant les icônes */}
+            <Flags codes={countries} className="mr-1 hidden min-[380px]:flex sm:mr-2" />
+            {/* Mobile : la recherche est dans le menu */}
+            <button type="button" onClick={() => setSearch(true)} className="icon-btn hidden lg:inline-flex" aria-label="Rechercher un produit">
               <Search className="h-5 w-5" strokeWidth={1.6} />
             </button>
             <Link href="/compte" className="icon-btn hidden lg:inline-flex" aria-label="Mon compte et suivi de commande">
@@ -190,10 +185,7 @@ export default function Navbar({ iconUrl, transparentOnHome = false }: { iconUrl
             <div className="relative flex items-center justify-between gap-3 px-5 pt-6 pb-4">
               <Link href="/" onClick={() => setMenu(false)} className="flex min-w-0 items-center gap-3" aria-label="EL ROPHE — accueil">
                 <SmartImage src={iconUrl} alt="" width={1024} height={984} sizes="64px" className="h-14 w-auto shrink-0" />
-                <span className="min-w-0">
-                  <span className="block font-serif text-[1.6rem] leading-none tracking-[0.12em] text-forest">EL ROPHE</span>
-                  <span className="mt-1.5 block text-[9px] font-medium tracking-[0.28em] text-muted uppercase">Premium Natural Products</span>
-                </span>
+                <Wordmark size="lg" />
               </Link>
               <button
                 type="button"
@@ -205,6 +197,21 @@ export default function Navbar({ iconUrl, transparentOnHome = false }: { iconUrl
                 <X className="h-6 w-6" strokeWidth={1.4} />
               </button>
             </div>
+
+            <form
+              role="search"
+              onSubmit={(e) => {
+                setMenu(false);
+                submitSearch(e);
+              }}
+              className="relative px-5 pt-2"
+            >
+              <label htmlFor="menu-search" className="sr-only">
+                Rechercher un produit
+              </label>
+              <Search className="pointer-events-none absolute top-1/2 left-9 mt-1 h-5 w-5 -translate-y-1/2 text-muted" aria-hidden="true" />
+              <input id="menu-search" name="q" type="search" placeholder="Rechercher un produit…" className="field rounded-full! border-white/80! bg-white/80! pl-12!" />
+            </form>
 
             <nav aria-label="Navigation mobile" className="relative flex flex-1 flex-col px-4 pt-4">
               {navLinks.map(({ href, label, Icon }, i) => {

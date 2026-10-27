@@ -12,7 +12,7 @@ import DirectOrder, { SectionTitle } from './DirectOrder';
 
 const trustIcons = [Leaf, ShieldCheck, Truck, Headset];
 const aboutIcons = [Sprout, Leaf, Flower2, ShieldCheck];
-const column = 'mx-auto w-full max-w-3xl px-5 sm:px-8';
+const column = 'mx-auto w-full max-w-3xl px-3 sm:px-5';
 
 /** Pictogramme cerclé champagne + libellé, centré */
 function IconBadge({ Icon, label }: { Icon: typeof Leaf; label: string }) {

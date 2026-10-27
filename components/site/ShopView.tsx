@@ -64,7 +64,7 @@ export default function ShopView({ products, categories }: { products: Product[]
         Produits
       </h2>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
+        <div className="no-scrollbar -mx-3 flex gap-2 overflow-x-auto px-3 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
           {[{ slug: '', name: 'Tous' }, ...categories].map((c) => (
             <button key={c.slug || 'all'} type="button" aria-pressed={category === c.slug} onClick={() => setParam('categorie', c.slug)} className="chip">
               {c.name}

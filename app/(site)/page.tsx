@@ -5,21 +5,23 @@ import BestSellerSpotlight from '@/components/site/home/BestSellerSpotlight';
 import Engagements from '@/components/site/home/Engagements';
 import HomeHero from '@/components/site/home/HomeHero';
 import MaisonSplit from '@/components/site/home/MaisonSplit';
-import { getCategories, getProducts, getSettings } from '@/lib/data';
+import Testimonials from '@/components/site/home/Testimonials';
+import { getCategories, getProducts, getSettings, getTestimonials } from '@/lib/data';
 import { pickSpecialProduct } from '@/lib/landing';
 import { previewOrder } from '@/lib/preview';
 import { byRank } from '@/lib/ranking';
 
 /** Accueil : bannière, sélection, maison, engagements — rien de plus (cahier des charges) */
 export default async function HomePage() {
-  const [products, categories, { hero, shop }] = await Promise.all([getProducts(), getCategories(), getSettings()]);
+  const [products, categories, { hero, shop }, testimonials] = await Promise.all([getProducts(), getCategories(), getSettings(), getTestimonials()]);
   const special = pickSpecialProduct(products);
-  // Sélection : les 3 produits mis en avant dans la préversion (Pylor, Moringa, Curcuma), complétés par les meilleures ventes
-  const featured = previewOrder.slice(0, 3).flatMap((slug) => products.filter((p) => p.slug === slug && !p.coming_soon));
+  // Sélection (4 à 6 produits) : les produits mis en avant, puis les meilleures ventes, puis le reste du catalogue
+  const featured = previewOrder.flatMap((slug) => products.filter((p) => p.slug === slug));
   const selection = [
     ...featured,
-    ...products.filter((p) => !featured.includes(p) && p.is_bestseller && !p.coming_soon).sort(byRank('bestseller_order')),
-  ].slice(0, 3);
+    ...products.filter((p) => !featured.includes(p) && p.is_bestseller).sort(byRank('bestseller_order')),
+    ...products.filter((p) => !featured.includes(p) && !p.is_bestseller).sort(byRank('sort_order')),
+  ].slice(0, 6);
   const categoryName = (slug: string | null) => categories.find((c) => c.slug === slug)?.name ?? 'Complément alimentaire';
 
   return (
@@ -34,9 +36,10 @@ export default async function HomePage() {
               Une sélection pensée avec exigence.
             </h2>
           </div>
-          <ul className="no-scrollbar -mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0">
+          {/* 2 colonnes sur mobile ; sur ordinateur 4 produits sur une ligne, ou 3 par ligne au-delà */}
+          <ul className={`mt-10 grid grid-cols-2 gap-2 sm:gap-4 ${selection.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
             {selection.map((p) => (
-              <li key={p.id} className="w-[72%] shrink-0 snap-start sm:w-auto">
+              <li key={p.id}>
                 <ProductCard product={p} categoryName={categoryName(p.category_slug)} cta="discover" />
               </li>
             ))}
@@ -53,6 +56,7 @@ export default async function HomePage() {
 
       <MaisonSplit />
       <Engagements />
+      <Testimonials items={testimonials} />
     </>
   );
 }

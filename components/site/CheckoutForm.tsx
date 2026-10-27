@@ -216,6 +216,13 @@ export default function CheckoutForm({ shop }: { shop: ShopSettings }) {
           ))}
         </ul>
         <p className="mt-4 text-[13px] text-muted">Nous vous appelons pour confirmer avant l’expédition.</p>
+        <p className="mt-2 text-[13px] text-muted">
+          En confirmant votre commande, vous acceptez nos{' '}
+          <Link href="/conditions-generales-de-vente" className="underline hover:text-forest">
+            conditions générales de vente
+          </Link>
+          .
+        </p>
       </OrderSummary>
     </form>
   );
