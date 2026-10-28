@@ -2,15 +2,15 @@ import Link from 'next/link';
 import { ArrowRight, Award, Check } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
-import { landingOffers, offerSoldOut, SPECIAL_PATH } from '@/lib/landing';
+import { cardOffer, landingOffers, SPECIAL_PATH } from '@/lib/landing';
 import type { Product } from '@/lib/types';
 
 /** Carte « Notre best-seller » sous la sélection de l'accueil : mène à la page /best-seller (contenu : Pilotage › Produit spécial) */
 export default function BestSellerSpotlight({ product, currency }: { product: Product; currency: string }) {
   const landing = product.landing;
-  const offers = landingOffers(product);
-  const available = offers.filter((o) => !offerSoldOut(product, o));
-  const fromPrice = Math.min(...(available.length ? available : offers).map((o) => o.price));
+  // Variante mise en avant dans le pilotage, sinon la plus chère
+  const offer = cardOffer(product);
+  const several = landingOffers(product).length > 1;
   const text = landing?.hero_text || product.tagline || product.description;
   const points = (landing?.trust?.length ? landing.trust : product.highlights).slice(0, 3);
 
@@ -45,8 +45,8 @@ export default function BestSellerSpotlight({ product, currency }: { product: Pr
         <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4">
           {!product.coming_soon && (
             <p className="font-serif text-[1.8rem] leading-none font-semibold">
-              {offers.length > 1 && <span className="mr-1.5 text-[0.6em] font-normal text-ivory/70">dès</span>}
-              {formatPrice(fromPrice, currency)}
+              {several && <span className="mb-1.5 block font-sans text-[14px] font-normal text-ivory/70">{offer.label}</span>}
+              {formatPrice(offer.price, currency)}
             </p>
           )}
           <Link href={SPECIAL_PATH} className="btn btn-champagne">

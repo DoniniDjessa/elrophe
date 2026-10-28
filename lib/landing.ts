@@ -83,6 +83,7 @@ export function normalizeLanding(value: Partial<ProductLanding> | null | undefin
         units: Math.max(1, Math.floor(Number(o.units) || 1)),
         sold_out: !!o.sold_out,
         hidden: !!o.hidden,
+        card: !!o.card,
       })),
   };
 }
@@ -105,6 +106,7 @@ export const emptyVariant = (): LandingOffer => ({
   badge: '',
   sold_out: false,
   hidden: false,
+  card: false,
 });
 
 /** Variantes visibles du produit, sinon le produit à l'unité */
@@ -124,6 +126,18 @@ export function landingOffers(product: Product): LandingOffer[] {
       hidden: false,
     },
   ];
+}
+
+/**
+ * Variante affichée sur les cartes (boutique, best-seller) : la plus chère des variantes cochées dans le pilotage,
+ * ou la plus chère de toutes si aucune n'est cochée. Les variantes en rupture ne passent qu'en dernier recours.
+ */
+export function cardOffer(product: Product): LandingOffer {
+  const offers = landingOffers(product);
+  const available = offers.filter((o) => !offerSoldOut(product, o));
+  const pool = available.length ? available : offers;
+  const chosen = pool.filter((o) => o.card);
+  return (chosen.length ? chosen : pool).reduce((a, b) => (b.price > a.price ? b : a));
 }
 
 /** Rupture : cochée à la main, ou stock suivi insuffisant pour une offre */

@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CalendarCheck, Check, ChevronRight, FileText, Flower2, Leaf, Plus, Quote, ShieldCheck, Sprout } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
-import { formatPrice } from '@/lib/format';
-import { landingOffers, offerSoldOut, visible } from '@/lib/landing';
+import { visible } from '@/lib/landing';
 import type { Product, ProductLanding, ShopSettings } from '@/lib/types';
-import { useSite } from '../Providers';
 import Stars from '../Stars';
 import DirectOrder, { SectionTitle } from './DirectOrder';
 
@@ -37,12 +35,8 @@ export default function LandingPage({
   categoryName?: string;
   shop: ShopSettings;
 }) {
-  const { currency } = useSite();
   const [allIngredients, setAllIngredients] = useState(false);
   const show = landing.blocks;
-  const offers = landingOffers(product);
-  const fromPrice = Math.min(...offers.map((o) => o.price));
-  const allSoldOut = offers.every((o) => offerSoldOut(product, o));
   const heroImage = landing.hero_image || '/images/refonte/bestseller-feuillage.png';
   const subtitle = show.hero_text ? landing.hero_text || product.tagline || product.benefit : null;
   const about = show.about ? landing.about_text || product.description : null;
@@ -227,38 +221,6 @@ export default function LandingPage({
 
         <DirectOrder product={product} landing={landing} shop={shop} />
       </div>
-
-      <StickyOrderBar label={allSoldOut ? 'Voir les offres' : 'Commander'} price={formatPrice(fromPrice, currency)} />
     </>
-  );
-}
-
-/** Mobile : bouton « Commander » au-dessus de la barre d'onglets, masqué une fois le formulaire visible */
-function StickyOrderBar({ label, price }: { label: string; price: string }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const target = document.getElementById('commander');
-    const onScroll = () => {
-      const top = target?.getBoundingClientRect().top ?? Infinity;
-      setVisible(window.scrollY > 500 && top > window.innerHeight * 0.6);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  return (
-    <div
-      className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 px-4 pb-3 transition-all duration-300 lg:hidden ${
-        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
-      }`}
-      aria-hidden={!visible}
-    >
-      <a href="#commander" tabIndex={visible ? 0 : -1} className="btn btn-forest w-full justify-between! shadow-[var(--shadow-soft)]">
-        <span>{label}</span>
-        <span>{price}</span>
-      </a>
-    </div>
   );
 }

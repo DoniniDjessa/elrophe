@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import { formatPrice } from '@/lib/format';
-import { landingOffers, offerSoldOut } from '@/lib/landing';
+import { cardOffer, landingOffers, offerSoldOut } from '@/lib/landing';
 import type { Product } from '@/lib/types';
 import { useCart, useSite } from './Providers';
 
@@ -26,14 +26,12 @@ export default function ProductCard({
   const { add } = useCart();
   const { currency } = useSite();
   const href = `/produit/${product.slug}`;
-  const variants = landingOffers(product);
   const comingSoon = !!product.coming_soon;
-  const available = comingSoon ? undefined : variants.find((v) => !offerSoldOut(product, v));
+  // Variante mise en avant (choisie dans le pilotage, sinon la plus chère) : son libellé et son prix
+  const offer = cardOffer(product);
+  const several = landingOffers(product).length > 1;
+  const available = comingSoon || offerSoldOut(product, offer) ? undefined : offer;
   const soldOut = !available;
-  // « dès » : le plus petit prix parmi les formats disponibles
-  const priced = variants.filter((v) => !offerSoldOut(product, v));
-  const fromPrice = Math.min(...(priced.length ? priced : variants).map((v) => v.price));
-  const several = (priced.length ? priced : variants).length > 1;
   const format = product.landing?.format;
   const isPhoto = !!product.image_url && !product.image_url.endsWith('.svg');
 
@@ -69,10 +67,10 @@ export default function ProductCard({
           <div className="mt-auto flex w-full flex-col items-center pt-2">
             {/* Pas encore en vente : pas de prix (le badge sur la photo l'indique) */}
             {!comingSoon && (
-              <p className="font-serif text-[1.35rem] leading-tight font-semibold text-anthracite">
-                {several && <span className="mr-1 text-[0.8em] font-normal text-muted">dès</span>}
-                {formatPrice(fromPrice, currency)}
-              </p>
+              <>
+                {several && <p className="text-[13px] leading-tight text-muted">{offer.label}</p>}
+                <p className="font-serif text-[1.35rem] leading-tight font-semibold text-anthracite">{formatPrice(offer.price, currency)}</p>
+              </>
             )}
             <Link href={href} className="btn btn-forest mt-3 w-full max-w-60">
               Découvrir
@@ -84,8 +82,8 @@ export default function ProductCard({
             <p className="font-serif text-[1.15rem] leading-tight font-semibold sm:text-[1.25rem]">
               {!comingSoon && (
                 <>
-                  {several && <span className="block text-[12px] font-normal text-muted">dès</span>}
-                  {formatPrice(fromPrice, currency)}
+                  {several && <span className="block font-sans text-[12px] font-normal text-muted">{offer.label}</span>}
+                  {formatPrice(offer.price, currency)}
                 </>
               )}
             </p>

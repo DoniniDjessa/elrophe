@@ -72,6 +72,8 @@ export interface LandingOffer {
   sold_out: boolean;
   /** Masquée : ni affichée ni commandable */
   hidden: boolean;
+  /** Prix affiché sur la carte produit et le best-seller (aucune ou toutes cochées : le plus gros prix) */
+  card?: boolean;
 }
 
 export interface LandingFaq {

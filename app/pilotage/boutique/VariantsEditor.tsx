@@ -53,6 +53,7 @@ export default function VariantsEditor({ value, onChange }: { value: LandingOffe
             <div className="flex flex-wrap gap-6">
               <Switch label="Visible sur le site" checked={!v.hidden} onChange={(on) => update(i, { hidden: !on })} hint="Décochée : la variante est masquée aux clients." />
               <Switch label="En rupture de stock" checked={v.sold_out} onChange={(on) => update(i, { sold_out: on })} hint="Affichée avec le tag « Rupture de stock », non cochable." />
+              <Switch label="Prix affiché sur la carte" checked={!!v.card} onChange={(on) => update(i, { card: on })} hint="Carte produit et best-seller. Aucune ou toutes cochées : le plus gros prix." />
             </div>
           </div>
         </div>
@@ -73,4 +74,4 @@ export function variantsError(variants: LandingOffer[]): string | null {
 
 /** Nettoie les variantes pour l'enregistrement */
 export const cleanVariants = (variants: LandingOffer[]): LandingOffer[] =>
-  variants.map((v) => ({ ...v, label: v.label.trim(), price: Number(v.price), units: Math.max(1, Math.floor(Number(v.units) || 1)), hidden: !!v.hidden }));
+  variants.map((v) => ({ ...v, label: v.label.trim(), price: Number(v.price), units: Math.max(1, Math.floor(Number(v.units) || 1)), hidden: !!v.hidden, card: !!v.card }));
