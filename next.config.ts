@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Quota d'optimisation Vercel atteint : les images passent par wsrv.nl
+    loader: 'custom',
+    loaderFile: './image-loader.ts',
     remotePatterns: [{ protocol: 'https', hostname: 'tvhqldvmmbslrcbcwhhs.supabase.co', pathname: '/storage/v1/object/public/**' }],
   },
   turbopack: {
