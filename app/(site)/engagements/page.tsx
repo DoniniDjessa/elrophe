@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { engagements } from '@/components/site/home/Engagements';
+import { withIcons } from '@/components/site/home/Engagements';
 import PageHeader from '@/components/site/PageHeader';
+import { getSettings } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Nos engagements',
   description: 'Sélection exigeante, qualité documentée et transparence : les engagements de la maison EL ROPHE.',
 };
 
-export default function EngagementsPage() {
+export default async function EngagementsPage() {
+  const { home } = await getSettings();
   return (
     <>
       <PageHeader
@@ -19,8 +21,8 @@ export default function EngagementsPage() {
       />
       <section className="container-site pb-14 lg:pb-20">
         <ul className="mx-auto max-w-3xl divide-y divide-line border-y border-line">
-          {engagements.map(({ Icon, title, text }) => (
-            <li key={title} className="flex items-start gap-5 py-7">
+          {withIcons(home.engagements.items).map(({ Icon, title, text }, i) => (
+            <li key={i} className="flex items-start gap-5 py-7">
               <span className="ring-icon">
                 <Icon className="h-6 w-6" strokeWidth={1.3} aria-hidden="true" />
               </span>

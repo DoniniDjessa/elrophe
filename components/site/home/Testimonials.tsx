@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Quote, Star } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
-import type { Testimonial } from '@/lib/types';
+import type { HomeSettings, Testimonial } from '@/lib/types';
 
 /** Étoiles champagne (note sur 5) */
 export function RatingStars({ rating, className = '' }: { rating: number; className?: string }) {
@@ -16,16 +16,16 @@ export function RatingStars({ rating, className = '' }: { rating: number; classN
 }
 
 /** « Témoignages clients » de l'accueil : avis visibles de Pilotage › Avis clients (6 au plus) */
-export default function Testimonials({ items }: { items: Testimonial[] }) {
+export default function Testimonials({ items, heading }: { items: Testimonial[]; heading: HomeSettings['reviews'] }) {
   if (items.length === 0) return null;
   const shown = items.slice(0, 6);
   return (
     <section aria-labelledby="testimonials-title" className="border-t border-line bg-white/60 py-14 lg:py-20">
       <div className="container-site">
         <div className="text-center">
-          <p className="kicker kicker-lines">Témoignages clients</p>
+          <p className="kicker kicker-lines">{heading.kicker}</p>
           <h2 id="testimonials-title" className="title-lg mt-3 text-[clamp(1.9rem,4vw,2.7rem)]">
-            Ils partagent leur expérience.
+            {heading.title}
           </h2>
         </div>
         {/* Mobile : défilement horizontal ; ordinateur : grille */}

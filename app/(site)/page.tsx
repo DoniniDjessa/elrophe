@@ -13,7 +13,7 @@ import { byRank } from '@/lib/ranking';
 
 /** Accueil : bannière, sélection, maison, engagements — rien de plus (cahier des charges) */
 export default async function HomePage() {
-  const [products, categories, { hero, shop }, testimonials] = await Promise.all([getProducts(), getCategories(), getSettings(), getTestimonials()]);
+  const [products, categories, { hero, home, shop }, testimonials] = await Promise.all([getProducts(), getCategories(), getSettings(), getTestimonials()]);
   const special = pickSpecialProduct(products);
   // Sélection (4 à 6 produits) : les produits mis en avant, puis les meilleures ventes, puis le reste du catalogue
   const featured = previewOrder.flatMap((slug) => products.filter((p) => p.slug === slug));
@@ -26,14 +26,14 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeHero underNav={hero.transparent_nav} />
+      <HomeHero hero={hero} />
 
       {selection.length > 0 && (
         <section aria-labelledby="selection-title" className="container-site py-14 lg:py-20">
           <div className="text-center">
-            <p className="kicker kicker-lines">Notre sélection</p>
+            <p className="kicker kicker-lines">{home.selection.kicker}</p>
             <h2 id="selection-title" className="title-lg mt-3 text-[clamp(1.9rem,4vw,2.7rem)]">
-              Une sélection pensée avec exigence.
+              {home.selection.title}
             </h2>
           </div>
           {/* 2 colonnes sur mobile ; sur ordinateur 4 produits sur une ligne, ou 3 par ligne au-delà */}
@@ -44,7 +44,7 @@ export default async function HomePage() {
               </li>
             ))}
           </ul>
-          {special && <BestSellerSpotlight product={special} currency={shop.currency} />}
+          {special && home.spotlight.visible && <BestSellerSpotlight product={special} currency={shop.currency} card={home.spotlight} />}
           <div className="mt-10 text-center">
             <Link href="/boutique" className="btn btn-outline">
               Voir tous nos produits
@@ -54,9 +54,9 @@ export default async function HomePage() {
         </section>
       )}
 
-      <MaisonSplit />
-      <Engagements />
-      <Testimonials items={testimonials} />
+      <MaisonSplit maison={home.maison} />
+      <Engagements engagements={home.engagements} />
+      <Testimonials items={testimonials} heading={home.reviews} />
     </>
   );
 }

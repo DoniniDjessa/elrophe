@@ -10,7 +10,7 @@ export default async function ConfirmationPage() {
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-10 lg:py-20">
       <Suspense fallback={<div className="min-h-[50vh]" />}>
-        <Confirmation mobileMoneyInstructions={shop.mobile_money_instructions} phone={brand.phone} />
+        <Confirmation title={shop.order_success_title} message={shop.order_success_message} mobileMoneyInstructions={shop.mobile_money_instructions} phone={brand.phone} />
       </Suspense>
     </div>
   );

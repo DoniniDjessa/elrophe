@@ -31,6 +31,7 @@ export default function CrudList<T extends Row>({
   validate,
   imageField = 'image_url',
   embedded = false,
+  onChange,
 }: {
   table: Table;
   eyebrow: string;
@@ -44,8 +45,14 @@ export default function CrudList<T extends Row>({
   imageField?: keyof T;
   /** Intégré dans un onglet : pas de titre de page, juste la barre d'action */
   embedded?: boolean;
+  /** Appelé après chaque modification (ex. recharger les listes qui dépendent de cette table) */
+  onChange?: () => void;
 }) {
-  const { rows, loading, missing, reload } = useRows<T>(table);
+  const { rows, loading, missing, reload: reloadRows } = useRows<T>(table);
+  const reload = () => {
+    void reloadRows();
+    onChange?.();
+  };
   const [editing, setEditing] = useState<Partial<T> | null>(null);
   const [busy, setBusy] = useState(false);
 

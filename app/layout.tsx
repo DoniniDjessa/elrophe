@@ -3,6 +3,8 @@ import { Cormorant_Garamond, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { FacebookPixel } from '@/components/FacebookPixel';
 import { getSettings } from '@/lib/data';
+import { defaultSettings } from '@/data/site';
+import { themeToCss } from '@/lib/settings';
 import './globals.css';
 
 // Charte : titres en Cormorant Garamond, textes et interface en Inter
@@ -16,7 +18,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.elrophecare.com
 export async function generateMetadata(): Promise<Metadata> {
   const { brand } = await getSettings();
   const title = brand.seo_title || 'EL ROPHE | Produits Naturels Haut de Gamme';
-  const description = brand.seo_description || brand.footer_text;
+  const description = brand.seo_description || defaultSettings.brand.seo_description;
   return {
     metadataBase: new URL(siteUrl),
     title: { default: title, template: '%s | EL ROPHE' },
@@ -26,13 +28,23 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: '#17372C' };
+/** Couleur de la barre du navigateur mobile : vert forêt de la palette */
+export async function generateViewport(): Promise<Viewport> {
+  const { theme } = await getSettings();
+  return { themeColor: theme.forest };
+}
 
-// Couleurs fixées par la charte graphique (globals.css) : le thème du pilotage n'est plus injecté
+/** Palette de Pilotage › Personnalisation › Apparence, par-dessus les valeurs de globals.css */
+async function ThemeStyle() {
+  const { theme } = await getSettings();
+  return <style>{themeToCss(theme)}</style>;
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${cormorant.variable} ${inter.variable}`}>
       <body>
+        <ThemeStyle />
         <FacebookPixel />
         {children}
         <Toaster position="bottom-center" richColors closeButton />

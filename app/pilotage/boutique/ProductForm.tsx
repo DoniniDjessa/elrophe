@@ -118,12 +118,15 @@ export function toPayload(form: Partial<Product>) {
 export default function ProductForm({
   product,
   categories,
+  onCategoryCreated,
   nextOrder,
   onClose,
   onSaved,
 }: {
   product: Partial<Product>;
   categories: Category[];
+  /** Une catégorie vient d'être créée depuis le formulaire : recharger la liste */
+  onCategoryCreated: () => void;
   nextOrder: number;
   onClose: () => void;
   onSaved: () => void;
@@ -164,6 +167,22 @@ export default function ProductForm({
     onClose();
   };
 
+  /** Création rapide d'une catégorie sans quitter le produit (gestion complète : onglet Catégories) */
+  const createCategory = async () => {
+    const name = prompt('Nom de la nouvelle catégorie')?.trim();
+    if (!name) return;
+    const slug = slugify(name);
+    if (categories.some((c) => c.slug === slug)) {
+      set({ category_slug: slug });
+      return toast.info('Cette catégorie existe déjà : elle est sélectionnée');
+    }
+    const { error } = await insertRow<Category>(TABLES.categories, { name, slug, description: '', image_url: '', is_active: true, sort_order: categories.length + 1 });
+    if (error) return toast.error(error.includes('duplicate') ? 'Cette catégorie existe déjà' : error);
+    set({ category_slug: slug });
+    onCategoryCreated();
+    toast.success(`Catégorie « ${name} » créée`);
+  };
+
   const fail = (error: string) => {
     setSaving(false);
     toast.error(error.includes('duplicate') ? 'Ce slug existe déjà' : error);
@@ -186,10 +205,18 @@ export default function ProductForm({
         <Field label="Slug (URL)" value={form.slug} onChange={(v) => set({ slug: slugify(v) })} hint={`/produit/${form.slug || '…'}`} />
         <div>
           <label className="block" htmlFor="cat">Catégorie</label>
-          <select id="cat" value={form.category_slug ?? ''} onChange={(e) => set({ category_slug: e.target.value || null })} className="w-full border border-gray-300 bg-transparent px-3 py-2 text-black">
-            <option value="">— Aucune —</option>
-            {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-          </select>
+          <div className="flex gap-2">
+            <select id="cat" value={form.category_slug ?? ''} onChange={(e) => set({ category_slug: e.target.value || null })} className="min-w-0 flex-1 border border-gray-300 bg-transparent px-3 py-2 text-black">
+              <option value="">— Aucune —</option>
+              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}{c.is_active ? '' : ' (masquée)'}</option>)}
+              {/* Catégorie créée à l'instant, pas encore dans la liste rechargée */}
+              {form.category_slug && !categories.some((c) => c.slug === form.category_slug) && <option value={form.category_slug}>{form.category_slug}</option>}
+            </select>
+            <button type="button" className="pz-btn pz-btn-outline shrink-0" onClick={createCategory} title="Créer une catégorie">
+              <Plus className="h-3.5 w-3.5" />
+              Nouvelle
+            </button>
+          </div>
         </div>
         <Field label="Bénéfice court" value={form.benefit} onChange={(v) => set({ benefit: v })} placeholder="Ex. Énergie et vitalité au quotidien" />
         <Field label="Format et quantité" value={extra.format} onChange={(v) => setExtra({ format: v })} placeholder="Ex. 120 capsules | 500 mg" hint="Affiché sous le nom, sur les cartes et la fiche produit." />

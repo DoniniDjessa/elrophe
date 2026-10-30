@@ -3,21 +3,27 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
-import { Script } from '@/components/site/Typography';
 
-export default function Confirmation({ mobileMoneyInstructions, phone }: { mobileMoneyInstructions: string; phone: string }) {
+/** Titre et message modifiables dans Pilotage › Personnalisation › Boutique */
+export default function Confirmation({
+  title,
+  message,
+  mobileMoneyInstructions,
+  phone,
+}: {
+  title: string;
+  message: string;
+  mobileMoneyInstructions: string;
+  phone: string;
+}) {
   const params = useSearchParams();
   const number = params.get('n');
   const method = params.get('m');
   return (
     <div className="card mx-auto max-w-xl p-8 text-center sm:p-12">
       <CheckCircle2 className="mx-auto h-12 w-12 text-leaf" strokeWidth={1.4} aria-hidden="true" />
-      <h1 className="heading-xl mt-5 text-3xl sm:text-4xl">
-        Merci <Script className="text-[1.3em]">beaucoup</Script>
-      </h1>
-      <p className="mt-5 text-[15px] leading-relaxed text-ink-muted">
-        Votre commande est bien enregistrée. Nous vous appelons très vite pour confirmer la livraison.
-      </p>
+      <h1 className="heading-xl mt-5 text-3xl sm:text-4xl">{title}</h1>
+      {message && <p className="mt-5 text-[15px] leading-relaxed whitespace-pre-line text-ink-muted">{message}</p>}
       {number && (
         <p className="mt-6 rounded-2xl bg-sage-light/70 px-5 py-4 text-sm">
           Numéro de commande : <strong className="font-display text-base tracking-wide">{number}</strong>

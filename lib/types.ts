@@ -219,15 +219,17 @@ export interface Order {
 
 /* ---------- Réglages personnalisables depuis le pilotage ---------- */
 
+/**
+ * Palette de la charte (injectée en variables CSS sur <html>).
+ * Noms distincts de l'ancien thème « sauge » : les anciennes valeurs en base sont ignorées.
+ */
 export interface ThemeSettings {
-  bg_sage: string;
-  bg_sage_light: string;
-  surface_cream: string;
+  ivory: string;
   forest: string;
-  ink: string;
-  ink_muted: string;
-  leaf: string;
-  lime: string;
+  champagne: string;
+  anthracite: string;
+  muted: string;
+  sage: string;
 }
 
 export interface Badge {
@@ -236,69 +238,37 @@ export interface Badge {
   line2: string;
 }
 
+/** Bannière d'accueil (noms distincts de l'ancien hero : les anciennes valeurs en base sont ignorées) */
 export interface HeroSettings {
-  eyebrow: string;
-  eyebrow_accent: string;
-  title_line1: string;
-  title_line2: string;
-  script: string;
-  subtitle: string;
-  cta_label: string;
-  cta_href: string;
-  video_label: string;
-  video_sublabel: string;
-  video_url: string;
-  image_url: string;
-  image_alt: string;
-  badges: Badge[];
-  /** Texte tapé lettre par lettre au-dessus du surtitre (vide : masqué) */
-  typed_text: string;
-  /** Étiquette animée sur l'image (vide : masquée) */
-  recommended_label: string;
-  recommended_cta: string;
-  /** Vide : page du produit du moment */
-  recommended_href: string;
   /** Accueil : barre de navigation transparente posée sur l'image du hero (sinon fond clair) */
   transparent_nav: boolean;
+  kicker: string;
+  heading: string;
+  /** Seconde ligne du titre, en champagne */
+  heading_accent: string;
+  intro: string;
+  button_label: string;
+  button_href: string;
+  /** Photo de la bannière sur ordinateur (paysage, sujet à droite) */
+  photo_desktop: string;
+  /** Photo sur mobile (portrait), affichée sous le texte */
+  photo_mobile: string;
+  photo_alt: string;
 }
 
-export interface SectionHeading {
-  eyebrow: string;
-  eyebrow_accent: string;
+export interface Engagement {
   title: string;
-  script: string;
   text: string;
 }
 
-export interface Stat {
-  value: string;
-  label: string;
-}
-
-export interface RitualStep {
-  title: string;
-  text: string;
-}
-
-/** Habillage de la section « Produit du moment » ; le produit et ses textes se gèrent dans Boutique */
-export interface FeaturedSettings {
-  visible: boolean;
-  eyebrow: string;
-  eyebrow_accent: string;
-  script: string;
-  cta_label: string;
-}
-
-export interface SectionsSettings {
-  featured: FeaturedSettings;
-  solutions: SectionHeading & { visible: boolean };
-  categories: { title: string; link_label: string; visible: boolean };
-  bestsellers: SectionHeading & { visible: boolean };
-  philosophy: SectionHeading & { visible: boolean; image_url: string; stats: Stat[]; cta_label: string };
-  ritual: SectionHeading & { visible: boolean; steps: RitualStep[] };
-  ingredients: SectionHeading & { visible: boolean };
-  testimonials: SectionHeading & { visible: boolean };
-  newsletter: SectionHeading & { visible: boolean; button_label: string; success_message: string };
+/** Sections de l'accueil, de Notre maison et de Nos engagements */
+export interface HomeSettings {
+  selection: { kicker: string; title: string };
+  /** Carte « Notre best-seller » sous la sélection : champs vides = valeurs du produit spécial */
+  spotlight: { visible: boolean; badge: string; title: string; text: string; points: string[]; image_url: string; button_label: string; show_price: boolean };
+  maison: { kicker: string; title: string; paragraphs: string[]; button_label: string; image_url: string; image_alt: string };
+  engagements: { kicker: string; items: Engagement[] };
+  reviews: { kicker: string; title: string };
 }
 
 export interface SocialLinks {
@@ -310,21 +280,16 @@ export interface SocialLinks {
 
 export interface BrandSettings {
   name: string;
-  tagline: string;
-  footer_text: string;
+  /** Phrase du pied de page, sous l'emblème (une ligne par retour à la ligne) */
+  footer_quote: string;
   email: string;
   phone: string;
   whatsapp: string;
   address: string;
   hours: string;
   socials: SocialLinks;
-  announcement: string;
-  /** Logo complet (pied de page) */
-  logo_url: string;
-  /** Emblème seul (barre de navigation, menu mobile) */
+  /** Emblème seul (barre de navigation, pied de page) */
   icon_url: string;
-  /** Sous le nom dans le menu mobile */
-  slogan: string;
   /** Pays de présence : drapeaux de l'en-tête (codes ISO, ex. ci, in, us) */
   countries: string[];
   /** Bande défilante au-dessus de la barre de navigation (vide : masquée) */
@@ -344,6 +309,9 @@ export interface ShopSettings {
   delivery_info: string;
   /** Politique de retour, affichée sur les fiches produit */
   returns_info: string;
+  /** Page de confirmation après une commande */
+  order_success_title: string;
+  order_success_message: string;
 }
 
 /** Informations légales (Pilotage › Personnalisation › Légal) : mentions légales et CGV */
@@ -366,7 +334,7 @@ export interface LegalSettings {
 export interface SiteSettings {
   theme: ThemeSettings;
   hero: HeroSettings;
-  sections: SectionsSettings;
+  home: HomeSettings;
   brand: BrandSettings;
   shop: ShopSettings;
   legal: LegalSettings;

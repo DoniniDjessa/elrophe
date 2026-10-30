@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { ExternalLink, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
+import { ExternalLink, RotateCcw, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { db, isMissingTable, saveSetting, TABLES } from '@/lib/admin';
 import { mergeSettings } from '@/lib/settings';
 import { defaultSettings } from '@/data/site';
-import type { Badge, SectionHeading, SettingsKey, SiteSettings, ThemeSettings } from '@/lib/types';
+import type { SettingsKey, SiteSettings, ThemeSettings } from '@/lib/types';
 import AdminGate, { MigrationNotice } from '../components/AdminGate';
 import { Field, ImageField, PageTitle, Switch } from '../components/ui';
 import { countries, countryName } from '@/lib/countries';
@@ -27,37 +27,24 @@ function contrast(a: string, b: string) {
 }
 
 const themeFields: { key: keyof ThemeSettings; label: string; hint: string }[] = [
-  { key: 'bg_sage', label: 'Fond principal', hint: 'Vert sauge grisé de la page' },
-  { key: 'bg_sage_light', label: 'Fond clair', hint: 'Zones claires et reflets' },
-  { key: 'surface_cream', label: 'Surface crème', hint: 'Pilules, cartes, boutons ronds' },
-  { key: 'forest', label: 'Vert forêt', hint: 'Boutons principaux, onglet actif' },
-  { key: 'ink', label: 'Encre', hint: 'Titres et texte' },
-  { key: 'ink_muted', label: 'Texte secondaire', hint: 'Paragraphes' },
-  { key: 'leaf', label: 'Feuille (accent)', hint: 'Texte manuscrit, petits détails' },
-  { key: 'lime', label: 'Citron vert', hint: 'Pastille du panier' },
+  { key: 'forest', label: 'Vert forêt', hint: 'Bannière, pied de page, boutons principaux' },
+  { key: 'ivory', label: 'Ivoire', hint: 'Fond des pages, texte sur fond vert' },
+  { key: 'champagne', label: 'Champagne', hint: 'Accents, étoiles, bouton de la bannière' },
+  { key: 'anthracite', label: 'Anthracite', hint: 'Titres et texte' },
+  { key: 'muted', label: 'Texte secondaire', hint: 'Paragraphes' },
+  { key: 'sage', label: 'Sauge', hint: 'Petits détails, icônes' },
 ];
 
 const presets: { name: string; theme: ThemeSettings }[] = [
-  { name: 'Sauge (origine)', theme: defaultSettings.theme },
-  { name: 'Argile', theme: { bg_sage: '#D9CBB8', bg_sage_light: '#E9DFD1', surface_cream: '#F6F1EA', forest: '#4A2E1F', ink: '#241A14', ink_muted: '#5A4D44', leaf: '#9A5B2E', lime: '#E8B86A' } },
-  { name: 'Eucalyptus', theme: { bg_sage: '#BCCBC6', bg_sage_light: '#D6E0DC', surface_cream: '#F1F3EE', forest: '#173A3A', ink: '#142222', ink_muted: '#4A5755', leaf: '#2F7A6C', lime: '#A8E0C8' } },
-];
-
-const badgeIconOptions: { id: Badge['icon']; label: string }[] = [
-  { id: 'leaf', label: 'Feuille' },
-  { id: 'flask', label: 'Fiole' },
-  { id: 'ban', label: 'Interdit' },
-  { id: 'rabbit', label: 'Lapin' },
-  { id: 'sprout', label: 'Pousse' },
-  { id: 'shield', label: 'Bouclier' },
-  { id: 'droplet', label: 'Goutte' },
-  { id: 'sparkles', label: 'Éclat' },
+  { name: 'Charte EL ROPHE', theme: defaultSettings.theme },
+  { name: 'Terre', theme: { ivory: '#F5EFE6', forest: '#3B2A20', champagne: '#C9A774', anthracite: '#2B241F', muted: '#655A50', sage: '#8A7B66' } },
+  { name: 'Nuit', theme: { ivory: '#F2F2EE', forest: '#1C2A3A', champagne: '#C8B28A', anthracite: '#23262B', muted: '#5C6068', sage: '#6F7D86' } },
 ];
 
 const tabs: { id: SettingsKey; label: string }[] = [
   { id: 'theme', label: 'Apparence' },
-  { id: 'hero', label: 'Accueil — hero' },
-  { id: 'sections', label: 'Sections' },
+  { id: 'hero', label: 'Accueil — bannière' },
+  { id: 'home', label: 'Accueil — sections' },
   { id: 'brand', label: 'Marque & contact' },
   { id: 'shop', label: 'Boutique' },
   { id: 'legal', label: 'Légal' },
@@ -75,45 +62,26 @@ function Card({ title, children, aside }: { title: string; children: ReactNode; 
   );
 }
 
-/** Champs communs aux en-têtes de section */
-function HeadingFields<T extends SectionHeading>({ value, set }: { value: T; set: (patch: Partial<T>) => void }) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Field label="Surtitre" value={value.eyebrow} onChange={(v) => set({ eyebrow: v } as Partial<T>)} />
-      <Field label="Mot du surtitre en vert" value={value.eyebrow_accent} onChange={(v) => set({ eyebrow_accent: v } as Partial<T>)} />
-      <Field label="Titre" value={value.title} onChange={(v) => set({ title: v } as Partial<T>)} />
-      <Field label="Mot manuscrit" value={value.script} onChange={(v) => set({ script: v } as Partial<T>)} hint="Une fois par section maximum" />
-      <Field className="sm:col-span-2" label="Texte" textarea rows={2} value={value.text} onChange={(v) => set({ text: v } as Partial<T>)} />
-    </div>
-  );
-}
-
 function ThemePreview({ theme }: { theme: ThemeSettings }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200" style={{ background: theme.bg_sage }}>
-      <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-xs font-extrabold tracking-[0.3em]" style={{ color: theme.ink }}>ELROPHE</span>
-        <span className="flex gap-1 rounded-full p-1" style={{ background: theme.surface_cream }}>
-          <span className="rounded-full px-3 py-1 text-[10px] text-white" style={{ background: theme.forest }}>Accueil</span>
-          <span className="px-3 py-1 text-[10px]" style={{ color: theme.ink }}>Boutique</span>
-        </span>
-        <span className="relative h-7 w-7 rounded-full" style={{ background: theme.surface_cream }}>
-          <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full" style={{ background: theme.lime }} />
+    <div className="overflow-hidden rounded-lg border border-gray-200" style={{ background: theme.ivory }}>
+      <div className="px-4 pt-4 pb-6" style={{ background: theme.forest }}>
+        <p className="flex items-center gap-2 text-[9px] font-semibold tracking-[0.3em]" style={{ color: theme.champagne }}>
+          <span className="h-px w-5" style={{ background: theme.champagne }} />
+          EL ROPHE
+        </p>
+        <p className="mt-2 text-xl leading-tight" style={{ color: theme.ivory, fontFamily: 'var(--font-cormorant), serif' }}>
+          La nature nous inspire.
+          <span className="block" style={{ color: theme.champagne }}>La qualité nous distingue.</span>
+        </p>
+        <span className="mt-3 inline-block rounded-sm px-4 py-2 text-[10px] font-semibold tracking-widest" style={{ background: theme.champagne, color: theme.forest }}>
+          DÉCOUVRIR →
         </span>
       </div>
-      <div className="px-4 pt-3 pb-6" style={{ background: `radial-gradient(30rem 14rem at 0% 0%, ${theme.bg_sage_light}, transparent)` }}>
-        <p className="text-[9px] font-semibold tracking-[0.3em]" style={{ color: theme.ink }}>
-          COLLECTION <span style={{ color: theme.leaf }}>NATUREL</span>
-        </p>
-        <p className="mt-2 text-xl leading-tight font-extrabold" style={{ color: theme.ink, fontFamily: 'var(--font-ubuntu)' }}>
-          Le meilleur de la nature.
-        </p>
-        <p className="text-2xl italic" style={{ color: theme.leaf, fontFamily: 'cursive' }}>chaque jour.</p>
-        <p className="mt-1 text-xs" style={{ color: theme.ink_muted }}>Pur. Efficace. Responsable.</p>
-        <div className="mt-3 flex items-center gap-2">
-          <span className="rounded-full px-4 py-2 text-[10px] font-bold tracking-widest text-white" style={{ background: theme.forest }}>DÉCOUVRIR →</span>
-          <span className="rounded-2xl px-3 py-2 text-[10px]" style={{ background: theme.surface_cream, color: theme.ink }}>Carte produit</span>
-        </div>
+      <div className="px-4 py-4">
+        <p className="text-lg" style={{ color: theme.anthracite, fontFamily: 'var(--font-cormorant), serif' }}>Une sélection pensée avec exigence.</p>
+        <p className="mt-1 text-xs" style={{ color: theme.muted }}>Des produits choisis selon des critères de qualité clairement définis.</p>
+        <p className="mt-2 text-xs" style={{ color: theme.sage }}>★ Détail sauge</p>
       </div>
     </div>
   );
@@ -150,8 +118,8 @@ function Personnalisation() {
     setSettings((s) => ({ ...s, [key]: { ...s[key], ...patch } }));
     setDirty((d) => new Set(d).add(key));
   };
-  const updateSection = <K extends keyof SiteSettings['sections']>(key: K, patch: Partial<SiteSettings['sections'][K]>) =>
-    update('sections', { [key]: { ...settings.sections[key], ...patch } } as Partial<SiteSettings['sections']>);
+  const updateHome = <K extends keyof SiteSettings['home']>(key: K, patch: Partial<SiteSettings['home'][K]>) =>
+    update('home', { [key]: { ...settings.home[key], ...patch } } as Partial<SiteSettings['home']>);
 
   const save = async () => {
     setSaving(true);
@@ -189,12 +157,12 @@ function Personnalisation() {
     setDirty((d) => new Set(d).add(tab));
   };
 
-  const { theme, hero, sections, brand, shop, legal } = settings;
+  const { theme, hero, home, brand, shop, legal } = settings;
   const checks = [
-    { label: 'Texte blanc sur vert forêt (boutons)', ratio: contrast('#ffffff', theme.forest), min: 4.5 },
-    { label: 'Titres sur fond principal', ratio: contrast(theme.ink, theme.bg_sage), min: 4.5 },
-    { label: 'Texte secondaire sur fond principal', ratio: contrast(theme.ink_muted, theme.bg_sage), min: 4.5 },
-    { label: 'Accent manuscrit sur fond principal', ratio: contrast(theme.leaf, theme.bg_sage), min: 3 },
+    { label: 'Texte ivoire sur vert forêt (bannière, pied de page)', ratio: contrast(theme.ivory, theme.forest), min: 4.5 },
+    { label: 'Vert forêt sur champagne (bouton de la bannière)', ratio: contrast(theme.forest, theme.champagne), min: 4.5 },
+    { label: 'Titres sur fond ivoire', ratio: contrast(theme.anthracite, theme.ivory), min: 4.5 },
+    { label: 'Texte secondaire sur fond ivoire', ratio: contrast(theme.muted, theme.ivory), min: 4.5 },
   ];
 
   return (
@@ -236,7 +204,7 @@ function Personnalisation() {
                   {presets.map((p) => (
                     <button key={p.name} className="pz-btn pz-btn-outline" onClick={() => update('theme', p.theme)}>
                       <span className="flex">
-                        {[p.theme.bg_sage, p.theme.forest, p.theme.leaf].map((c) => (
+                        {[p.theme.ivory, p.theme.forest, p.theme.champagne].map((c) => (
                           <span key={c} className="-ml-1 h-3.5 w-3.5 rounded-full border border-white first:ml-0" style={{ background: c }} />
                         ))}
                       </span>
@@ -289,139 +257,129 @@ function Personnalisation() {
 
           {tab === 'hero' && (
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card title="Barre de navigation">
-                <Switch
-                  label="Transparente sur l’image d’accueil"
-                  checked={!!hero.transparent_nav}
-                  onChange={saveTransparentNav}
-                  hint="Enregistré dès le clic. Activée : la barre se pose sur la photo du hero et redevient claire au défilement. Désactivée : fond clair en permanence."
-                />
-              </Card>
-              <Card title="Textes">
-                <Field label="Texte tapé lettre par lettre (au-dessus du surtitre)" value={hero.typed_text} onChange={(v) => update('hero', { typed_text: v })} hint="Vide : masqué" />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Surtitre" value={hero.eyebrow} onChange={(v) => update('hero', { eyebrow: v })} />
-                  <Field label="Mot du surtitre en vert" value={hero.eyebrow_accent} onChange={(v) => update('hero', { eyebrow_accent: v })} />
-                </div>
-                <Field label="Titre — ligne 1" value={hero.title_line1} onChange={(v) => update('hero', { title_line1: v })} />
-                <Field label="Titre — ligne 2" value={hero.title_line2} onChange={(v) => update('hero', { title_line2: v })} />
-                <Field label="Ligne manuscrite" value={hero.script} onChange={(v) => update('hero', { script: v })} />
-                <Field label="Sous-texte" textarea rows={2} value={hero.subtitle} onChange={(v) => update('hero', { subtitle: v })} />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Bouton principal" value={hero.cta_label} onChange={(v) => update('hero', { cta_label: v })} />
-                  <Field label="Lien du bouton" value={hero.cta_href} onChange={(v) => update('hero', { cta_href: v })} />
-                  <Field label="Vidéo — titre" value={hero.video_label} onChange={(v) => update('hero', { video_label: v })} />
-                  <Field label="Vidéo — sous-titre" value={hero.video_sublabel} onChange={(v) => update('hero', { video_sublabel: v })} />
-                </div>
-                <Field label="Lien de la vidéo" value={hero.video_url} onChange={(v) => update('hero', { video_url: v })} hint="YouTube, Vimeo ou fichier .mp4. Vide : le bouton mène à « À propos »." />
-              </Card>
               <div className="space-y-6">
-                <Card title="Image principale">
-                  <ImageField label="Image détourée (PNG/WebP transparent conseillé)" value={hero.image_url} onChange={(v) => update('hero', { image_url: v })} folder="hero" aspect="aspect-[9/10]" max={1800} />
-                  <Field label="Texte alternatif (accessibilité)" value={hero.image_alt} onChange={(v) => update('hero', { image_alt: v })} />
-                </Card>
-                <Card title="Étiquette animée sur l’image">
+                <Card title="Textes de la bannière">
+                  <Field label="Surtitre" value={hero.kicker} onChange={(v) => update('hero', { kicker: v })} hint="Petit texte doré au-dessus du titre" />
+                  <Field label="Titre — ligne 1" value={hero.heading} onChange={(v) => update('hero', { heading: v })} />
+                  <Field label="Titre — ligne 2 (en champagne)" value={hero.heading_accent} onChange={(v) => update('hero', { heading_accent: v })} hint="Vide : une seule ligne" />
+                  <Field label="Texte d’introduction" textarea rows={3} value={hero.intro} onChange={(v) => update('hero', { intro: v })} />
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Texte" value={hero.recommended_label} onChange={(v) => update('hero', { recommended_label: v })} hint="Vide : étiquette masquée" />
-                    <Field label="Bouton" value={hero.recommended_cta} onChange={(v) => update('hero', { recommended_cta: v })} />
+                    <Field label="Bouton" value={hero.button_label} onChange={(v) => update('hero', { button_label: v })} hint="Vide : bouton masqué" />
+                    <Field label="Lien du bouton" value={hero.button_href} onChange={(v) => update('hero', { button_href: v })} placeholder="/boutique" />
                   </div>
-                  <Field label="Lien du bouton" value={hero.recommended_href} onChange={(v) => update('hero', { recommended_href: v })} placeholder="/produit/…" hint="Vide : page du produit spécial (/best-seller)" />
                 </Card>
-                <Card
-                  title="Badges de confiance"
-                  aside={
-                    <button className="pz-btn pz-btn-ghost" disabled={hero.badges.length >= 4} onClick={() => update('hero', { badges: [...hero.badges, { icon: 'leaf', line1: '', line2: '' }] })}>
-                      <Plus className="h-3.5 w-3.5" />Ajouter
-                    </button>
-                  }
-                >
-                  {hero.badges.map((b, i) => {
-                    const setBadge = (patch: Partial<Badge>) => update('hero', { badges: hero.badges.map((x, j) => (j === i ? { ...x, ...patch } : x)) });
-                    return (
-                      <div key={i} className="flex items-end gap-2">
-                        <div className="w-28">
-                          <label className="block" htmlFor={`badge-icon-${i}`}>Icône</label>
-                          <select id={`badge-icon-${i}`} value={b.icon} onChange={(e) => setBadge({ icon: e.target.value as Badge['icon'] })} className="w-full border border-gray-300 bg-transparent px-2 py-2 text-black">
-                            {badgeIconOptions.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                          </select>
-                        </div>
-                        <Field className="flex-1" label="Ligne 1" value={b.line1} onChange={(v) => setBadge({ line1: v })} />
-                        <Field className="flex-1" label="Ligne 2" value={b.line2} onChange={(v) => setBadge({ line2: v })} />
-                        <button className="pz-btn pz-btn-ghost mb-0.5 px-2! text-red-600!" aria-label="Retirer le badge" onClick={() => update('hero', { badges: hero.badges.filter((_, j) => j !== i) })}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    );
-                  })}
+                <Card title="Barre de navigation">
+                  <Switch
+                    label="Transparente sur l’image d’accueil"
+                    checked={!!hero.transparent_nav}
+                    onChange={saveTransparentNav}
+                    hint="Enregistré dès le clic. Activée : la barre se pose sur la photo de la bannière et redevient claire au défilement. Désactivée : fond clair en permanence."
+                  />
                 </Card>
               </div>
+              <Card title="Photo de la bannière">
+                <ImageField
+                  label="Ordinateur (paysage, sujet sur la moitié droite)"
+                  value={hero.photo_desktop}
+                  onChange={(v) => update('hero', { photo_desktop: v })}
+                  folder="hero"
+                  aspect="aspect-[16/9]"
+                  max={2400}
+                />
+                <ImageField
+                  label="Mobile (portrait, affichée sous le texte)"
+                  value={hero.photo_mobile}
+                  onChange={(v) => update('hero', { photo_mobile: v })}
+                  folder="hero"
+                  aspect="aspect-[3/4]"
+                  max={1400}
+                />
+                <p className="text-xs text-slate-500">Une seule photo renseignée : elle sert sur ordinateur comme sur mobile. Le côté gauche est assombri pour la lisibilité du texte.</p>
+                <Field label="Description de la photo (accessibilité)" value={hero.photo_alt} onChange={(v) => update('hero', { photo_alt: v })} />
+              </Card>
             </div>
           )}
 
-          {tab === 'sections' && (
+          {tab === 'home' && (
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card title="Produit spécial (sous le hero)" aside={<Switch label="Visible" checked={sections.featured.visible} onChange={(v) => updateSection('featured', { visible: v })} />}>
-                <p className="rounded-md bg-[var(--pz-50)] p-3 text-xs text-[var(--pz-700)]">
-                  Le produit et tout le contenu de sa page /best-seller se remplissent dans{' '}
-                  <a href="/pilotage/boutique?tab=produit-special" className="font-extrabold underline">Boutique › Produit spécial</a>.
-                </p>
+              <Card title="Notre sélection (produits de l’accueil)">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Surtitre" value={sections.featured.eyebrow} onChange={(v) => updateSection('featured', { eyebrow: v })} />
-                  <Field label="Mot du surtitre en vert" value={sections.featured.eyebrow_accent} onChange={(v) => updateSection('featured', { eyebrow_accent: v })} />
-                  <Field label="Mot manuscrit" value={sections.featured.script} onChange={(v) => updateSection('featured', { script: v })} />
-                  <Field label="Bouton" value={sections.featured.cta_label} onChange={(v) => updateSection('featured', { cta_label: v })} />
+                  <Field label="Surtitre" value={home.selection.kicker} onChange={(v) => updateHome('selection', { kicker: v })} />
+                  <Field label="Titre" value={home.selection.title} onChange={(v) => updateHome('selection', { title: v })} />
                 </div>
-              </Card>
-              <Card title="Solutions (sous le hero)" aside={<Switch label="Visible" checked={sections.solutions.visible} onChange={(v) => updateSection('solutions', { visible: v })} />}>
-                <HeadingFields value={sections.solutions} set={(p) => updateSection('solutions', p)} />
                 <p className="text-xs text-slate-500">
-                  Les cartes se gèrent dans <a href="/pilotage/solutions" className="font-extrabold underline">Catalogue › Solutions</a>.
+                  Les produits affichés se choisissent dans <a href="/pilotage/boutique?tab=meilleures-ventes" className="font-extrabold underline">Boutique › Meilleures ventes</a>.
                 </p>
               </Card>
-              <Card title="Acheter par catégorie" aside={<Switch label="Visible" checked={sections.categories.visible} onChange={(v) => updateSection('categories', { visible: v })} />}>
+              <Card title="Témoignages clients">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Titre" value={sections.categories.title} onChange={(v) => updateSection('categories', { title: v })} />
-                  <Field label="Lien « voir tout »" value={sections.categories.link_label} onChange={(v) => updateSection('categories', { link_label: v })} />
+                  <Field label="Surtitre" value={home.reviews.kicker} onChange={(v) => updateHome('reviews', { kicker: v })} />
+                  <Field label="Titre" value={home.reviews.title} onChange={(v) => updateHome('reviews', { title: v })} />
                 </div>
+                <p className="text-xs text-slate-500">
+                  Les avis se gèrent dans <a href="/pilotage/testimonials" className="font-extrabold underline">Avis clients</a>.
+                </p>
               </Card>
-              <Card title="Meilleures ventes" aside={<Switch label="Visible" checked={sections.bestsellers.visible} onChange={(v) => updateSection('bestsellers', { visible: v })} />}>
-                <HeadingFields value={sections.bestsellers} set={(p) => updateSection('bestsellers', p)} />
-              </Card>
-              <Card title="Notre philosophie" aside={<Switch label="Visible" checked={sections.philosophy.visible} onChange={(v) => updateSection('philosophy', { visible: v })} />}>
-                <HeadingFields value={sections.philosophy} set={(p) => updateSection('philosophy', p)} />
-                <Field label="Bouton" value={sections.philosophy.cta_label} onChange={(v) => updateSection('philosophy', { cta_label: v })} />
-                <ImageField label="Photo" value={sections.philosophy.image_url} onChange={(v) => updateSection('philosophy', { image_url: v })} folder="sections" aspect="aspect-[4/5]" />
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {sections.philosophy.stats.map((s, i) => (
-                    <div key={i} className="space-y-2 rounded-md border border-gray-200 p-3">
-                      <Field label={`Chiffre ${i + 1}`} value={s.value} onChange={(v) => updateSection('philosophy', { stats: sections.philosophy.stats.map((x, j) => (j === i ? { ...x, value: v } : x)) })} />
-                      <Field label="Libellé" value={s.label} onChange={(v) => updateSection('philosophy', { stats: sections.philosophy.stats.map((x, j) => (j === i ? { ...x, label: v } : x)) })} />
-                    </div>
-                  ))}
+              <Card title="Carte « Notre best-seller » (sous la sélection)" aside={<Switch label="Visible" checked={home.spotlight.visible} onChange={(v) => updateHome('spotlight', { visible: v })} />}>
+                <p className="rounded-md bg-[var(--pz-50)] p-3 text-xs text-[var(--pz-700)]">
+                  Le produit mis en avant se choisit dans{' '}
+                  <a href="/pilotage/boutique?tab=produit-special" className="font-extrabold underline">Boutique › Produit spécial</a>. Un champ laissé vide reprend la valeur
+                  du produit.
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Étiquette" value={home.spotlight.badge} onChange={(v) => updateHome('spotlight', { badge: v })} hint="Vide : masquée" />
+                  <Field label="Bouton" value={home.spotlight.button_label} onChange={(v) => updateHome('spotlight', { button_label: v })} hint="Vide : bouton masqué" />
                 </div>
+                <Field label="Titre" value={home.spotlight.title} onChange={(v) => updateHome('spotlight', { title: v })} placeholder="Vide : nom du produit" />
+                <Field label="Texte" textarea rows={3} value={home.spotlight.text} onChange={(v) => updateHome('spotlight', { text: v })} placeholder="Vide : accroche du produit" />
+                <Field
+                  label="Points forts (3 au maximum)"
+                  textarea
+                  rows={3}
+                  value={home.spotlight.points.join('\n')}
+                  onChange={(v) => updateHome('spotlight', { points: v.split('\n') })}
+                  placeholder="Vide : points forts du produit"
+                  hint="Un point par ligne."
+                />
+                <ImageField label="Photo (vide : photo du produit)" value={home.spotlight.image_url} onChange={(v) => updateHome('spotlight', { image_url: v })} folder="sections" aspect="aspect-[4/3]" />
+                <Switch label="Afficher le prix" checked={home.spotlight.show_price} onChange={(v) => updateHome('spotlight', { show_price: v })} />
               </Card>
-              <Card title="Le rituel" aside={<Switch label="Visible" checked={sections.ritual.visible} onChange={(v) => updateSection('ritual', { visible: v })} />}>
-                <HeadingFields value={sections.ritual} set={(p) => updateSection('ritual', p)} />
-                {sections.ritual.steps.map((s, i) => (
-                  <div key={i} className="grid gap-3 rounded-md border border-gray-200 p-3 sm:grid-cols-[1fr_2fr]">
-                    <Field label={`Étape 0${i + 1}`} value={s.title} onChange={(v) => updateSection('ritual', { steps: sections.ritual.steps.map((x, j) => (j === i ? { ...x, title: v } : x)) })} />
-                    <Field label="Texte" value={s.text} onChange={(v) => updateSection('ritual', { steps: sections.ritual.steps.map((x, j) => (j === i ? { ...x, text: v } : x)) })} />
+              <Card title="Notre maison (accueil et page Notre maison)">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Surtitre" value={home.maison.kicker} onChange={(v) => updateHome('maison', { kicker: v })} />
+                  <Field label="Bouton (accueil)" value={home.maison.button_label} onChange={(v) => updateHome('maison', { button_label: v })} hint="Vide : bouton masqué" />
+                </div>
+                <Field label="Titre" textarea rows={2} value={home.maison.title} onChange={(v) => updateHome('maison', { title: v })} hint="Un retour à la ligne = une nouvelle ligne du titre" />
+                <Field
+                  label="Texte"
+                  textarea
+                  rows={6}
+                  value={home.maison.paragraphs.join('\n\n')}
+                  onChange={(v) => updateHome('maison', { paragraphs: v.split(/\n\s*\n/) })}
+                  hint="Laissez une ligne vide entre deux paragraphes."
+                />
+                <ImageField label="Photo" value={home.maison.image_url} onChange={(v) => updateHome('maison', { image_url: v })} folder="sections" aspect="aspect-[4/3]" />
+                <Field label="Description de la photo (accessibilité)" value={home.maison.image_alt} onChange={(v) => updateHome('maison', { image_alt: v })} />
+              </Card>
+              <Card title="Nos engagements (accueil, Notre maison, Nos engagements)">
+                <Field label="Surtitre" value={home.engagements.kicker} onChange={(v) => updateHome('engagements', { kicker: v })} />
+                {home.engagements.items.map((e, i) => (
+                  <div key={i} className="space-y-2 rounded-md border border-gray-200 p-3">
+                    <Field
+                      label={`Engagement ${i + 1} — titre`}
+                      value={e.title}
+                      onChange={(v) => updateHome('engagements', { items: home.engagements.items.map((x, j) => (j === i ? { ...x, title: v } : x)) })}
+                    />
+                    <Field
+                      label="Texte"
+                      textarea
+                      rows={2}
+                      value={e.text}
+                      onChange={(v) => updateHome('engagements', { items: home.engagements.items.map((x, j) => (j === i ? { ...x, text: v } : x)) })}
+                    />
                   </div>
                 ))}
-              </Card>
-              <Card title="Ingrédients phares" aside={<Switch label="Visible" checked={sections.ingredients.visible} onChange={(v) => updateSection('ingredients', { visible: v })} />}>
-                <HeadingFields value={sections.ingredients} set={(p) => updateSection('ingredients', p)} />
-                <p className="text-xs text-slate-500">Les ingrédients se gèrent dans Catalogue › Ingrédients.</p>
-              </Card>
-              <Card title="Avis clients" aside={<Switch label="Visible" checked={sections.testimonials.visible} onChange={(v) => updateSection('testimonials', { visible: v })} />}>
-                <HeadingFields value={sections.testimonials} set={(p) => updateSection('testimonials', p)} />
-              </Card>
-              <Card title="Newsletter" aside={<Switch label="Visible" checked={sections.newsletter.visible} onChange={(v) => updateSection('newsletter', { visible: v })} />}>
-                <HeadingFields value={sections.newsletter} set={(p) => updateSection('newsletter', p)} />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Bouton" value={sections.newsletter.button_label} onChange={(v) => updateSection('newsletter', { button_label: v })} />
-                  <Field label="Message de confirmation" value={sections.newsletter.success_message} onChange={(v) => updateSection('newsletter', { success_message: v })} />
-                </div>
+                <p className="text-xs text-slate-500">Titre et texte vides : l’engagement est masqué. Icônes dans l’ordre : feuille, fiole, bouclier.</p>
               </Card>
             </div>
           )}
@@ -458,10 +416,14 @@ function Personnalisation() {
             <div className="grid gap-6 lg:grid-cols-2">
               <Card title="Identité">
                 <Field label="Nom de la marque" value={brand.name} onChange={(v) => update('brand', { name: v })} />
-                <Field label="Accroche (titre des pages)" value={brand.tagline} onChange={(v) => update('brand', { tagline: v })} />
-                <Field label="Phrase du pied de page" textarea rows={2} value={brand.footer_text} onChange={(v) => update('brand', { footer_text: v })} />
-                <Field label="Bandeau d’annonce (haut de page)" value={brand.announcement} onChange={(v) => update('brand', { announcement: v })} hint="Laisser vide pour masquer le bandeau" />
-                <Field label="Slogan (sous le nom, menu mobile)" value={brand.slogan} onChange={(v) => update('brand', { slogan: v })} />
+                <Field
+                  label="Phrase du pied de page"
+                  textarea
+                  rows={2}
+                  value={brand.footer_quote}
+                  onChange={(v) => update('brand', { footer_quote: v })}
+                  hint="Sous l’emblème, en italique. Un retour à la ligne = une nouvelle ligne. Vide : masquée."
+                />
               </Card>
               <Card title="Référencement (Google)">
                 <Field
@@ -540,9 +502,8 @@ function Personnalisation() {
                   </select>
                 )}
               </Card>
-              <Card title="Logos">
-                <ImageField label="Emblème (barre de navigation et menu)" value={brand.icon_url} onChange={(v) => update('brand', { icon_url: v })} folder="brand" max={512} />
-                <ImageField label="Logo complet (pied de page)" value={brand.logo_url} onChange={(v) => update('brand', { logo_url: v })} folder="brand" max={800} />
+              <Card title="Logo">
+                <ImageField label="Emblème (barre de navigation, menu et pied de page)" value={brand.icon_url} onChange={(v) => update('brand', { icon_url: v })} folder="brand" max={512} />
               </Card>
               <Card title="Contact">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -578,7 +539,16 @@ function Personnalisation() {
               <Card title="Paiement">
                 <Switch label="Paiement à la livraison" checked={shop.cash_on_delivery} onChange={(v) => update('shop', { cash_on_delivery: v })} />
                 <Switch label="Mobile Money" checked={shop.mobile_money} onChange={(v) => update('shop', { mobile_money: v })} />
-                <Field label="Instructions Mobile Money" textarea rows={3} value={shop.mobile_money_instructions} onChange={(v) => update('shop', { mobile_money_instructions: v })} />
+                <Field label="Instructions Mobile Money" textarea rows={3} value={shop.mobile_money_instructions} onChange={(v) => update('shop', { mobile_money_instructions: v })} hint="Affichées sur la page de confirmation quand le client a choisi Mobile Money." />
+              </Card>
+              <Card title="Confirmation de commande">
+                <p className="text-xs text-slate-500">Page affichée au client juste après sa commande, avec son numéro de commande.</p>
+                <Field label="Titre" value={shop.order_success_title} onChange={(v) => update('shop', { order_success_title: v })} />
+                <Field label="Message" textarea rows={4} value={shop.order_success_message} onChange={(v) => update('shop', { order_success_message: v })} hint="Les retours à la ligne sont conservés." />
+                <a href="/commande/confirmation?n=EXEMPLE" target="_blank" rel="noopener noreferrer" className="pz-btn pz-btn-outline self-start">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Voir la page
+                </a>
               </Card>
             </div>
           )}

@@ -51,7 +51,7 @@ export default function LandingPage({
         <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
           <SmartImage src={heroImage} alt="" fill preload sizes="100vw" className="object-cover lg:object-[70%_center]" />
           {/* Lisibilité du texte (grand écran) : dégradé vert forêt côté texte uniquement */}
-          <div aria-hidden="true" className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(23,55,44,0.92)_0%,rgba(23,55,44,0.7)_38%,transparent_62%)] lg:block" />
+          <div aria-hidden="true" className="absolute inset-0 hidden bg-[linear-gradient(90deg,color-mix(in_srgb,var(--forest)_92%,transparent)_0%,color-mix(in_srgb,var(--forest)_70%,transparent)_38%,transparent_62%)] lg:block" />
         </div>
         <div className="container-site relative pt-6 pb-6 lg:py-16">
           <div className="max-w-xl">

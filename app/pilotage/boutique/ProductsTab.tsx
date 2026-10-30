@@ -13,12 +13,14 @@ import ProductForm, { emptyProduct } from './ProductForm';
 export default function ProductsTab({
   rows,
   categories,
+  reloadCategories,
   loading,
   missing,
   reload,
 }: {
   rows: Product[];
   categories: Category[];
+  reloadCategories: () => void;
   loading: boolean;
   missing: boolean;
   reload: () => void;
@@ -160,7 +162,7 @@ export default function ProductsTab({
         )}
       </div>
 
-      {editing && <ProductForm product={editing} categories={categories} nextOrder={rows.length + 1} onClose={() => setEditing(null)} onSaved={reload} />}
+      {editing && <ProductForm product={editing} categories={categories} onCategoryCreated={reloadCategories} nextOrder={rows.length + 1} onClose={() => setEditing(null)} onSaved={reload} />}
     </>
   );
 }

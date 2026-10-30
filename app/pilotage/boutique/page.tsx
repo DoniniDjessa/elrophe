@@ -22,14 +22,15 @@ const tabs = [
 ] as const;
 type TabId = (typeof tabs)[number]['id'];
 
-function CategoriesTab() {
+function CategoriesTab({ onChange }: { onChange: () => void }) {
   return (
     <CrudList<Category>
       embedded
+      onChange={onChange}
       table={TABLES.categories}
       eyebrow="Boutique"
       title="Catégories"
-      subtitle="Affichées dans « Acheter par catégorie » et dans les filtres de la boutique, dans cet ordre."
+      subtitle="Filtres de la boutique et liens du pied de page, dans cet ordre. Une catégorie apparaît sur le site dès qu’un produit visible y est rattaché."
       itemLabel="une catégorie"
       emptyItem={{ slug: '', name: '', description: '', image_url: '', is_active: true }}
       summary={(c) => ({ image: c.image_url, title: c.name, subtitle: `/${c.slug} · ${c.description ?? ''}` })}
@@ -81,8 +82,8 @@ function Boutique() {
         ))}
       </div>
 
-      {tab === 'produits' && <ProductsTab rows={rows} categories={categories.rows} loading={products.loading} missing={products.missing} reload={products.reload} />}
-      {tab === 'categories' && <CategoriesTab />}
+      {tab === 'produits' && <ProductsTab rows={rows} categories={categories.rows} reloadCategories={categories.reload} loading={products.loading} missing={products.missing} reload={products.reload} />}
+      {tab === 'categories' && <CategoriesTab onChange={categories.reload} />}
       {tab === 'nouveautes' && <CollectionTab rows={rows} collection="is_new" label="Nouveautés" publicPath="/boutique?collection=nouveautes" reload={products.reload} />}
       {tab === 'meilleures-ventes' && <CollectionTab rows={rows} collection="is_bestseller" label="Meilleures ventes" publicPath="/boutique?collection=meilleures-ventes" reload={products.reload} />}
       {tab === 'produit-special' && <SpecialTab rows={rows} reload={products.reload} />}

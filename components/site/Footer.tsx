@@ -52,11 +52,15 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
       <div className="container-site grid gap-10 py-14 lg:grid-cols-[1.2fr_repeat(4,1fr)_1.3fr] lg:gap-8 lg:py-16">
         <div>
           <Brand iconUrl={brand.icon_url} tone="light" />
-          <p className="mt-5 font-serif text-lg leading-snug text-ivory italic">
-            La nature nous inspire.
-            <br />
-            La qualité nous distingue.
-          </p>
+          {brand.footer_quote.trim() && (
+            <p className="mt-5 font-serif text-lg leading-snug text-ivory italic">
+              {brand.footer_quote.split('\n').map((line, i) => (
+                <span key={i} className="block">
+                  {line}
+                </span>
+              ))}
+            </p>
+          )}
           {socials.length > 0 && (
             <ul className="mt-6 flex gap-2">
               {socials.map(({ href, label, Icon }) => (

@@ -8,7 +8,8 @@
   --ivory: #f6f3ec;
   --white: #ffffff;
   --forest: #17372c;
-  --forest-soft: #21473a;
+  /* Dérivé du vert forêt : suit la palette de Pilotage › Personnalisation › Apparence */
+  --forest-soft: color-mix(in srgb, var(--forest) 88%, white);
   --sage: #78816b;
   --champagne: #c4ad86;
   --anthracite: #302f2a;
