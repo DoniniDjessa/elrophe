@@ -331,6 +331,52 @@ export interface LegalSettings {
   updated_at: string;
 }
 
+/* ---------- Blog ---------- */
+
+export type BlogIcon =
+  | 'leaf' | 'zap' | 'droplet' | 'heart' | 'sparkles' | 'sun' | 'moon' | 'flask' | 'shield' | 'sprout'
+  | 'apple' | 'brain' | 'activity' | 'soup' | 'file' | 'refresh' | 'book' | 'flower';
+
+export interface BlogCategory {
+  slug: string;
+  name: string;
+  icon: BlogIcon;
+}
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  /** Texte de l'article : paragraphes séparés par une ligne vide, « ## » titre, « - » liste, « > » citation, ![légende](image) */
+  content: string;
+  cover_url: string | null;
+  cover_alt: string;
+  /** Catégorie du blog (Pilotage › Blog › Page du blog) */
+  category_slug: string | null;
+  author: string;
+  published_at: string;
+  reading_minutes: number;
+  views: number;
+  is_featured: boolean;
+  is_active: boolean;
+  sort_order: number;
+}
+
+/** Textes et visuels de la page /blog (Pilotage › Blog › Page du blog) */
+export interface BlogSettings {
+  hero: { kicker: string; title: string; text: string; image_url: string; search_placeholder: string };
+  all_label: string;
+  categories: BlogCategory[];
+  featured_label: string;
+  latest_title: string;
+  see_all_label: string;
+  show_views: boolean;
+  related_title: string;
+  newsletter: { visible: boolean; title: string; text: string; placeholder: string; button_label: string; success_message: string; image_url: string };
+  trust: { icon: BlogIcon; text: string }[];
+}
+
 export interface SiteSettings {
   theme: ThemeSettings;
   hero: HeroSettings;
@@ -338,6 +384,7 @@ export interface SiteSettings {
   brand: BrandSettings;
   shop: ShopSettings;
   legal: LegalSettings;
+  blog: BlogSettings;
 }
 
 export type SettingsKey = keyof SiteSettings;

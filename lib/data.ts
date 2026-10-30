@@ -5,7 +5,7 @@ import { applyPreview } from './preview';
 import { mergeSettings } from './settings';
 import { defaultSettings } from '@/data/site';
 import { fallbackCategories, fallbackIngredients, fallbackProducts, fallbackSolutions, fallbackTestimonials } from '@/data/catalog';
-import type { Category, Ingredient, Product, SiteSettings, Solution, Testimonial } from './types';
+import type { BlogPost, Category, Ingredient, Product, SiteSettings, Solution, Testimonial } from './types';
 
 /**
  * Tag commun à tout le contenu du site : le pilotage l'invalide après chaque modification.
@@ -94,4 +94,27 @@ export async function getSolutions(): Promise<Solution[]> {
 export async function getSolutionBySlug(slug: string): Promise<Solution | null> {
   const solutions = await getSolutions();
   return solutions.find((s) => s.slug === slug) ?? null;
+}
+
+/** Articles du blog visibles, du plus récent au plus ancien (table absente : aucun article) */
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  'use cache';
+  cacheLife('minutes');
+  cacheTag(SITE_TAG);
+  const { data, error } = await supabasePublic
+    .from('elrophe_blog_posts')
+    .select('*')
+    .eq('is_active', true)
+    .order('published_at', { ascending: false })
+    .order('sort_order');
+  if (error) {
+    console.warn(`[elrophe] elrophe_blog_posts indisponible : ${error.message}`);
+    return [];
+  }
+  return (data as BlogPost[]).map((p) => ({ ...p, views: Number(p.views) || 0, reading_minutes: Number(p.reading_minutes) || 0 }));
+}
+
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  const posts = await getBlogPosts();
+  return posts.find((p) => p.slug === slug) ?? null;
 }

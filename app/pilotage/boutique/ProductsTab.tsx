@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/format';
 import type { Category, Product } from '@/lib/types';
 import { MigrationNotice } from '../components/AdminGate';
 import { setFeatured, setInCollection, reorderProducts } from './actions';
+import { digesta } from '@/lib/preview';
 import ProductForm, { emptyProduct } from './ProductForm';
 
 export default function ProductsTab({
@@ -63,6 +64,25 @@ export default function ProductsTab({
   return (
     <>
       {missing && <MigrationNotice />}
+      {!loading && !missing && !rows.some((p) => p.slug === digesta.slug) && (
+        <div className="mb-4 flex flex-col gap-3 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            <strong>{digesta.name}</strong> s’affiche sur le site (« Bientôt disponible ») mais n’est pas encore dans la base : importez-le pour pouvoir le modifier ici.
+          </p>
+          <button
+            className="pz-btn pz-btn-primary shrink-0"
+            onClick={() => {
+              // Copie sans identifiant : l'enregistrement crée le produit en base
+              const fields: Partial<Product> = { ...digesta, sort_order: rows.length + 1 };
+              delete fields.id;
+              delete fields.coming_soon; // calculé à la lecture, pas une colonne
+              setEditing({ ...emptyProduct, ...fields });
+            }}
+          >
+            Importer
+          </button>
+        </div>
+      )}
       <div className="pz-card">
         <div className="pz-card-header flex-wrap">
           <div className="flex flex-wrap items-center gap-2">

@@ -13,6 +13,7 @@ export const TABLES = {
   solutions: 'elrophe_solutions',
   settings: 'elrophe_settings',
   newsletter: 'elrophe_newsletter',
+  blog: 'elrophe_blog_posts',
 } as const;
 
 type Table = (typeof TABLES)[keyof typeof TABLES];

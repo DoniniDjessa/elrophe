@@ -32,6 +32,11 @@ export default function CrudList<T extends Row>({
   imageField = 'image_url',
   embedded = false,
   onChange,
+  order = 'sort_order',
+  ascending = true,
+  sortable = true,
+  wide = false,
+  omitOnSave = [],
 }: {
   table: Table;
   eyebrow: string;
@@ -47,8 +52,17 @@ export default function CrudList<T extends Row>({
   embedded?: boolean;
   /** Appelé après chaque modification (ex. recharger les listes qui dépendent de cette table) */
   onChange?: () => void;
+  /** Ordre de la liste (par défaut : sort_order croissant) */
+  order?: string;
+  ascending?: boolean;
+  /** Flèches pour réordonner (inutiles si la liste suit une date) */
+  sortable?: boolean;
+  /** Formulaire large */
+  wide?: boolean;
+  /** Colonnes jamais renvoyées à l'enregistrement (ex. compteur tenu par le serveur) */
+  omitOnSave?: string[];
 }) {
-  const { rows, loading, missing, reload: reloadRows } = useRows<T>(table);
+  const { rows, loading, missing, reload: reloadRows } = useRows<T>(table, order, ascending);
   const reload = () => {
     void reloadRows();
     onChange?.();
@@ -64,6 +78,7 @@ export default function CrudList<T extends Row>({
     const { id, ...payload } = editing as Partial<T> & { id?: string; created_at?: string; updated_at?: string };
     delete payload.created_at;
     delete payload.updated_at;
+    for (const key of omitOnSave) delete (payload as Record<string, unknown>)[key];
     const { error } = id ? await updateRow<T>(table, id, payload as Partial<T>) : await insertRow<T>(table, { ...payload, sort_order: rows.length + 1 } as Partial<T>);
     setBusy(false);
     if (error) return toast.error(error.includes('duplicate') ? 'Cet identifiant existe déjà' : error);
@@ -134,7 +149,7 @@ export default function CrudList<T extends Row>({
               return (
                 <li key={row.id} className={`flex flex-col gap-3 p-4 sm:flex-row sm:items-center ${row.is_active ? '' : 'opacity-60'}`}>
                   <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <span className={`pz-rank ${index === 0 ? 'is-top' : ''}`}>{index + 1}</span>
+                    {sortable && <span className={`pz-rank ${index === 0 ? 'is-top' : ''}`}>{index + 1}</span>}
                     {s.image !== undefined && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={s.image || ''} alt="" className="h-12 w-12 shrink-0 rounded-md border border-gray-200 bg-gray-50 object-cover" />
@@ -146,8 +161,12 @@ export default function CrudList<T extends Row>({
                   </div>
                   <div className="flex flex-wrap items-center gap-1">
                     <span className={`pz-badge mr-2 ${row.is_active ? 'pz-badge-up' : 'pz-badge-neutral'}`}>{row.is_active ? 'Visible' : 'Masqué'}</span>
-                    <button className="pz-btn pz-btn-ghost px-2!" disabled={index === 0} onClick={() => move(index, -1)} aria-label="Monter"><ArrowUp className="h-3.5 w-3.5" /></button>
-                    <button className="pz-btn pz-btn-ghost px-2!" disabled={index === rows.length - 1} onClick={() => move(index, 1)} aria-label="Descendre"><ArrowDown className="h-3.5 w-3.5" /></button>
+                    {sortable && (
+                      <>
+                        <button className="pz-btn pz-btn-ghost px-2!" disabled={index === 0} onClick={() => move(index, -1)} aria-label="Monter"><ArrowUp className="h-3.5 w-3.5" /></button>
+                        <button className="pz-btn pz-btn-ghost px-2!" disabled={index === rows.length - 1} onClick={() => move(index, 1)} aria-label="Descendre"><ArrowDown className="h-3.5 w-3.5" /></button>
+                      </>
+                    )}
                     <button className="pz-btn pz-btn-ghost px-2!" onClick={() => toggle(row)} aria-label={row.is_active ? 'Masquer' : 'Afficher'}>
                       {row.is_active ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </button>
@@ -165,6 +184,7 @@ export default function CrudList<T extends Row>({
         <Modal
           title={editing.id ? 'Modifier' : `Ajouter ${itemLabel}`}
           onClose={() => setEditing(null)}
+          wide={wide}
           footer={
             <>
               <button className="pz-btn pz-btn-outline" onClick={() => setEditing(null)}>Annuler</button>

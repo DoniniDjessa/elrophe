@@ -15,8 +15,11 @@ export const previewVisuals: Record<string, { from: string; to: string }> = {
 /** Ordre de mise en avant : accueil (3 premiers) et tête de « Nos produits » (4) */
 export const previewOrder = ['pylor-health-sulfomas', 'moringa-vitalite', 'curcuma-poivre-noir', 'digesta-premium'];
 
-/** Digesta Premium : pas encore au catalogue, affiché « Bientôt disponible » (ni prix ni commande) */
-const digesta: Product = {
+/**
+ * Digesta Premium : pas encore en base, ajouté à l’affichage « Bientôt disponible » (ni prix ni commande).
+ * Pilotage › Boutique propose de l’importer : dès qu’il existe en base, c’est la version de la base qui s’affiche.
+ */
+export const digesta: Product = {
   id: 'preview-digesta-premium',
   slug: 'digesta-premium',
   name: 'Digesta Premium',

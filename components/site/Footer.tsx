@@ -26,6 +26,7 @@ export default function Footer({ brand, categories }: { brand: BrandSettings; ca
         { href: '/notre-maison', label: 'Notre histoire' },
         { href: '/engagements', label: 'Nos engagements' },
         { href: '/avis', label: 'Avis clients' },
+        { href: '/blog', label: 'Blog' },
       ],
     },
     {

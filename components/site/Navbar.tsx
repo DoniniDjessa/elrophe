@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
-import { ChevronRight, CircleHelp, HandHeart, Heart, House, Menu, Package, Phone, Search, ShieldCheck, ShoppingBag, User, X } from 'lucide-react';
+import { BookOpen, ChevronRight, CircleHelp, HandHeart, Heart, House, Menu, Package, Phone, Search, ShieldCheck, ShoppingBag, User, X } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
 import Brand, { Wordmark } from './Brand';
 import Flags from './Flags';
@@ -15,6 +15,7 @@ export const navLinks = [
   { href: '/boutique', label: 'Nos produits', Icon: ShoppingBag },
   { href: '/notre-maison', label: 'Notre maison', Icon: HandHeart },
   { href: '/engagements', label: 'Nos engagements', Icon: ShieldCheck },
+  { href: '/blog', label: 'Blog', Icon: BookOpen },
   { href: '/faq', label: 'FAQ', Icon: CircleHelp },
   { href: '/contact', label: 'Contact', Icon: Phone },
 ];
