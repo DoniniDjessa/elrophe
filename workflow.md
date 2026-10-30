@@ -66,8 +66,8 @@ Colonne gauche :
 - Sous-texte : « Pur. Efficace. Responsable. Des produits naturels pensés pour vous. »
 - Actions : bouton pilule --forest « DÉCOUVRIR » + flèche → ; à côté, bouton rond crème avec
   icône lecture + texte « Notre engagement » / « Voir la vidéo ».
-- Rangée de 4 badges de confiance (icône au trait dans un cercle fin + libellé sur 2 lignes) :
-  Ingrédients naturels · Testé en laboratoire · Sans additifs · Non testé sur les animaux.
+- Rangée de 3 badges de confiance (icône au trait dans un cercle fin + libellé sur 2 lignes) :
+  Ingrédients naturels · Testé en laboratoire · Sans additifs.
 
 Colonne droite :
 - Image principale : `public/images/hero-capsule.png` (déjà fournie), via `next/image`, priority.

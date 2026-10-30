@@ -56,8 +56,7 @@ export const defaultSettings: SiteSettings = {
   brand: {
     countries: ['in', 'ca', 'us'],
     seo_title: 'EL ROPHE | Produits Naturels Haut de Gamme',
-    seo_description:
-      'Découvrez EL ROPHE, une maison de produits naturels haut de gamme. Formulations sélectionnées avec exigence, qualité et transparence pour votre bien-être.',
+    seo_description: 'Maison de produits naturels premium pour votre bien-être.',
     marquee: ['Livraison fluide et rapide', 'Paiement à la livraison', 'Produits naturels sélectionnés', 'Service client à votre écoute'],
     name: 'El Rophe',
     footer_quote: 'La nature nous inspire.\nLa qualité nous distingue.',
