@@ -143,7 +143,9 @@ export default function ProductForm({
   const setExtra = (patch: Partial<ProductLanding>) => set({ landing: { ...extra, ...form.landing, ...patch } });
 
   const save = async () => {
-    if (!form.name?.trim() || !form.price) return toast.error('Nom et prix obligatoires');
+    if (!form.name?.trim()) return toast.error('Nom obligatoire');
+    // Prix à 0 autorisé : produit annoncé « Bientôt disponible »
+    if (form.price == null || Number.isNaN(form.price) || form.price < 0) return toast.error('Prix invalide');
     const invalid = variantsError(form.landing?.offers ?? []);
     if (invalid) return toast.error(invalid);
     setSaving(true);
@@ -220,7 +222,7 @@ export default function ProductForm({
         </div>
         <Field label="Bénéfice court" value={form.benefit} onChange={(v) => set({ benefit: v })} placeholder="Ex. Énergie et vitalité au quotidien" />
         <Field label="Format et quantité" value={extra.format} onChange={(v) => setExtra({ format: v })} placeholder="Ex. 120 capsules | 500 mg" hint="Affiché sous le nom, sur les cartes et la fiche produit." />
-        <Field label="Prix (FCFA)" type="number" required value={form.price} onChange={(v) => set({ price: Number(v) })} />
+        <Field label="Prix (FCFA)" type="number" required value={form.price} onChange={(v) => set({ price: Number(v) })} hint="0 : affiché « Bientôt disponible », sans commande possible" />
         <Field label="Prix barré (optionnel)" type="number" value={form.compare_at_price} onChange={(v) => set({ compare_at_price: num(v) })} />
         <Field label="Stock" type="number" value={form.stock} onChange={(v) => set({ stock: num(v) })} hint="Laisser vide pour ne pas suivre le stock" />
         <div className="grid grid-cols-2 gap-3">
